@@ -122,6 +122,7 @@
     <tool file="phenotype_association/sift.xml" />
     <tool file="phenotype_association/linkToGProfile.xml" />
 <<<<<<< Upstream, based on origin/master
+<<<<<<< Upstream, based on origin/master
 =======
 
 
@@ -540,6 +541,8 @@
 
 
 >>>>>>> 185abf2 AMP-93: added ffmpeg tool for testing
+=======
+>>>>>>> f998191 AMP-93: remove blank lines
     <tool file="phenotype_association/linkToDavid.xml" />
     <tool file="phenotype_association/ldtools.xml" />
     <tool file="phenotype_association/pass.xml" />
