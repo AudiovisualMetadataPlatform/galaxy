@@ -17,7 +17,7 @@ galaxy_base_directory = $4
 log_file = ${galaxy_base_directory}/tools/aws/${job_name}.log
 
 #upload media file from local Galaxy source file to S3 directory
-aws s3 cp $input_file $s3_bucket_directory
+aws s3 cp $input_file $s3_bucket_directory > $log_file
 
 # TODO below can be improved to add a SeqNo to the job directory name so that history is preserved.
 # The current SeqNo will be the one more than the last SeqNo, which in turn can be determined from all existing job directories under aws sub directory
@@ -28,7 +28,7 @@ request_file = ${galaxy_base_directory}/tools/aws/${job_name}_request.json
 jq -n '{ "TranscriptionJobName": "${job_name}", "LanguageCode": "en-US", "MediaFormat": "wav", "Media": { "MediaFileUri": "${s3_bucket_directory}/${input_file}" } }' > ${request_file}
  
 # submit transcribe job
-aws transcribe start-transcription-job --cli-input-json file://${request_file}
+aws transcribe start-transcription-job --cli-input-json file://${request_file} > $log_file
 
 # wait while job is running
 while [ `aws transcribe get-transcription-job --transcription-job-name "${job_name}" --query "TranscriptionJob"."TranscriptionJobStatus"` = "IN_PROGRESS" ] 
@@ -38,16 +38,22 @@ done
 
 # retrieve job response
 response_file = `aws transcribe get-transcription-job --transcription-job-name "${job_name}" > ${job_name}_response.json`
-cat $response_file 
-
-# if job succeeded, retrive output file URL and download output file from the URL to galaxy output file location
-
-transcript_file_uri = `jq '.TranscriptionJob.Transcript.TranscriptFileUri' < $response_file`
-aws s3 cp $transcript_file_uri $output_file
-echo "Job ${job_name} completed in success!" > $log_file
-
-
+job_status = `jq '.TranscriptionJob.TranscriptionJobStatus' < $response_file`
 cat $response_file > $log_file
+
+# if job succeeded, retrieve output file URL and download output file from the URL to galaxy output file location
+if [ ${job_status} = 'COMPLETED' ]
+    transcript_file_uri = `jq '.TranscriptionJob.Transcript.TranscriptFileUri' < $response_file`
+    aws s3 cp $transcript_file_uri $output_file > $log_file
+    echo "Job ${job_name} completed in success!" > $log_file
+elif [ ${job_status} = 'FAILED' ]
+    echo "Job ${job_name} failed!" > $log_file
+    exit 1
+else
+    echo "Job ${job_name} ended in unexpected status: ${job_status}" > $log_file
+    exit 2
+fi
+
 
 
 
