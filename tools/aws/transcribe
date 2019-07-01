@@ -64,8 +64,7 @@ echo "aws transcribe start-transcription-job --cli-input-json file://${request_f
 #aws transcribe start-transcription-job --cli-input-json file://${request_file} >> $log_file 2>&1
 
 # wait while job is running
-#while [ `aws transcribe get-transcription-job --transcription-job-name "${job_name}" --query "TranscriptionJob"."TranscriptionJobStatus" | sed -e 's/"//g'` = "IN_PROGRESS" ] 
-while [ `aws transcribe get-transcription-job --transcription-job-name "${job_name}" --query "TranscriptionJob"."TranscriptionJobStatus" | sed -e 's/"//g'` = "COMPLETED" ] 
+while [ `aws transcribe get-transcription-job --transcription-job-name "${job_name}" --query "TranscriptionJob"."TranscriptionJobStatus" | sed -e 's/"//g'` = "IN_PROGRESS" ] 
 do
 	echo "Waiting for ${job_name} to finish ..." >> $log_file 2>&1
     sleep 60s
