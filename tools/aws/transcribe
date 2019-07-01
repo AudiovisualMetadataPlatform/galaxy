@@ -33,16 +33,13 @@ else
     seqNo=$((last_seqNo+1))
 fi
 
-seqNo=5 #debug
 job_name=${job_name_prefix}-${seqNo}
 log_file=${job_directory}/${job_name}.log
-echo "echo ${input_file} ${output_file} ${audio_format} ${s3_bucket} ${s3_directory} ${job_directory} ${job_name} >> $log_file 2>&1" #debug
-
-#: << '_comment'
+echo "echo ${input_file} ${output_file} ${audio_format} ${s3_bucket} ${s3_directory} ${job_directory} ${job_name} >> $log_file 2>&1" # debug
 
 # upload media file from local Galaxy source file to S3 directory
-#aws s3 cp ${input_file} s3://${s3_bucket}/${s3_directory}/ >> $log_file 2>&1
-echo "aws s3 cp ${input_file} s3://${s3_bucket}/${s3_directory}/ >> $log_file 2>&1"
+echo "Uploading ${input_file} to s3://${s3_bucket}/${s3_directory}/" >> $log_file 2>&1 
+aws s3 cp ${input_file} s3://${s3_bucket}/${s3_directory}/ >> $log_file 2>&1
 
 # create json file in the aws directory, i.e. <job_directory>/<job_name>_request.json
 request_file=${job_directory}/${job_name}-request.json
@@ -55,18 +52,19 @@ media_file_url="http://${s3_bucket}.s3.amazonaws.com/${s3_directory}/${input_fil
 ### use the last extention as the file format
 ### input_file_format=${input_file_name##*.}
 
-#jq -n '{ "TranscriptionJobName": "${job_name}", "LanguageCode": "en-US", "MediaFormat": "${audio_format}", "Media": { "MediaFileUri": "${s3_bucket_directory}/${input_file_name}" } }' > ${request_file}
-jq -n "{ \"TranscriptionJobName\": \"${job_name}\", \"LanguageCode\": \"en-US\", \"MediaFormat\": \"${audio_format}\", \"Media\": { \"MediaFileUri\": \"${media_file_url}\" } }" > ${request_file}
- 
+# use user specified bucket for output for easier access control
+#jq -n "{ \"TranscriptionJobName\": \"${job_name}\", \"LanguageCode\": \"en-US\", \"MediaFormat\": \"${audio_format}\", \"Media\": { \"MediaFileUri\": \"${media_file_url}\" } }" > ${request_file}
+jq -n "{ \"TranscriptionJobName\": \"${job_name}\", \"LanguageCode\": \"en-US\", \"MediaFormat\": \"${audio_format}\", \"Media\": { \"MediaFileUri\": \"${media_file_url}\" }, \"OutputBucketName\": \"${s3_bucket}\" }" > ${request_file}
  
 # submit transcribe job
-echo "aws transcribe start-transcription-job --cli-input-json file://${request_file} >> $log_file 2>&1" #debug
-#aws transcribe start-transcription-job --cli-input-json file://${request_file} >> $log_file 2>&1
+echo "Starting transcription job ${job_name} using request file ${request_file}" >> $log_file 2>&1
+aws transcribe start-transcription-job --cli-input-json file://${request_file} >> $log_file 2>&1
 
 # wait while job is running
+echo "Waiting for ${job_name} to finish ..." >> $log_file 2>&1
+# note: both AWS query and jq parsing returns field value with double quotes, which needs to be striped off when comparing to string literal
 while [ `aws transcribe get-transcription-job --transcription-job-name "${job_name}" --query "TranscriptionJob"."TranscriptionJobStatus" | sed -e 's/"//g'` = "IN_PROGRESS" ] 
 do
-	echo "Waiting for ${job_name} to finish ..." >> $log_file 2>&1
     sleep 60s
 done
 
@@ -76,12 +74,11 @@ aws transcribe get-transcription-job --transcription-job-name "${job_name}" > ${
 cat $response_file >> $log_file 2>&1
 job_status=`jq '.TranscriptionJob.TranscriptionJobStatus' < $response_file | sed -e 's/"//g'`
 
-echo "Job status: ${job_status}, len: ${#job_status}"
-
 # if job succeeded, retrieve output file URL and download output file from the URL to galaxy output file location
 if [ ${job_status} = "COMPLETED" ]; then
-    transcript_file_uri=`jq '.TranscriptionJob.Transcript.TranscriptFileUri' < $response_file | sed -e 's/"//g'`
-    aws s3 cp $transcript_file_uri $output_file >> $log_file 2>&1
+#    transcript_file_uri=`jq '.TranscriptionJob.Transcript.TranscriptFileUri' < $response_file | sed -e 's/"//g'`
+	transcript_file_uri=s3://${s3_bucket}/${job_name}.json
+	aws s3 cp $transcript_file_uri $output_file >> $log_file 2>&1
     echo "Job ${job_name} completed in success!" >> $log_file 2>&1
 # otherwise print error message to the log and exit with error code
 elif [ ${job_status} = "FAILED" ]; then
@@ -91,7 +88,5 @@ else
     echo "Job ${job_name} ended in unexpected status: ${job_status}" >> $log_file 2>&1
     exit 2
 fi
-
-#_comment
 
 
