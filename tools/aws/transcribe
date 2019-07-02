@@ -17,6 +17,10 @@ s3_bucket=$4
 s3_directory=$5
 job_directory=$6
 
+# TODO 
+# Galaxy change binary input file extension to .dat for all media files, which means we can't infer audio format from file extension.
+# We could use file utility to extract MIME type to obtain audio format; for now We let user specify audio format as a parameter.
+
 # AWS Transcribe service requires a unique job name when submitting a job under the same account. 
 # In order to be able to run the same job multilpe times, we can suffix to the job name a seqNo, which increases by 1 each time a new job is submitted.
 # In addition, all AWS job related files should go to a designated directory $job_directory, and file names can be prefixed by the job_name. 
@@ -45,15 +49,8 @@ aws s3 cp ${input_file} s3://${s3_bucket}/${s3_directory}/ >> $log_file 2>&1
 request_file=${job_directory}/${job_name}-request.json
 input_file_name=$(basename ${input_file})
 media_file_url="http://${s3_bucket}.s3.amazonaws.com/${s3_directory}/${input_file_name}"
-#media_file_url="http://${s3_bucket}.s3.us-east-2.amazonaws.com/${s3_directory}/${input_file_name}"
-
-# TODO can we use input file extension as the AWS audio format, or does this info need to come from media info which can be done in pre-processing?
-# for now we can let user specify it via parameter
-### use the last extention as the file format
-### input_file_format=${input_file_name##*.}
 
 # use user specified bucket for output for easier access control
-#jq -n "{ \"TranscriptionJobName\": \"${job_name}\", \"LanguageCode\": \"en-US\", \"MediaFormat\": \"${audio_format}\", \"Media\": { \"MediaFileUri\": \"${media_file_url}\" } }" > ${request_file}
 jq -n "{ \"TranscriptionJobName\": \"${job_name}\", \"LanguageCode\": \"en-US\", \"MediaFormat\": \"${audio_format}\", \"Media\": { \"MediaFileUri\": \"${media_file_url}\" }, \"OutputBucketName\": \"${s3_bucket}\" }" > ${request_file}
  
 # submit transcribe job
@@ -76,7 +73,8 @@ job_status=`jq '.TranscriptionJob.TranscriptionJobStatus' < $response_file | sed
 
 # if job succeeded, retrieve output file URL and download output file from the URL to galaxy output file location
 if [ ${job_status} = "COMPLETED" ]; then
-#    transcript_file_uri=`jq '.TranscriptionJob.Transcript.TranscriptFileUri' < $response_file | sed -e 's/"//g'`
+# since we use user defined bucket for transcribe output, its S3 location can be inferred following the naming pattern as below
+# and we don't need to use the provided URL in the response, as that would require using curl and would encounter permission issue for private files
 	transcript_file_uri=s3://${s3_bucket}/${job_name}.json
 	aws s3 cp $transcript_file_uri $output_file >> $log_file 2>&1
     echo "Job ${job_name} completed in success!" >> $log_file 2>&1
