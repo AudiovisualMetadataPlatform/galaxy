@@ -31,7 +31,8 @@ job_name_prefix="AwsTranscribe"
 # use sed instead with regexp instead of cut to be more accurate and flexible (for ex, in case the job_directory path contains "-" which could mess up the matching pattern)
 echo "ls ${job_directory}/${job_name_prefix}-*-request.json | sed 's|.*/||' | sed -e 's/${job_name_prefix}-//; s/-request.json//'" # | sort -rn | head -1"
 echo `ls ${job_directory}/${job_name_prefix}-*-request.json | sed 's|.*/||' | sed -e 's/${job_name_prefix}-//; s/-request.json//'` # | sort -rn | head -1`
-last_seqNo=`ls ${job_directory}/${job_name_prefix}-*-request.json | sed 's|.*/||' | sed -e 's/${job_name_prefix}-//; s/-request.json//' | sort -rn | head -1`
+#last_seqNo=`ls ${job_directory}/${job_name_prefix}-*-request.json | sed 's|.*/||' | sed -e 's/${job_name_prefix}-//; s/-request.json//' | sort -rn | head -1`
+last_seqNo=`ls ${job_directory}/${job_name_prefix}-*-request.json | sed 's|.*/||' | cut -d "-" -f 2 | cut -d "." -f 1 | sort -rn | head -1`
 if [ -z $last_seqNo ]; then
     echo "No previous job files found."
     seqNo=1
