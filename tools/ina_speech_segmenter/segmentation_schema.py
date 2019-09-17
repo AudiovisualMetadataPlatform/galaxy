@@ -1,9 +1,8 @@
 class SegmentationSchema:
   def addSegment(self, label, gender, start, end):
-    print('adding segment')
     self.segments.append(SegmentationSchemaSegment(label, gender, start, end))
-    print(self.segments)
     return
+    
   def __init__(self, filename):
     self.media = SegmentationSchemaMedia(filename)
     self.segments = []
