@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-import os.path
 import sys
-from inaSpeechSegmenter import Segmenter, seg2csv
-from segmentation_schema import SegmentationSchema
 import json
+
+from inaSpeechSegmenter import Segmenter
+from segmentation_schema import SegmentationSchema
 
 def main():
     (input_file, json_file) = sys.argv[1:3]
@@ -42,18 +42,18 @@ def convert_to_segmentation_schema(filename, segmentation):
 
 # Recode label values to {speech, music, silence}
 def get_label(value):
-    if value=="Male" or value=="Female":
+    if value == "Male" or value == "Female":
         return "speech"
-    elif value=="Music":
+    elif value == "Music":
         return "music"
-    elif value=="NOACTIVITY":
+    elif value == "NOACTIVITY":
         return "silence"
 
     return value
 
 # Recode gender to {male, female, ""}
 def get_gender(value):
-    if value=="Male" or value=="Female":
+    if value == "Male" or value == "Female":
         return value.lower()
 
     return ""
