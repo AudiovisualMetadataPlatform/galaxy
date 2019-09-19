@@ -1,5 +1,5 @@
 <tool id="ISS-1" name="Ina Speech Segmenter" version="1.0.0">
-  <description>Ina Speech Segmenter</description>
+  <description>Create speech segmentations containing type, gender, start offset, and end offset</description>
     <requirements>
     </requirements>
   <command detect_errors="exit_code">$__tool_directory__/ina_speech_segmenter_wrapper.py $input $json_out</command>

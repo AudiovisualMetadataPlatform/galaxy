@@ -61,7 +61,6 @@ def get_gender(value):
 # Serialize schema obj and write it to output file
 def write_output_json(seg_schema, json_file):
     # Serialize the segmentation object
-    #seg_json = json.dumps(seg_schema, default=lambda x: x.__dict__)
     with open(json_file, 'w') as outfile:
         json.dump(seg_schema, outfile, default=lambda x: x.__dict__)
 
