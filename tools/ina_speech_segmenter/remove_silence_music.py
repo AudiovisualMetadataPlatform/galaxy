@@ -20,7 +20,6 @@ def main():
 	remove_silence(seg_data, input_file, output_file)
 	exit(0)
 
-
 # Given segmentation data, an audio file, and output file, remove silence
 def remove_silence(seg_data, filename, output_file):
 
@@ -37,7 +36,7 @@ def remove_silence(seg_data, filename, output_file):
 				# Reset the variables
 				start_block = -1
 				previous_end = 0
-				segments+=1
+				segments += 1
 			else:
 				start_block = s.end
 		else:
@@ -53,7 +52,6 @@ def remove_silence(seg_data, filename, output_file):
 	# Concetenate each of the individual parts into one audio file of speech
 	concat_files(segments, output_file)
 
-
 # Given a start and end offset, create a segment of audio 
 def create_audio_part(input_file, start, end, segment):
 	# Create a temporary file name
@@ -68,27 +66,39 @@ def create_audio_part(input_file, start, end, segment):
 
 	# Execute ffmpeg command to split of the segment
 	ffmpeg_out = subprocess.Popen(['ffmpeg', '-i', input_file, '-ss', start_str, '-t', duration_str, '-acodec', 'copy', tmp_filename], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-	ffmpeg_out.wait()
-	#stdout,stderr = ffmpeg_out.communicate()
+	
+	stdout,stderr = ffmpeg_out.communicate()
+
+	# Print the output
+	print("Creating audio segment " + str(segment))
+	print(stdout)
+	print(stderr)
 
 # Take each of the individual parts, create one larger file and copy it to the destination file
 def concat_files(segments, output_file):
 	# Create the ffmpeg command, adding an input file for each segment created
-	ffmpegCmd = ['ffmpeg']
-	for s in range(0, segments):
-		this_segment_name = "tmp_" + str(s) + ".wav"
-		ffmpegCmd.append("-i")
-		ffmpegCmd.append(this_segment_name)
-	ffmpegCmd.extend(['-filter_complex',"[0:0][1:0][2:0]concat=n=" + str(segments) + ":v=0:a=1[out]", "-map", "[out]", "output.wav"])
+	if segments > 1:
+		ffmpegCmd = ['ffmpeg']
+		for s in range(0, segments):
+			this_segment_name = "tmp_" + str(s) + ".wav"
+			ffmpegCmd.append("-i")
+			ffmpegCmd.append(this_segment_name)
+		ffmpegCmd.extend(['-filter_complex',"[0:0][1:0][2:0]concat=n=" + str(segments) + ":v=0:a=1[out]", "-map", "[out]", "output.wav"])
 
-	# Run ffmpeg 
-	ffmpeg_out = subprocess.Popen(ffmpegCmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-	ffmpeg_out.wait()
-	#stdout,stderr = ffmpeg_out.communicate()
+		# Run ffmpeg 
+		ffmpeg_out = subprocess.Popen(ffmpegCmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+		stdout,stderr = ffmpeg_out.communicate()
 
-	# Copy the temporary result to the final destination
-	copyfile("output.wav", output_file)
+		# Print the output
+		print("Creating complete audio")
+		print(stdout)
+		print(stderr)
 
+		# Copy the temporary result to the final destination
+		copyfile("output.wav", output_file)
+	else: 
+		# Only have one segment, copy it to output file
+		copyfile("tmp_0.wav", output_file)
 	# Cleanup temp files
 	cleanup_files(segments)
 

@@ -1,8 +1,9 @@
-<tool id="ISS-2" name="Remove Silence" version="1.0.0">
-  <description>Create speech segmentations containing type, gender, start offset, and end offset</description>
+<tool id="ISS-2" name="Remove Silence and Music" version="1.0.0">
+  <description>Create an audio file containing only speech, removing silence and music</description>
     <requirements>
     </requirements>
-  <command detect_errors="exit_code">$__tool_directory__/remove_silence.py $input $input_segmentation_json $binary_out</command>
+  <command detect_errors="exit_code">
+  $__tool_directory__/remove_silence_music.py $input $input_segmentation_json $binary_out</command>
    <inputs>
    <!-- should be wave data type -->
     <param name="input" type="data" format="data" label="From audio file" help="An audio file"/>
@@ -16,7 +17,7 @@
   <help>
 .. class:: infomark
 
-Remove silence from an audio file
+Remove silence and music from an audio file, creating an audio file containing only speech
 
   </help>
 </tool>
