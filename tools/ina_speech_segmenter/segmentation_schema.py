@@ -1,5 +1,3 @@
-import json
-
 class SegmentationSchema:
 	def __init__(self, segments=[], media=None):
 		self.segments = segments

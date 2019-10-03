@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-import sys
 import json
 import os
 import subprocess
+import sys
 
 from segmentation_schema import SegmentationSchema
 

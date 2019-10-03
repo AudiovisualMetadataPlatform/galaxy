@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-import sys
+
 import json
 import math
 import os
 import subprocess
+import sys
 import time
 from shutil import copyfile
 
@@ -30,9 +31,9 @@ def main():
 # Given segmentation data, an audio file, and output file, remove silence
 def remove_silence(seg_data, filename, output_file):
 
-	start_block = -1 # Beginning of a speech segment
-	previous_end = 0 # Last end of a speech segment
-	segments = 0 # Num of speech segments
+	start_block = -1  # Beginning of a speech segment
+	previous_end = 0  # Last end of a speech segment
+	segments = 0  # Num of speech segments
 	removed_segments = {}
 
 	# For each segment, calculate the blocks of speech segments
@@ -47,11 +48,13 @@ def remove_silence(seg_data, filename, output_file):
 				segments += 1
 			else:
 				start_block = s.end
-			
-			removed_segments.update({s.start + buffer: s.end - buffer})
+
+			# Keep track of removed segments
+			start_with_buffer = get_start_with_buffer(s.start)
+			removed_segments.update({start_with_buffer: s.end - buffer})
 		else:
 			# If this is a new block, mark the start
-			if start_block<0:      
+			if start_block < 0:
 				start_block = s.start
 			previous_end = s.end
 
@@ -63,12 +66,19 @@ def remove_silence(seg_data, filename, output_file):
 	concat_files(segments, output_file)
 	return removed_segments
 
+# Get the start offset after removing the buffer
+def get_start_with_buffer(start):
+	if start <= buffer:
+		return 0
+	else:
+		return start - buffer
+
 # Given a start and end offset, create a segment of audio 
 def create_audio_part(input_file, start, end, segment):
 	# Create a temporary file name
 	tmp_filename = "tmp_" + str(segment) + ".wav"
 
-	start_offset = start - buffer
+	start_offset = get_start_with_buffer(start)
 
 	# Convert the seconds to a timestamp
 	start_str = time.strftime('%H:%M:%S', time.gmtime(start_offset))
@@ -96,11 +106,11 @@ def concat_files(segments, output_file):
 			this_segment_name = "tmp_" + str(s) + ".wav"
 			ffmpegCmd.append("-i")
 			ffmpegCmd.append(this_segment_name)
-		ffmpegCmd.extend(['-filter_complex',"[0:0][1:0][2:0]concat=n=" + str(segments) + ":v=0:a=1[out]", "-map", "[out]", "output.wav"])
+		ffmpegCmd.extend(['-filter_complex', "[0:0][1:0][2:0]concat=n=" + str(segments) + ":v=0:a=1[out]", "-map", "[out]", "output.wav"])
 
 		# Run ffmpeg 
 		ffmpeg_out = subprocess.Popen(ffmpegCmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-		stdout,stderr = ffmpeg_out.communicate()
+		stdout, stderr = ffmpeg_out.communicate()
 
 		# Print the output
 		print("Creating complete audio")
@@ -109,7 +119,7 @@ def concat_files(segments, output_file):
 
 		# Copy the temporary result to the final destination
 		copyfile("output.wav", output_file)
-	else: 
+	else:
 		# Only have one segment, copy it to output file
 		copyfile("tmp_0.wav", output_file)
 	# Cleanup temp files
@@ -123,10 +133,10 @@ def cleanup_files(segments):
 	for s in range(0, segments):
 		this_segment_name = "tmp_" + str(s) + ".wav"
 		if os.path.exists(this_segment_name):
-			os.remove(this_segment_name) 
+			os.remove(this_segment_name)
 
 def should_remove_segment(segment):
-	if (segment.label=="silence" or segment.label=="music"):
+	if (segment.label == "silence" or segment.label == "music"):
 		duration = segment.end - segment.start
 		# If it is the middle of the file, account for buffers on both the start and end of the file
 		if segment.start>0 and duration > (buffer*2):
