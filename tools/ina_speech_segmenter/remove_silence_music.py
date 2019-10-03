@@ -10,14 +10,21 @@ from shutil import copyfile
 
 from segmentation_schema import SegmentationSchema
 
+# Seconds to buffer beginning and end of audio segments by
+buffer = 1
+
 def main():
-	(input_file, input_segmentation_json, output_file) = sys.argv[1:4]
+	(input_file, input_segmentation_json, output_file, removed_segments_file) = sys.argv[1:5]
 
 	# Turn segmentation json file into segmentation object
 	with open(input_segmentation_json, 'r') as file:
 		seg_data = SegmentationSchema().from_json(json.load(file))
 	
-	remove_silence(seg_data, input_file, output_file)
+	# Remove silence and get a list of removed segments
+	removed_segments = remove_silence(seg_data, input_file, output_file)
+
+	# Write removed segments to json file
+	write_removed_segments_json(removed_segments, removed_segments_file)
 	exit(0)
 
 # Given segmentation data, an audio file, and output file, remove silence
@@ -26,10 +33,11 @@ def remove_silence(seg_data, filename, output_file):
 	start_block = -1 # Beginning of a speech segment
 	previous_end = 0 # Last end of a speech segment
 	segments = 0 # Num of speech segments
+	removed_segments = {}
 
 	# For each segment, calculate the blocks of speech segments
 	for s in seg_data.segments:
-		if s.label=="silence" or s.label=="music":
+		if should_remove_segment(s):
 			# If we have catalogued speech, create a segment from that chunk
 			if previous_end > 0:
 				create_audio_part(filename, start_block, previous_end, segments)
@@ -39,6 +47,8 @@ def remove_silence(seg_data, filename, output_file):
 				segments += 1
 			else:
 				start_block = s.end
+			
+			removed_segments.update({s.start + buffer: s.end - buffer})
 		else:
 			# If this is a new block, mark the start
 			if start_block<0:      
@@ -51,15 +61,17 @@ def remove_silence(seg_data, filename, output_file):
 
 	# Concetenate each of the individual parts into one audio file of speech
 	concat_files(segments, output_file)
+	return removed_segments
 
 # Given a start and end offset, create a segment of audio 
 def create_audio_part(input_file, start, end, segment):
-	buffer = 1
 	# Create a temporary file name
 	tmp_filename = "tmp_" + str(segment) + ".wav"
 
+	start_offset = start - buffer
+
 	# Convert the seconds to a timestamp
-	start_str = time.strftime('%H:%M:%S', time.gmtime(start - buffer))
+	start_str = time.strftime('%H:%M:%S', time.gmtime(start_offset))
 
 	# Calculate duration of segment convert it to a timestamp
 	duration = (end - start) + buffer
@@ -113,6 +125,22 @@ def cleanup_files(segments):
 		if os.path.exists(this_segment_name):
 			os.remove(this_segment_name) 
 
+def should_remove_segment(segment):
+	if (segment.label=="silence" or segment.label=="music"):
+		duration = segment.end - segment.start
+		# If it is the middle of the file, account for buffers on both the start and end of the file
+		if segment.start>0 and duration > (buffer*2):
+			return True
+		# If it is the beginning of the file, only account for buffer at the end of the file
+		if segment.start == 0 and duration > buffer:
+			return True
+	return False
+
+# Serialize obj and write it to output file
+def write_removed_segments_json(removed_setgments, removed_segments_file):
+	# Serialize the segmentation object
+	with open(removed_segments_file, 'w') as outfile:
+		json.dump(removed_setgments, outfile, default=lambda x: x.__dict__)
 
 if __name__ == "__main__":
 	main()
