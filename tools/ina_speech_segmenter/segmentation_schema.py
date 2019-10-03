@@ -29,6 +29,7 @@ class SegmentationSchemaSegment:
 	label = ""
 	start = 0
 	end = 0
+	gender = None
 	def __init__(self, label, gender=None, start=None, end=None):
 		self.label = label
 		if gender is not None:
