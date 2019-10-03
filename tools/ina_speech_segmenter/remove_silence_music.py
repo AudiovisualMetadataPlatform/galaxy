@@ -54,14 +54,15 @@ def remove_silence(seg_data, filename, output_file):
 
 # Given a start and end offset, create a segment of audio 
 def create_audio_part(input_file, start, end, segment):
+	buffer = 1
 	# Create a temporary file name
 	tmp_filename = "tmp_" + str(segment) + ".wav"
 
 	# Convert the seconds to a timestamp
-	start_str = time.strftime('%H:%M:%S', time.gmtime(start))
+	start_str = time.strftime('%H:%M:%S', time.gmtime(start - buffer))
 
 	# Calculate duration of segment convert it to a timestamp
-	duration = end - start
+	duration = (end - start) + buffer
 	duration_str = time.strftime('%H:%M:%S', time.gmtime(duration))
 
 	# Execute ffmpeg command to split of the segment
