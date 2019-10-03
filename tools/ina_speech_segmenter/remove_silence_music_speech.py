@@ -15,19 +15,19 @@ from segmentation_schema import SegmentationSchema
 buffer = 1
 
 def main():
-	(input_file, input_segmentation_json, remove_type, output_file, removed_segments_file) = sys.argv[1:6]
+	(input_file, input_segmentation_json, remove_type, output_file, kept_segments_file) = sys.argv[1:6]
 
 	# Turn segmentation json file into segmentation object
 	with open(input_segmentation_json, 'r') as file:
 		seg_data = SegmentationSchema().from_json(json.load(file))
 	
 	print(seg_data)
-	
-	# Remove silence and get a list of removed segments
-	removed_segments = remove_silence(remove_type, seg_data, input_file, output_file)
 
-	# Write removed segments to json file
-	write_removed_segments_json(removed_segments, removed_segments_file)
+	# Remove silence and get a list of kept segments
+	kept_segments = remove_silence(remove_type, seg_data, input_file, output_file)
+
+	# Write kept segments to json file
+	write_kept_segments_json(kept_segments, kept_segments_file)
 	exit(0)
 
 # Given segmentation data, an audio file, and output file, remove silence
@@ -95,6 +95,7 @@ def create_audio_part(input_file, start, end, segment, file_duration):
 	duration = (end_offset - start_offset)
 	duration_str = time.strftime('%H:%M:%S', time.gmtime(duration))
 
+	print("Removeing segment starting at " + start_str + " for " + duration_str)
 	# Execute ffmpeg command to split of the segment
 	ffmpeg_out = subprocess.Popen(['ffmpeg', '-i', input_file, '-ss', start_str, '-t', duration_str, '-acodec', 'copy', tmp_filename], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 	
@@ -157,10 +158,10 @@ def should_remove_segment(remove_type, segment):
 	return False
 
 # Serialize obj and write it to output file
-def write_removed_segments_json(removed_setgments, removed_segments_file):
+def write_kept_segments_json(kept_segments, kept_segments_file):
 	# Serialize the segmentation object
-	with open(removed_segments_file, 'w') as outfile:
-		json.dump(removed_setgments, outfile, default=lambda x: x.__dict__)
+	with open(kept_segments_file, 'w') as outfile:
+		json.dump(kept_segments, outfile, default=lambda x: x.__dict__)
 
 if __name__ == "__main__":
 	main()
