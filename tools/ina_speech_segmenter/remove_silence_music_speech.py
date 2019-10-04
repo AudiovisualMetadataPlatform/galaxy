@@ -21,8 +21,6 @@ def main():
 	with open(input_segmentation_json, 'r') as file:
 		seg_data = SegmentationSchema().from_json(json.load(file))
 	
-	print(seg_data)
-
 	# Remove silence and get a list of kept segments
 	kept_segments = remove_silence(remove_type, seg_data, input_file, output_file)
 
@@ -39,18 +37,17 @@ def remove_silence(remove_type, seg_data, filename, output_file):
 
 	# For each segment, calculate the blocks of speech segments
 	for s in seg_data.segments:
-		if should_remove_segment(remove_type, s):
+
+		if should_remove_segment(remove_type, s, start_block) == True:
 			# If we have catalogued speech, create a segment from that chunk
-			if previous_end > 0:
+			if previous_end > 0 and start_block >= 0:
 				kept_segment = create_audio_part(filename, start_block, previous_end, segments, seg_data.media.duration)
 				kept_segments.update(kept_segment)
 				# Reset the variables
 				start_block = -1
 				previous_end = 0
 				segments += 1
-			else:
-				start_block = s.end
-		else:
+		elif s.label not in ["silence", remove_type]:
 			# If this is a new block, mark the start
 			if start_block < 0:
 				start_block = s.start
@@ -96,6 +93,7 @@ def create_audio_part(input_file, start, end, segment, file_duration):
 	duration_str = time.strftime('%H:%M:%S', time.gmtime(duration))
 
 	print("Removeing segment starting at " + start_str + " for " + duration_str)
+
 	# Execute ffmpeg command to split of the segment
 	ffmpeg_out = subprocess.Popen(['ffmpeg', '-i', input_file, '-ss', start_str, '-t', duration_str, '-acodec', 'copy', tmp_filename], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 	
@@ -146,14 +144,14 @@ def cleanup_files(segments):
 		if os.path.exists(this_segment_name):
 			os.remove(this_segment_name)
 
-def should_remove_segment(remove_type, segment):
+def should_remove_segment(remove_type, segment, start_block):
 	if (segment.label == "silence" or segment.label == remove_type):
 		duration = segment.end - segment.start
 		# If it is the middle of the file, account for buffers on both the start and end of the file
-		if segment.start>0 and duration > (buffer*2):
+		if start_block > 0 and duration > (buffer*2):
 			return True
 		# If it is the beginning of the file, only account for buffer at the end of the file
-		if segment.start == 0 and duration > buffer:
+		if start_block == 0 and duration > buffer:
 			return True
 	return False
 

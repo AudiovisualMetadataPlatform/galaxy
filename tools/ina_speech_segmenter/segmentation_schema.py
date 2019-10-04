@@ -28,11 +28,9 @@ class SegmentationSchemaMedia:
 	def __init__(self, duration = 0, filename = ""):
 		self.duration = duration
 		self.filename = filename
-		print(duration)
 
 	@classmethod
 	def from_json(cls, json_data):
-		print(json_data)
 		return cls(**json_data)
 
 class SegmentationSchemaSegment:
