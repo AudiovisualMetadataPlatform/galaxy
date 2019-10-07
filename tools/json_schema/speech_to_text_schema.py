@@ -7,12 +7,13 @@ class SpeechToText:
 		if result is None:
 			self.result = SpeechToTextResult()
 		else:
-			 self.result = media
+			 self.result = result
 
 class SpeechToTextMedia:
 	filename = ""
-	duration = 0
-	def __init__(self, duration = 0, filename = ""):
+	duration = 0.00
+	def __init__(self, duration = 0.00, filename = ""):
+		print("setting duration " + str(duration))
 		self.duration = duration
 		self.filename = filename
 
@@ -22,9 +23,9 @@ class SpeechToTextResult:
 	def __init__(self, words=[], transcript=""):
 		self.transcript = transcript
 		self.words = words
-	def addWord(self, type, start, end, text, scoreType, scoreValue):
-		newWord = SpeechToTextWord(type, start, end, text, scoreType, scoreValue)
-		self.words.extend(newWord)
+	def addWord(self, type, start:float, end:float, text, scoreType, scoreValue):
+		newWord = SpeechToTextWord(type, text, start, end, scoreType, scoreValue)
+		self.words.append(newWord)
 
 class SpeechToTextWord:
 	type = ""
@@ -32,11 +33,14 @@ class SpeechToTextWord:
 	end = 0.00
 	text = ""
 	score = None
-	def __init__(self, type, start, end, text, scoreType, scoreValue):
-		self.score = SpeechToTextScore(scoreType, scoreValue)
+	def __init__(self, type, text, start:float = None, end:float = None, scoreType = None, scoreValue = None):
+		if scoreValue is not None:
+			self.score = SpeechToTextScore(scoreType, scoreValue)
 		self.type = type
-		self.start = start
-		self.end = end
+		if float(start) >= 0.00:
+			self.start = start
+		if float(end) >= 0.00:
+			self.end = end
 		self.text = text
 
 
