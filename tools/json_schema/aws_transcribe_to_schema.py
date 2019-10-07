@@ -13,7 +13,7 @@ def main():
 	# Open the transcribe output
 	with open(transcribe_file) as json_file:
 		data = json.load(json_file)
-
+		
 	result = SpeechToTextResult()
 
 	# Parse transcript
@@ -50,7 +50,7 @@ def main():
 			if end_time > duration:
 				duration = end_time
 		# Add the word to the result
-		result.addWord(i["type"], text, start_time, end_time, "confidence", max_confidence)
+		result.addWord(i["type"], start_time, end_time, text, "confidence", max_confidence)
 	
 	# Create the media object
 	media = SpeechToTextMedia(duration, media_file)
