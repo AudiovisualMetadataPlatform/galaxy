@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='utf-8'?>
+<toolbox monitor="true">
+  <section id="getext" name="Get Data">
+    <tool file="data_source/upload.xml" />
+  </section>
+  <section id="send" name="Send Data">
+    <tool file="cloud/send.xml" />
+  </section>
+  <section id="media" name="Media Tools">
+    <tool file="media/extract_audio.xml"/>
+    <!--
+    <tool file="media/pocketsphinx.xml"/>
+    <tool file="media/sox_trim.xml"/>
+    -->
+  </section>
+  <section id="silence" name="Silence Tools">
+    <tool file="silence_remove/extract_silence.xml"/>
+  </section>
+  
+  <section id="Transcribe" name="Speech to Text">
+    <tool file="aws/transcribe.xml"/>
+    <tool file="kaldi/kaldi_local.xml"/>
+  </section>
+  <section id="Segmentation" name="Segmentation">
+    <tool file="ina_speech_segmenter/ina_speech_segmenter.xml"/>
+    <tool file="ina_speech_segmenter/remove_silence_music_speech.xml"/>
+  </section>
+  <section id="collection_operations" name="Collection Operations">
+    <tool file="${model_tools_path}/unzip_collection.xml" labels="new" />
+    <tool file="${model_tools_path}/zip_collection.xml" labels="new" />
+    <tool file="${model_tools_path}/filter_failed_collection.xml" labels="new" />
+    <tool file="${model_tools_path}/flatten_collection.xml" labels="new" />
+    <tool file="${model_tools_path}/merge_collection.xml" labels="new" />
+    <tool file="${model_tools_path}/relabel_from_file.xml" />
+    <tool file="${model_tools_path}/filter_from_file.xml" />
+    <tool file="${model_tools_path}/sort_collection_list.xml" />
+    <tool file="${model_tools_path}/apply_rules.xml" />
+  </section>
+  <section id="textutil" name="Text Manipulation">
+    <tool file="filters/fixedValueColumn.xml" />
+    <tool file="filters/catWrapper.xml" hidden="true" />
+    <tool file="filters/condense_characters.xml" />
+    <tool file="filters/convert_characters.xml" />
+    <tool file="filters/mergeCols.xml" />
+    <tool file="filters/changeCase.xml" />
+    <tool file="filters/cutWrapper.xml" hidden="true" />
+    <tool file="filters/pasteWrapper.xml" />
+    <tool file="filters/remove_beginning.xml" />
+    <tool file="filters/randomlines.xml" />
+    <tool file="filters/headWrapper.xml" />
+    <tool file="filters/tailWrapper.xml" />
+    <tool file="filters/trimmer.xml" />
+    <tool file="filters/wc_gnu.xml" />
+    <tool file="filters/secure_hash_message_digest.xml" />
+  </section>
+  <section id="filter" name="Filter and Sort">
+    <tool file="stats/filtering.xml" />
+    <tool file="filters/sorter.xml" />
+    <tool file="filters/grep.xml" />
+  </section>
+  <section id="group" name="Join, Subtract and Group">
+    <tool file="filters/joiner.xml" />
+    <tool file="filters/compare.xml" />
+    <tool file="stats/grouping.xml" />
+  </section>
+  <section id="stats" name="Statistics">
+    <tool file="stats/gsummary.xml" />
+    <tool file="filters/uniq.xml" />
+  </section>
+</toolbox>
