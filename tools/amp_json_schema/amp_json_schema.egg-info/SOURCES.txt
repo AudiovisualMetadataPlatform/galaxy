@@ -1,0 +1,7 @@
+setup.py
+amp_json_schema.egg-info/PKG-INFO
+amp_json_schema.egg-info/SOURCES.txt
+amp_json_schema.egg-info/dependency_links.txt
+amp_json_schema.egg-info/top_level.txt
+schema/__init__.py
+schema/myschema.py

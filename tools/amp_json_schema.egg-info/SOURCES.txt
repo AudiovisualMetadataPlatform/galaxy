@@ -1,0 +1,13 @@
+setup.py
+amp_json_schema/__init__.py
+amp_json_schema/adjust_timestamps.py
+amp_json_schema/aws_transcribe_to_schema.py
+amp_json_schema/kaldi_local_to_schema.py
+amp_json_schema/segmentation_schema.py
+amp_json_schema/speech_to_text_schema.py
+amp_json_schema.egg-info/PKG-INFO
+amp_json_schema.egg-info/SOURCES.txt
+amp_json_schema.egg-info/dependency_links.txt
+amp_json_schema.egg-info/top_level.txt
+amp_json_schema/schema/__init__.py
+amp_json_schema/schema/myschema.py

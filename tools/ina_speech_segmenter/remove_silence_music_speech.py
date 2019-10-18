@@ -9,7 +9,7 @@ import sys
 import time
 from shutil import copyfile
 
-from amp_json_schema.segmentation_schema import SegmentationSchema
+from ..amp_json_schema.segmentation_schema import SegmentationSchema
 
 # Seconds to buffer beginning and end of audio segments by
 buffer = 1
