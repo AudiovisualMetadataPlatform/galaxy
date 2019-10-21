@@ -60,6 +60,10 @@ class Binary(data.Data):
         return 'application/octet-stream'
 
 
+class Audio(Binary):
+    """Class describing an audio sequence file"""
+    file_ext = "audio"
+
 class Ab1(Binary):
     """Class describing an ab1 binary sequence file"""
     file_ext = "ab1"
