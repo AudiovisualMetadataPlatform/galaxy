@@ -56,15 +56,19 @@ class SpeechToTextWord:
 		self.text = text
 	@classmethod
 	def from_json(cls, json_data: dict):
-		print(json_data)
-		score = json_data['score']
+		scoreType = None
+		scoreValue = None
+		if 'score' in json_data.keys():
+			score = json_data['score']
+			scoreValue = score['scoreValue']
+			scoreType = score['type']
 		start = None
 		end = None
 		if 'start' in json_data.keys():
 			start = json_data['start']
 		if 'end' in json_data.keys():
 			end = json_data['end']
-		return cls(json_data['type'],json_data['text'],start,end, score['type'], score['scoreValue'])
+		return cls(json_data['type'],json_data['text'],start,end, scoreType, scoreValue)
 
 
 class SpeechToTextScore:
