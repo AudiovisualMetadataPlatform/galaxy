@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<datatypes>
+  <registration converters_path="lib/galaxy/datatypes/converters" display_path="display_applications">
+
+    <!-- AMP Data Types-->
+    <datatype extension="audio" type="galaxy.datatypes.binary:Audio" subclass="True" display_in_upload="true"/>
+    <datatype extension="wav" type="galaxy.datatypes.binary:Wav" subclass="True" display_in_upload="true"/>
+    <!-- END AMP Data Types-->
+    
+  </registration>
+  <sniffers>
+    <!--
+    The order in which Galaxy attempts to determine data types is
+    important because some formats are much more loosely defined
+    than others.  The following list should be the most rigidly
+    defined format first, followed by next-most rigidly defined,
+    and so on.
+    -->
+    <sniffer type="galaxy.datatypes.binary:Wav"/>
+    <sniffer type="galaxy.datatypes.binary:Audio"/>
+    
+  </sniffers>
+</datatypes>
