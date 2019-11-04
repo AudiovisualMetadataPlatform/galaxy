@@ -1,0 +1,131 @@
+{
+  "paths": [
+    {
+      "_path": "lib/python3.6/site-packages/OpenSSL/SSL.py",
+      "path_type": "hardlink",
+      "sha256": "f4ed09e285a7ad92326ad37bf3f524bb7f07172d84564df4ddc9629f9640177d",
+      "size_in_bytes": 81353
+    },
+    {
+      "_path": "lib/python3.6/site-packages/OpenSSL/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "d51e693b5c8d89381186ddae579ac485bb2fef34d2592ed00fd8d5f129871908",
+      "size_in_bytes": 447
+    },
+    {
+      "_path": "lib/python3.6/site-packages/OpenSSL/__pycache__/SSL.cpython-36.pyc",
+      "path_type": "hardlink",
+      "sha256": "9427c385d91c7cfa273d862c84b0bff108ed2237ee24699648bf554040b11c50",
+      "size_in_bytes": 70402
+    },
+    {
+      "_path": "lib/python3.6/site-packages/OpenSSL/__pycache__/__init__.cpython-36.pyc",
+      "path_type": "hardlink",
+      "sha256": "5c9e36f9ce1567d29ad0017e172571e81fe01b33f1275229619e26fda5c8d1b7",
+      "size_in_bytes": 543
+    },
+    {
+      "_path": "lib/python3.6/site-packages/OpenSSL/__pycache__/_util.cpython-36.pyc",
+      "path_type": "hardlink",
+      "sha256": "38cfe05db3174a6b93a26d57e058565edcc1afacef54293854b9eeeea852f8f8",
+      "size_in_bytes": 4164
+    },
+    {
+      "_path": "lib/python3.6/site-packages/OpenSSL/__pycache__/crypto.cpython-36.pyc",
+      "path_type": "hardlink",
+      "sha256": "899f2f518e8247dccba5541a2c1cd66643e3151440fffe6033a13a1aa204d247",
+      "size_in_bytes": 88971
+    },
+    {
+      "_path": "lib/python3.6/site-packages/OpenSSL/__pycache__/debug.cpython-36.pyc",
+      "path_type": "hardlink",
+      "sha256": "b6bf7227e58f47aa0febbd80e2fff2261977cf326ddc059cf331cb1dfb7fef09",
+      "size_in_bytes": 1124
+    },
+    {
+      "_path": "lib/python3.6/site-packages/OpenSSL/__pycache__/rand.cpython-36.pyc",
+      "path_type": "hardlink",
+      "sha256": "1f49cfceb9f33bd0ecf1ae3fadab83ffc0c4df4ac6c32044de9e7aeff87033c8",
+      "size_in_bytes": 1257
+    },
+    {
+      "_path": "lib/python3.6/site-packages/OpenSSL/__pycache__/tsafe.cpython-36.pyc",
+      "path_type": "hardlink",
+      "sha256": "e028a3f292d8c6decfd8342e6bd956e756353e3e783cf29d4c16a1c3c3bcb029",
+      "size_in_bytes": 1470
+    },
+    {
+      "_path": "lib/python3.6/site-packages/OpenSSL/__pycache__/version.cpython-36.pyc",
+      "path_type": "hardlink",
+      "sha256": "cf5c1c3ef0b754d7852435f137ddaea308162588a57d28425aeeb7c16b5f6943",
+      "size_in_bytes": 632
+    },
+    {
+      "_path": "lib/python3.6/site-packages/OpenSSL/_util.py",
+      "path_type": "hardlink",
+      "sha256": "a064ab2c9e1f7fa34673a0f255512742c983d93b0bcf5af1aac0d7d84cf7fce9",
+      "size_in_bytes": 4174
+    },
+    {
+      "_path": "lib/python3.6/site-packages/OpenSSL/crypto.py",
+      "path_type": "hardlink",
+      "sha256": "3cef599ecf4dbbf5df8450385b5bff05454db884e9c2f548a55abe61bf0b0e49",
+      "size_in_bytes": 99032
+    },
+    {
+      "_path": "lib/python3.6/site-packages/OpenSSL/debug.py",
+      "path_type": "hardlink",
+      "sha256": "671e861815ea938a2ab79817ad98ce5d1aa20a7031ef210931649f0f13e0301f",
+      "size_in_bytes": 1049
+    },
+    {
+      "_path": "lib/python3.6/site-packages/OpenSSL/rand.py",
+      "path_type": "hardlink",
+      "sha256": "f421a8c744496ebadd1f52fb4a2b0441885c3a9d3282986e23cd353b36304a81",
+      "size_in_bytes": 1042
+    },
+    {
+      "_path": "lib/python3.6/site-packages/OpenSSL/tsafe.py",
+      "path_type": "hardlink",
+      "sha256": "5a43caf3e6ae05091798d2acf00029ea904ce8db03bb1950d0229599a31a9c82",
+      "size_in_bytes": 1102
+    },
+    {
+      "_path": "lib/python3.6/site-packages/OpenSSL/version.py",
+      "path_type": "hardlink",
+      "sha256": "e76d38fdb5706cc1283abab3119e34fb55eed330840de7a3189eaea2680b44a7",
+      "size_in_bytes": 626
+    },
+    {
+      "_path": "lib/python3.6/site-packages/pyOpenSSL-17.5.0-py3.6.egg-info/PKG-INFO",
+      "path_type": "hardlink",
+      "sha256": "1f8c73b9af8548f93d36f7cb03c91c9c91ffaa53c2a0f95bc958ceb8db016b26",
+      "size_in_bytes": 5899
+    },
+    {
+      "_path": "lib/python3.6/site-packages/pyOpenSSL-17.5.0-py3.6.egg-info/SOURCES.txt",
+      "path_type": "hardlink",
+      "sha256": "c874173f88bc13653ea06569872ecb313af50a19c5405d41fdfcdfe05a8abb40",
+      "size_in_bytes": 1440
+    },
+    {
+      "_path": "lib/python3.6/site-packages/pyOpenSSL-17.5.0-py3.6.egg-info/dependency_links.txt",
+      "path_type": "hardlink",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_in_bytes": 1
+    },
+    {
+      "_path": "lib/python3.6/site-packages/pyOpenSSL-17.5.0-py3.6.egg-info/requires.txt",
+      "path_type": "hardlink",
+      "sha256": "510fc49c2fa8c9fa6b3e143bdc21730b5137a0dd283da423c1753fc65a6bea16",
+      "size_in_bytes": 106
+    },
+    {
+      "_path": "lib/python3.6/site-packages/pyOpenSSL-17.5.0-py3.6.egg-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "34dc56a92f2128d261d9c5176b545938c5fad9525fc9df14468d53b189d1fcc5",
+      "size_in_bytes": 8
+    }
+  ],
+  "paths_version": 1
+}

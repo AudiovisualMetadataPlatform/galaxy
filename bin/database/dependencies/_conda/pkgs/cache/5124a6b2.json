@@ -1,0 +1,12 @@
+{
+  "_mod": "Fri, 11 May 2018 22:14:19 GMT",
+  "_url": "https://conda.anaconda.org/iuc/noarch",
+  "info": {
+    "arch": null,
+    "default_numpy_version": "1.7",
+    "default_python_version": "2.7",
+    "platform": null,
+    "subdir": "noarch"
+  },
+  "packages": {}
+}

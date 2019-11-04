@@ -1,0 +1,29 @@
+{
+  "paths": [
+    {
+      "_path": "lib/libc++abi.1.0.dylib",
+      "path_type": "hardlink",
+      "sha256": "75d1e8ba7541c334895f513fd83c3515e06b9e3b3f1cc158d7a0622fe1067748",
+      "size_in_bytes": 297040
+    },
+    {
+      "_path": "lib/libc++abi.1.dylib",
+      "path_type": "softlink",
+      "sha256": "75d1e8ba7541c334895f513fd83c3515e06b9e3b3f1cc158d7a0622fe1067748",
+      "size_in_bytes": 297040
+    },
+    {
+      "_path": "lib/libc++abi.a",
+      "path_type": "hardlink",
+      "sha256": "73b13d35317cb8905cf8581403df636502c7d0d2fcf40b61faee6640d05b8d5a",
+      "size_in_bytes": 356968
+    },
+    {
+      "_path": "lib/libc++abi.dylib",
+      "path_type": "softlink",
+      "sha256": "75d1e8ba7541c334895f513fd83c3515e06b9e3b3f1cc158d7a0622fe1067748",
+      "size_in_bytes": 297040
+    }
+  ],
+  "paths_version": 1
+}

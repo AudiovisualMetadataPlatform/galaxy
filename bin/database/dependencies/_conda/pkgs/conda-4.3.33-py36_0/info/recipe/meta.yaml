@@ -1,0 +1,79 @@
+# This file created by conda-build 2.1.18
+# meta.yaml template originally from:
+# /Users/travis/build/conda-forge/conda-feedstock/recipe, last modified Sat Jan 27 11:33:07 2018
+# ------------------------------------------------
+
+package:
+    name: conda
+    version: 4.3.33
+source:
+    fn: conda-4.3.33.tar.gz
+    sha256: 5d3826f44fe871a830637bf74eaa159daa8392c7436a69ad3040b8727f29fcb9
+    url: https://github.com/conda/conda/archive/4.3.33.tar.gz
+build:
+    always_include_files:
+        - bin/conda
+        - bin/activate
+        - bin/deactivate
+    entry_points:
+        - conda = conda.cli:main
+        - conda-env = conda_env.cli.main:main
+    noarch: ''
+    noarch_python: false
+    number: '0'
+    string: py36_0
+requirements:
+    build:
+        - ca-certificates 2017.11.5 0
+        - ncurses 5.9 10
+        - openssl 1.0.2n 0
+        - python 3.6.4 0
+        - readline 7.0 0
+        - sqlite 3.20.1 2
+        - tk 8.6.7 0
+        - xz 5.2.3 0
+        - zlib 1.2.11 0
+    run:
+        - python
+        - conda-env >=2.6
+        - pycosat >=0.6.1
+        - pyopenssl >=16.2.0
+        - requests >=2.12.4
+        - ruamel_yaml >=0.11.14
+test:
+    files:
+        - test_conda.sh
+    imports:
+        - conda
+about:
+    description: 'Conda is an open source package management system and environment
+
+        management system for installing multiple versions of software packages
+
+        and their dependencies and switching easily between them. It works on
+
+        Linux, OS X and Windows, and was created for Python programs but can
+
+        package and distribute any software.
+
+        '
+    dev_url: https://github.com/conda/conda
+    doc_url: http://conda.pydata.org/docs/
+    home: http://conda.pydata.org/
+    license: BSD 3-Clause
+    license_file: LICENSE.txt
+    summary: OS-agnostic, system-level binary package and environment manager.
+extra:
+    final: true
+    recipe-maintainers:
+        - jakirkham
+        - jjhelmus
+        - kalefranz
+        - mcg1969
+        - mingwandroid
+        - msarahan
+        - mwcraig
+        - ocefpaf
+        - patricksnape
+        - pelson
+        - scopatz

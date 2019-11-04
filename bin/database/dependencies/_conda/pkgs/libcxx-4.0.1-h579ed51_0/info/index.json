@@ -1,0 +1,15 @@
+{
+  "arch": "x86_64",
+  "build": "h579ed51_0",
+  "build_number": 0,
+  "depends": [
+    "libcxxabi 4.0.1 hebd6815_0"
+  ],
+  "license": "MIT license or UIUC License",
+  "license_family": "Other",
+  "name": "libcxx",
+  "platform": "osx",
+  "subdir": "osx-64",
+  "timestamp": 1505224644073,
+  "version": "4.0.1"
+}

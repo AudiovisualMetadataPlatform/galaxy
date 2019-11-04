@@ -1,0 +1,16 @@
+{
+  "arch": "x86_64",
+  "build": "py36h2134326_0",
+  "build_number": 0,
+  "depends": [
+    "certifi",
+    "python >=3.6,<3.7.0a0"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "setuptools",
+  "platform": "osx",
+  "subdir": "osx-64",
+  "timestamp": 1505998570296,
+  "version": "36.5.0"
+}

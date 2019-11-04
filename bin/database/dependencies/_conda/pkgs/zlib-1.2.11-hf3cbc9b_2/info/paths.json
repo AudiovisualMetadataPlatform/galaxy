@@ -1,0 +1,49 @@
+{
+  "paths": [
+    {
+      "_path": "include/zconf.h",
+      "path_type": "hardlink",
+      "sha256": "77304005ceb5f0d03ad4c37eb8386a10866e4ceeb204f7c3b6599834c7319541",
+      "size_in_bytes": 16262
+    },
+    {
+      "_path": "include/zlib.h",
+      "path_type": "hardlink",
+      "sha256": "4ddc82b4af931ab55f44d977bde81bfbc4151b5dcdccc03142831a301b5ec3c8",
+      "size_in_bytes": 96239
+    },
+    {
+      "_path": "lib/libz.1.2.11.dylib",
+      "path_type": "hardlink",
+      "sha256": "a4d4ff201f2ac6136a683d3fba04c6ab0b33bf57e9fa5acb498d61142aa76ec6",
+      "size_in_bytes": 101020
+    },
+    {
+      "_path": "lib/libz.1.dylib",
+      "path_type": "softlink",
+      "sha256": "a4d4ff201f2ac6136a683d3fba04c6ab0b33bf57e9fa5acb498d61142aa76ec6",
+      "size_in_bytes": 101020
+    },
+    {
+      "_path": "lib/libz.a",
+      "path_type": "hardlink",
+      "sha256": "7afc974b118018c3aeaba16b1e23e630d03c8ce20ef33e76a7d2e9ada422b0a0",
+      "size_in_bytes": 115688
+    },
+    {
+      "_path": "lib/libz.dylib",
+      "path_type": "softlink",
+      "sha256": "a4d4ff201f2ac6136a683d3fba04c6ab0b33bf57e9fa5acb498d61142aa76ec6",
+      "size_in_bytes": 101020
+    },
+    {
+      "_path": "lib/pkgconfig/zlib.pc",
+      "file_mode": "text",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/opt/anaconda1anaconda2anaconda3",
+      "sha256": "5613df6f1a56c1c3e0c2aa3da9284b51de9682882a6a9ba7af68a07745cb3aac",
+      "size_in_bytes": 281
+    }
+  ],
+  "paths_version": 1
+}

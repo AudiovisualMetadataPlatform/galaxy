@@ -1,0 +1,26 @@
+{
+  "arch": "x86_64",
+  "build": "hebd6815_0",
+  "build_number": 0,
+  "depends": [],
+  "files": [
+    "lib/libc++abi.1.0.dylib",
+    "lib/libc++abi.1.dylib",
+    "lib/libc++abi.a",
+    "lib/libc++abi.dylib"
+  ],
+  "installed_by": "Miniconda3-4.3.31-MacOSX-x86_64.sh",
+  "license": "MIT license or UIUC License",
+  "license_family": "Other",
+  "link": {
+    "source": "/Users/dan/Documents/IU/Galaxy/galaxy/database/dependencies/_conda/pkgs/libcxxabi-4.0.1-hebd6815_0",
+    "type": "hard-link"
+  },
+  "md5": "73ee4e71dae58f5173d649952c4c2b35",
+  "name": "libcxxabi",
+  "platform": "osx",
+  "subdir": "osx-64",
+  "timestamp": 1505224618472,
+  "url": "https://repo.continuum.io/pkgs/main/osx-64/libcxxabi-4.0.1-hebd6815_0.tar.bz2",
+  "version": "4.0.1"
+}

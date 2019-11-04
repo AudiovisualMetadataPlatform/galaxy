@@ -1,0 +1,37 @@
+# This file created by conda-build 3.0.15+56.gd43c51d
+# meta.yaml template originally from:
+# /Users/rdonnelly/conda/aggregate/ca-certificates-feedstock/recipe, last modified Fri Sep 15 06:59:04 2017
+# ------------------------------------------------
+
+package:
+    name: ca-certificates
+    version: 2017.08.26
+source:
+    patches:
+        - 0001-Add-macOS-mktemp-compatibility.patch
+    sha256: c882ab8b5a67389fc556852bd44081d8b376e8bf44cd4c7afcbdac8e940a69c3
+    url: http://anduin.linuxfromscratch.org/BLFS/other/make-ca.sh-20170514
+build:
+    commands:
+        - /usr/bin/curl --cacert "${PREFIX}/ssl/cacert.pem" https://www.google.com
+        - /usr/bin/openssl -CAfile "${PREFIX}/ssl/cacert.pem" -CApath nosuchdir s_client
+            -showcerts -connect www.google.com:443
+        - test -f "${PREFIX}/ssl/cacert.pem"
+        - test -f "${PREFIX}/ssl/cert.pem"
+    string: ha1e5d58_0
+about:
+    home: https://github.com/conda-forge/ca-certificates-feedstock
+    license: ISC
+    summary: Certificates for use with other packages.
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - jakirkham
+        - jjhelmus
+        - msarahan
+        - mwcraig
+        - ocefpaf
+        - patricksnape
+        - pelson
+        - scopatz

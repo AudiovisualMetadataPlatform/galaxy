@@ -1,0 +1,14 @@
+{
+  "arch": "x86_64",
+  "build": "py36h782d450_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3.6,<3.7.0a0"
+  ],
+  "license": "MIT",
+  "name": "asn1crypto",
+  "platform": "osx",
+  "subdir": "osx-64",
+  "timestamp": 1511838959245,
+  "version": "0.23.0"
+}

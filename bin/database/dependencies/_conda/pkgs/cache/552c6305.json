@@ -1,0 +1,204 @@
+{
+  "_mod": "Fri, 11 May 2018 22:14:19 GMT",
+  "_url": "https://conda.anaconda.org/iuc/osx-64",
+  "info": {
+    "arch": "x86_64",
+    "default_numpy_version": "1.7",
+    "default_python_version": "2.7",
+    "platform": "osx",
+    "subdir": "osx-64"
+  },
+  "packages": {
+    "bioconductor-ballgown-1.0.3-r==3.1.2_0.tar.bz2": {
+      "arch": "x86_64",
+      "binstar": {
+        "channel": "main",
+        "owner_id": "568944919855e668d47e7167",
+        "package_id": "56edda2f147ebb54770c5db9"
+      },
+      "build": "r==3.1.2_0",
+      "build_number": 0,
+      "depends": [
+        "curl",
+        "gsl",
+        "libxml2",
+        "r ==3.1.2"
+      ],
+      "machine": "x86_64",
+      "md5": "16535c28ba4db5b5b3f2ea2a033723db",
+      "name": "bioconductor-ballgown",
+      "operatingsystem": "darwin",
+      "platform": "osx",
+      "requires": [],
+      "size": 59702672,
+      "subdir": "osx-64",
+      "target-triplet": "x86_64-any-darwin",
+      "version": "1.0.3"
+    },
+    "bioconductor-deseq2-1.8.2gx-r3.2.1_0.tar.bz2": {
+      "arch": "x86_64",
+      "binstar": {
+        "channel": "main",
+        "owner_id": "568944919855e668d47e7167",
+        "package_id": "56edda4277513853f06c661e"
+      },
+      "build": "r3.2.1_0",
+      "build_number": 0,
+      "depends": [
+        "libxml2",
+        "r 3.2.1"
+      ],
+      "license": "LGPL",
+      "machine": "x86_64",
+      "md5": "262d2dfc2d7f591126e1ef036347eece",
+      "name": "bioconductor-deseq2",
+      "operatingsystem": "darwin",
+      "platform": "osx",
+      "requires": [],
+      "size": 48440175,
+      "subdir": "osx-64",
+      "target-triplet": "x86_64-any-darwin",
+      "version": "1.8.2gx"
+    },
+    "emboss-5.0.0-0.tar.bz2": {
+      "arch": "x86_64",
+      "binstar": {
+        "channel": "main",
+        "owner_id": "568944919855e668d47e7167",
+        "package_id": "5793823690f99a5a7552a082"
+      },
+      "build": "0",
+      "build_number": 0,
+      "depends": [
+        "zlib"
+      ],
+      "license": "GPL",
+      "machine": "x86_64",
+      "md5": "09bb346c57937b8b577b4ea81e40ee6e",
+      "name": "emboss",
+      "operatingsystem": "darwin",
+      "platform": "osx",
+      "requires": [],
+      "size": 30541792,
+      "subdir": "osx-64",
+      "target-triplet": "x86_64-any-darwin",
+      "version": "5.0.0"
+    },
+    "pglite-0.1-0.tar.bz2": {
+      "arch": "x86_64",
+      "binstar": {
+        "channel": "main",
+        "owner_id": "568944919855e668d47e7167",
+        "package_id": "59dddc6b2fab4211a815c90a"
+      },
+      "build": "0",
+      "build_number": 0,
+      "depends": [],
+      "has_prefix": false,
+      "license": "ISC",
+      "license_family": "Other",
+      "machine": "x86_64",
+      "md5": "9af896f637eb6a4b8e38d05ad038f05c",
+      "name": "pglite",
+      "operatingsystem": "darwin",
+      "platform": "osx",
+      "requires": [],
+      "size": 9294,
+      "subdir": "osx-64",
+      "target-triplet": "x86_64-any-darwin",
+      "version": "0.1"
+    },
+    "ucsc_tools-332-0.tar.bz2": {
+      "arch": "x86_64",
+      "binstar": {
+        "channel": "main",
+        "owner_id": "568944919855e668d47e7167",
+        "package_id": "58ef715699db1073224d417c"
+      },
+      "build": "0",
+      "build_number": 0,
+      "depends": [
+        "ucsc-bedgraphtobigwig ==332",
+        "ucsc-bedtobigbed ==332",
+        "ucsc-fatotwobit ==332",
+        "ucsc-nibfrag ==332",
+        "ucsc-twobittofa ==332",
+        "ucsc-wigtobigwig ==332"
+      ],
+      "has_prefix": false,
+      "license": "varies; see http://genome.ucsc.edu/license",
+      "machine": "x86_64",
+      "md5": "8092e42c6597cf531e7e32ff8e8c61bc",
+      "name": "ucsc_tools",
+      "operatingsystem": "darwin",
+      "platform": "osx",
+      "requires": [],
+      "size": 2803,
+      "subdir": "osx-64",
+      "target-triplet": "x86_64-any-darwin",
+      "version": "332"
+    },
+    "ucsc_tools-332-1.tar.bz2": {
+      "arch": "x86_64",
+      "binstar": {
+        "channel": "main",
+        "owner_id": "568944919855e668d47e7167",
+        "package_id": "58ef715699db1073224d417c"
+      },
+      "build": "1",
+      "build_number": 1,
+      "depends": [
+        "ucsc-bedgraphtobigwig ==332",
+        "ucsc-bedtobigbed ==332",
+        "ucsc-fatotwobit ==332",
+        "ucsc-liftover ==332",
+        "ucsc-nibfrag ==332",
+        "ucsc-twobittofa ==332",
+        "ucsc-wigtobigwig ==332"
+      ],
+      "has_prefix": false,
+      "license": "varies; see http://genome.ucsc.edu/license",
+      "machine": "x86_64",
+      "md5": "829d8f504453959641dca44422542954",
+      "name": "ucsc_tools",
+      "operatingsystem": "darwin",
+      "platform": "osx",
+      "requires": [],
+      "size": 2638,
+      "subdir": "osx-64",
+      "target-triplet": "x86_64-any-darwin",
+      "version": "332"
+    },
+    "ucsc_tools-357-0.tar.bz2": {
+      "arch": "x86_64",
+      "binstar": {
+        "channel": "main",
+        "owner_id": "568944919855e668d47e7167",
+        "package_id": "58ef715699db1073224d417c"
+      },
+      "build": "0",
+      "build_number": 0,
+      "depends": [
+        "ucsc-bedgraphtobigwig ==357",
+        "ucsc-bedtobigbed ==357",
+        "ucsc-fatotwobit ==357",
+        "ucsc-liftover ==357",
+        "ucsc-nibfrag ==357",
+        "ucsc-twobittofa ==357",
+        "ucsc-wigtobigwig ==357"
+      ],
+      "has_prefix": false,
+      "license": "varies; see http://genome.ucsc.edu/license",
+      "machine": "x86_64",
+      "md5": "b07cef9cd3281b42784ed962a2f1137d",
+      "name": "ucsc_tools",
+      "operatingsystem": "darwin",
+      "platform": "osx",
+      "requires": [],
+      "size": 3150,
+      "subdir": "osx-64",
+      "target-triplet": "x86_64-any-darwin",
+      "version": "357"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+#!/Users/dan/Documents/IU/Galaxy/galaxy/database/dependencies/_conda/bin/python
+if __name__ == '__main__':
+    import sys
+    import conda.cli
+
+    sys.exit(conda.cli.main())

@@ -1,0 +1,57 @@
+{% set version = "0.11.14" %}
+
+package:
+  name: ruamel_yaml
+  version: {{ version }}
+
+source:
+  fn: ruamel_yaml-{{ version }}.tar.gz
+  url: https://bitbucket.org/ruamel/yaml/get/{{ version }}.tar.gz
+  sha256: b78d394e192b6d0911bd59f794ceea88143fac4e373b76ed7e48143a2a29b33c
+  patches:
+    - ordereddict_test.patch
+
+build:
+  number: 2
+  no_link: .*\.(pyd|dll)  # [win]
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - posix               # [win]
+
+  host:
+    - python
+    - setuptools
+    - cython
+    - yaml
+
+  run:
+    - python
+    - yaml
+
+test:
+  requires:
+    - pytest
+
+  imports:
+    - ruamel_yaml
+    - ruamel_yaml.ext._ruamel_yaml
+
+about:
+  home: https://bitbucket.org/ruamel/yaml
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: A patched copy of ruamel.yaml.
+  
+  description: |
+    ruamel.yaml is a YAML 1.2 loader/dumper package for Python.
+  doc_url: http://yaml.readthedocs.io/en/latest/overview.html
+  dev_url: https://bitbucket.org/ruamel/yaml/src
+  doc_source_url: https://bitbucket.org/ruamel/yaml/src/default/_doc/?at=default
+
+extra:
+  recipe-maintainers:
+    - jakirkham
+    - mingwandroid

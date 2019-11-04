@@ -1,0 +1,17 @@
+{
+  "arch": "x86_64",
+  "build": "py36h1555ced_4",
+  "build_number": 4,
+  "depends": [
+    "python >=3.6,<3.7.0a0",
+    "setuptools",
+    "wheel"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "pip",
+  "platform": "osx",
+  "subdir": "osx-64",
+  "timestamp": 1509124734802,
+  "version": "9.0.1"
+}

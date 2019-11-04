@@ -1,0 +1,15 @@
+{
+  "arch": "x86_64",
+  "build": "hdbc3d79_0",
+  "build_number": 0,
+  "depends": [
+    "ca-certificates"
+  ],
+  "license": "OpenSSL",
+  "license_family": "Apache",
+  "name": "openssl",
+  "platform": "osx",
+  "subdir": "osx-64",
+  "timestamp": 1512662706590,
+  "version": "1.0.2n"
+}

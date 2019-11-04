@@ -1,0 +1,13 @@
+prefix=/Users/dan/Documents/IU/Galaxy/galaxy/database/dependencies/_conda
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+enginesdir=${libdir}/engines
+
+Name: OpenSSL-libcrypto
+Description: OpenSSL cryptography library
+Version: 1.0.2n
+Requires: 
+Libs: -L${libdir} -lcrypto
+Libs.private: -Wl,-pie -Wl,-headerpad_max_install_names 
+Cflags: -I${includedir} 

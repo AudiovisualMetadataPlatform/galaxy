@@ -1,0 +1,36 @@
+From 1dc1d962a198c6cd8e92e86784a05383bd58c055 Mon Sep 17 00:00:00 2001
+From: Nehal J Wani <nehaljw.kkd1@gmail.com>
+Date: Wed, 20 Sep 2017 17:25:07 -0500
+Subject: [PATCH] Remove exact pinning on certifi and wincertstore
+
+Resolves https://github.com/ContinuumIO/anaconda-issues/issues/5219
+---
+ setup.py | 12 ------------
+ 1 file changed, 12 deletions(-)
+
+diff --git a/setup.py b/setup.py
+index ee968d9..2984e89 100755
+--- a/setup.py
++++ b/setup.py
+@@ -164,18 +164,6 @@ setup_params = dict(
+         Topic :: Utilities
+         """).strip().splitlines(),
+     python_requires='>=2.6,!=3.0.*,!=3.1.*,!=3.2.*',
+-    extras_require={
+-        "ssl:sys_platform=='win32'": "wincertstore==0.2",
+-        "certs": "certifi==2016.9.26",
+-    },
+-    dependency_links=[
+-        pypi_link(
+-            'certifi-2016.9.26.tar.gz#md5=baa81e951a29958563689d868ef1064d',
+-        ),
+-        pypi_link(
+-            'wincertstore-0.2.zip#md5=ae728f2f007185648d0c7a8679b361e2',
+-        ),
+-    ],
+     scripts=[],
+     setup_requires=[
+     ] + wheel,
+-- 
+1.8.2.3
+

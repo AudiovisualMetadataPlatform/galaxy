@@ -1,0 +1,14 @@
+{
+  "arch": "x86_64",
+  "build": "h7e4c145_2",
+  "build_number": 2,
+  "depends": [
+    "libedit"
+  ],
+  "license": "Public-Domain (http://www.sqlite.org/copyright.html)",
+  "name": "sqlite",
+  "platform": "osx",
+  "subdir": "osx-64",
+  "timestamp": 1510172779830,
+  "version": "3.20.1"
+}

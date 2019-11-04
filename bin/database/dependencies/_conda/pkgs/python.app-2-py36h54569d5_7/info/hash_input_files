@@ -1,0 +1,10 @@
+Contents/Info.plist
+Contents/PkgInfo
+Contents/Resources/empty.lproj
+Contents/Resources/qt_menu.nib/classes.nib
+Contents/Resources/qt_menu.nib/info.nib
+Contents/Resources/qt_menu.nib/keyedobjects.nib
+build.sh
+post-link.sh
+pre-unlink.sh
+t.py

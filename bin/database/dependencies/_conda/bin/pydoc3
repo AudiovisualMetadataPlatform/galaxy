@@ -1,0 +1,5 @@
+#!/Users/dan/Documents/IU/Galaxy/galaxy/database/dependencies/_conda/bin/python
+
+import pydoc
+if __name__ == '__main__':
+    pydoc.cli()

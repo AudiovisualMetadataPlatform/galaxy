@@ -1,0 +1,7 @@
+/opt/anaconda1anaconda2anaconda3 text lib/itcl4.1.0/itclConfig.sh
+/opt/anaconda1anaconda2anaconda3 text lib/pkgconfig/tcl.pc
+/opt/anaconda1anaconda2anaconda3 text lib/pkgconfig/tk.pc
+/opt/anaconda1anaconda2anaconda3 text lib/tclConfig.sh
+/opt/anaconda1anaconda2anaconda3 text lib/tdbc1.0.5/tdbcConfig.sh
+/opt/anaconda1anaconda2anaconda3 text lib/tkConfig.sh
+/opt/concourse/worker/volumes/live/5bd5216a-515f-4534-5933-2abb95ae6a64/volume/tk_1510171594607/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl binary lib/libtcl8.6.dylib

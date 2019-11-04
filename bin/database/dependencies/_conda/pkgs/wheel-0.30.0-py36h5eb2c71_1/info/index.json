@@ -1,0 +1,15 @@
+{
+  "arch": "x86_64",
+  "build": "py36h5eb2c71_1",
+  "build_number": 1,
+  "depends": [
+    "python >=3.6,<3.7.0a0",
+    "setuptools"
+  ],
+  "license": "MIT",
+  "name": "wheel",
+  "platform": "osx",
+  "subdir": "osx-64",
+  "timestamp": 1511280507585,
+  "version": "0.30.0"
+}

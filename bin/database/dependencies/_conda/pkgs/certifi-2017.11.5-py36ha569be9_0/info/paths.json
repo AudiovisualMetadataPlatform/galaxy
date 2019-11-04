@@ -1,0 +1,65 @@
+{
+  "paths": [
+    {
+      "_path": "lib/python3.6/site-packages/certifi-2017.11.05-py3.6.egg-info",
+      "path_type": "hardlink",
+      "sha256": "eac0b22c690c2fa5a34a7f7d146682031a16c2a7346373d49e190e1902366c7a",
+      "size_in_bytes": 2934
+    },
+    {
+      "_path": "lib/python3.6/site-packages/certifi/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "16c67fc9cf427e191c25765fab33149ae5ae4ef7080be93f197630bcae4cb613",
+      "size_in_bytes": 63
+    },
+    {
+      "_path": "lib/python3.6/site-packages/certifi/__main__.py",
+      "path_type": "hardlink",
+      "sha256": "162398b75165b6cb7bc24f4345ae860a806bf2a054c65350bbf30a25fd3813ab",
+      "size_in_bytes": 41
+    },
+    {
+      "_path": "lib/python3.6/site-packages/certifi/__pycache__/__init__.cpython-36.pyc",
+      "path_type": "hardlink",
+      "sha256": "8b56c5594309e44c9f5058bdde343e5e62bf0ab92d048a059ce17736d3401257",
+      "size_in_bytes": 215
+    },
+    {
+      "_path": "lib/python3.6/site-packages/certifi/__pycache__/__main__.cpython-36.pyc",
+      "path_type": "hardlink",
+      "sha256": "c9a6c77ce469f80cf327424500e96d3808c708a75a45f40d89aa25a6b9a4e03c",
+      "size_in_bytes": 186
+    },
+    {
+      "_path": "lib/python3.6/site-packages/certifi/__pycache__/core.cpython-36.pyc",
+      "path_type": "hardlink",
+      "sha256": "d85767e7fff4a54f77d58a2c2451c9507e95e59d0dd3210dbdf0d7bc3dd3b26d",
+      "size_in_bytes": 1078
+    },
+    {
+      "_path": "lib/python3.6/site-packages/certifi/cacert.pem",
+      "path_type": "hardlink",
+      "sha256": "1a85cc17ab39efe04ac0dd3d0f83e5e0eac7a1c7462a3aaf882ff84552f154e1",
+      "size_in_bytes": 281594
+    },
+    {
+      "_path": "lib/python3.6/site-packages/certifi/core.py",
+      "path_type": "hardlink",
+      "sha256": "a9fc09000bca55a97f5f7370e19a38427fd4008e16447680601573e31b697f66",
+      "size_in_bytes": 753
+    },
+    {
+      "_path": "lib/python3.6/site-packages/certifi/old_root.pem",
+      "path_type": "hardlink",
+      "sha256": "1d3d0a21f68cf37ab45c716a1847ac886c9f9a5496b83d91234f805484b6b2b6",
+      "size_in_bytes": 25626
+    },
+    {
+      "_path": "lib/python3.6/site-packages/certifi/weak.pem",
+      "path_type": "hardlink",
+      "sha256": "90509d0f1ff4501fc50572b7e1077aebfe874996d2fa72ee0ed885e90c174562",
+      "size_in_bytes": 307220
+    }
+  ],
+  "paths_version": 1
+}

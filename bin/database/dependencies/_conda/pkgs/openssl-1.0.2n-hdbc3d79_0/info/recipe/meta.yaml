@@ -1,0 +1,61 @@
+# This file created by conda-build 3.1.1
+# meta.yaml template originally from:
+# /opt/concourse/worker/volumes/live/abfebc2d-b112-4e43-5648-438980bec6eb/volume/rsync-recipes/openssl-1.0.2n-on-osx, last modified Thu Dec  7 09:29:54 2017
+# ------------------------------------------------
+
+package:
+    name: openssl
+    version: 1.0.2n
+source:
+    fn: openssl-1.0.2n.tar.gz
+    patches:
+        - 0001-win32-Fix-yasm-compatibility.patch
+    sha256: 370babb75f278c39e0c50e8c4e7493bc0f18db6867478341a832a982fd15a8fe
+    url: http://www.openssl.org/source/openssl-1.0.2n.tar.gz
+build:
+    has_prefix_files:
+        - bin/c_rehash
+        - include/openssl/opensslconf.h
+        - lib/pkgconfig/libcrypto.pc
+        - lib/pkgconfig/libssl.pc
+        - lib/pkgconfig/openssl.pc
+    no_link: lib/libcrypto.1.0.0.dylib
+    number: '0'
+    run_exports:
+        - openssl >=1.0.2n,<1.0.3a
+    string: hdbc3d79_0
+requirements:
+    build:
+        - cctools 895 h7512d6f_0
+        - clang 4.0.1 h662ec87_0
+        - clang_osx-64 4.0.1 h9d74b7d_5
+        - compiler-rt 4.0.1 h5487866_0
+        - ld64 274.2 h7c2db76_0
+        - libcxx 4.0.1 h579ed51_0
+        - libcxxabi 4.0.1 hebd6815_0
+        - llvm 4.0.1 hc748206_0
+        - llvm-lto-tapi 4.0.1 h6701bc3_0
+        - perl 5.26.0 h5b8ca18_0
+    run:
+        - ca-certificates
+test:
+    commands:
+        - touch checksum.txt
+        - openssl sha256 checksum.txt
+about:
+    dev_url: https://github.com/openssl/openssl
+    doc_url: https://www.openssl.org/docs/man1.0.2/
+    home: http://www.openssl.org/
+    license: OpenSSL
+    license_family: Apache
+    license_file: LICENSE
+    summary: OpenSSL is an open-source implementation of the SSL and TLS protocols
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - jakirkham
+        - jjhelmus
+        - msarahan
+        - ocefpaf
+        - pelson

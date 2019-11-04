@@ -1,0 +1,31 @@
+{
+  "arch": "x86_64",
+  "build": "h7e4c145_2",
+  "build_number": 2,
+  "depends": [
+    "libedit"
+  ],
+  "files": [
+    "bin/sqlite3",
+    "include/sqlite3.h",
+    "include/sqlite3ext.h",
+    "lib/libsqlite3.0.dylib",
+    "lib/libsqlite3.a",
+    "lib/libsqlite3.dylib",
+    "lib/libsqlite3.la",
+    "lib/pkgconfig/sqlite3.pc"
+  ],
+  "installed_by": "Miniconda3-4.3.31-MacOSX-x86_64.sh",
+  "license": "Public-Domain (http://www.sqlite.org/copyright.html)",
+  "link": {
+    "source": "/Users/dan/Documents/IU/Galaxy/galaxy/database/dependencies/_conda/pkgs/sqlite-3.20.1-h7e4c145_2",
+    "type": "hard-link"
+  },
+  "md5": "cb7292aa83857924a9a1a7d0b48740d5",
+  "name": "sqlite",
+  "platform": "osx",
+  "subdir": "osx-64",
+  "timestamp": 1510172779830,
+  "url": "https://repo.continuum.io/pkgs/main/osx-64/sqlite-3.20.1-h7e4c145_2.tar.bz2",
+  "version": "3.20.1"
+}

@@ -1,0 +1,78 @@
+# This file created by conda-build 3.0.27
+# meta.yaml template originally from:
+# /opt/concourse/worker/volumes/live/7c42c9d4-67d0-431b-6130-a0dd4e5cdaac/volume/rsync-recipes/six-1.11.0-python3.6-on-nwani-osx-64, last modified Sat Oct 21 13:26:30 2017
+# ------------------------------------------------
+
+package:
+    name: six
+    version: 1.11.0
+source:
+    sha256: 70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9
+    url: https://pypi.io/packages/source/s/six/six-1.11.0.tar.gz
+build:
+    number: '1'
+    script: python setup.py install --single-version-externally-managed --record=record.txt
+    string: py36h0e22d5e_1
+requirements:
+    build:
+        - ca-certificates 2017.08.26 ha1e5d58_0
+        - certifi 2017.7.27.1 py36hd973bb6_0
+        - libcxx 4.0.1 h579ed51_0
+        - libcxxabi 4.0.1 hebd6815_0
+        - libedit 3.1 hb4e282d_0
+        - libffi 3.2.1 hd939716_3
+        - ncurses 6.0 ha932d30_1
+        - openssl 1.0.2l h57f3a61_2
+        - python 3.6.3 h6804ab2_0
+        - readline 7.0 h81b24a6_3
+        - setuptools 36.5.0 py36h2134326_0
+        - sqlite 3.20.1 h900c3b0_1
+        - tk 8.6.7 hcdce994_1
+        - xz 5.2.3 ha24016e_1
+        - zlib 1.2.11 h60db283_1
+    host:
+        - ca-certificates 2017.08.26 ha1e5d58_0
+        - certifi 2017.7.27.1 py36hd973bb6_0
+        - libcxx 4.0.1 h579ed51_0
+        - libcxxabi 4.0.1 hebd6815_0
+        - libedit 3.1 hb4e282d_0
+        - libffi 3.2.1 hd939716_3
+        - ncurses 6.0 ha932d30_1
+        - openssl 1.0.2l h57f3a61_2
+        - python 3.6.3 h6804ab2_0
+        - readline 7.0 h81b24a6_3
+        - setuptools 36.5.0 py36h2134326_0
+        - sqlite 3.20.1 h900c3b0_1
+        - tk 8.6.7 hcdce994_1
+        - xz 5.2.3 ha24016e_1
+        - zlib 1.2.11 h60db283_1
+    run:
+        - python >=3.6,<3.7.0a0
+test:
+    imports:
+        - six
+about:
+    description: 'Six provides simple utilities for wrapping over differences between
+
+        Python 2 and Python 3. It is intended to support codebases that work on
+
+        both Python 2 and 3 without modification. six consists of only one Python
+
+        file, so it is painless to copy into a project.
+
+        '
+    dev_url: https://github.com/benjaminp/six
+    doc_url: http://pythonhosted.org/six/
+    home: http://pypi.python.org/pypi/six/
+    license: MIT
+    license_family: MIT
+    license_file: LICENSE
+    summary: Python 2 and 3 compatibility utilities
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - jakirkham
+        - mingwandroid
+        - msarahan
+        - ocefpaf

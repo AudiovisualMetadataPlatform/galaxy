@@ -1,0 +1,71 @@
+# This file created by conda-build 3.0.28
+# meta.yaml template originally from:
+# /opt/concourse/volumes/live/8c804ede-a8fd-4b6d-7b36-6b3f903a6914/volume/rsync-recipes/readline-7.0-on-osx, last modified Thu Nov  9 09:48:30 2017
+# ------------------------------------------------
+
+package:
+    name: readline
+    version: '7.0'
+source:
+    fn: readline-7.0.tar.gz
+    patches:
+        - patches/readline70-001
+        - patches/readline70-002
+        - patches/readline70-003
+    sha256: 750d437185286f40a369e1e4f4764eda932b9459b5ec9a731628393dd3d32334
+    url: ftp://ftp.gnu.org/gnu/readline/readline-7.0.tar.gz
+build:
+    number: '4'
+    run_exports:
+        - readline >=7.0,<8.0a0
+    string: hc1231fa_4
+requirements:
+    build:
+        - cctools 895 h7512d6f_0
+        - clang 4.0.1 h662ec87_0
+        - clang_osx-64 4.0.1 h6c06975_3
+        - compiler-rt 4.0.1 h5487866_0
+        - ld64 274.2 h7c2db76_0
+        - libcxx 4.0.1 h579ed51_0
+        - libcxxabi 4.0.1 hebd6815_0
+        - llvm 4.0.1 hc748206_0
+        - llvm-lto-tapi 4.0.1 h6701bc3_0
+        - ncurses 6.0 hd04f020_2
+        - pkg-config 0.29.2 h4abdbbe_5
+    host:
+        - libcxx 4.0.1 h579ed51_0
+        - libcxxabi 4.0.1 hebd6815_0
+        - ncurses 6.0 hd04f020_2
+    run:
+        - ncurses >=6.0,<7.0a0
+test:
+    commands:
+        - test -f ${PREFIX}/lib/libreadline.a
+        - test -f ${PREFIX}/lib/libreadline.dylib
+        - test -f ${PREFIX}/lib/libhistory.a
+        - test -f ${PREFIX}/lib/libhistory.dylib
+about:
+    description: 'The standard Python readline extension statically linked against
+        the GNU
+
+        readline library.
+
+        '
+    dev_url: https://github.com/ludwigschwardt/python-gnureadline
+    doc_source_url: https://github.com/ludwigschwardt/python-gnureadline
+    doc_url: https://pypi.python.org/pypi/readline
+    home: https://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
+    license: GPL3
+    license_file: COPYING
+    summary: library for editing command lines as they are typed in
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - asmeurer
+        - croth1
+        - jakirkham
+        - jjhelmus
+        - mingwandroid
+        - msarahan
+        - pelson

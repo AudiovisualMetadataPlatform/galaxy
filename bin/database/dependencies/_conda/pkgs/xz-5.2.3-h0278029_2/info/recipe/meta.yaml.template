@@ -1,0 +1,56 @@
+{% set version = "5.2.3" %}
+
+package:
+  name: xz
+  version: {{ version }}
+
+source:
+  url: http://downloads.sourceforge.net/project/lzmautils/xz-{{ version }}.tar.bz2
+  sha256: fd9ca16de1052aac899ad3495ad20dfa906c27b4a5070102a2ec35ca3a4740c1
+
+build:
+  number: 2
+  skip: True  # [win and vc<14]
+  run_exports:
+    # XZ's track record of backcompat is very good.  Keep default pins (next major version)
+    #    https://abi-laboratory.pro/tracker/timeline/xz/
+    - {{ pin_subpackage('xz') }}
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+
+test:
+  commands:
+    - xz --help  # [not win]
+    - unxz --help  # [not win]
+    - lzma --help  # [not win]
+    # Note: no xz executable exists on windows right now - only libs.
+    - if not exist %PREFIX%\\Library\\bin\\liblzma.dll exit 1  # [win]
+    - if not exist %PREFIX%\\Library\\lib\\liblzma.lib exit 1  # [win]
+    - if not exist %PREFIX%\\Library\\lib\\liblzma_static.lib exit 1  # [win]
+    - if not exist %PREFIX%\\Library\\include\\lzma.h exit 1  # [win]
+    # conda-inspect tests.
+    #- conda inspect linkages -p $PREFIX xz  # [not win]
+    #- conda inspect objects -p $PREFIX xz  # [osx]
+
+about:
+  home: http://tukaani.org/xz/
+  summary: 'The xz command is a very powerful program for compressing files.'
+  license: LGPL-2.1 and GPL-2.0
+  license_file: COPYING
+  summary: Data compression software with high compression ratio
+  description: |
+    XZ Utils is free general-purpose data compression software with a high
+    compression ratio. XZ Utils were written for POSIX-like systems, but also
+    work on some not-so-POSIX systems.
+  doc_url: http://tukaani.org/xz/
+  doc_source_url: https://github.com/xz-mirror/xz/blob/master/README
+  dev_url: http://git.tukaani.org/
+
+extra:
+  recipe-maintainers:
+    - msarahan
+    - ocefpaf
+    - mingwandroid
+    - nehaljwani

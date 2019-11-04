@@ -1,0 +1,14 @@
+{
+  "arch": "x86_64",
+  "build": "py36h8628d0a_1",
+  "build_number": 1,
+  "depends": [
+    "python >=3.6,<3.7.0a0"
+  ],
+  "license": "BSD Like",
+  "name": "idna",
+  "platform": "osx",
+  "subdir": "osx-64",
+  "timestamp": 1505922087863,
+  "version": "2.6"
+}

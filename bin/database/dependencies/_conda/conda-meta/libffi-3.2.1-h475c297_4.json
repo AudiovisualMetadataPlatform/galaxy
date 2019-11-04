@@ -1,0 +1,35 @@
+{
+  "arch": "x86_64",
+  "build": "h475c297_4",
+  "build_number": 4,
+  "depends": [
+    "libcxx >=4.0.1"
+  ],
+  "files": [
+    "include/ffi.h",
+    "include/ffitarget.h",
+    "lib/libffi.6.dylib",
+    "lib/libffi.a",
+    "lib/libffi.dylib",
+    "lib/libffi.la",
+    "lib/pkgconfig/libffi.pc",
+    "share/info/libffi.info",
+    "share/man/man3/ffi.3",
+    "share/man/man3/ffi_call.3",
+    "share/man/man3/ffi_prep_cif.3",
+    "share/man/man3/ffi_prep_cif_var.3"
+  ],
+  "installed_by": "Miniconda3-4.3.31-MacOSX-x86_64.sh",
+  "license": "Custom",
+  "link": {
+    "source": "/Users/dan/Documents/IU/Galaxy/galaxy/database/dependencies/_conda/pkgs/libffi-3.2.1-h475c297_4",
+    "type": "hard-link"
+  },
+  "md5": "4b13e6ff2ef114361106e5780296a5eb",
+  "name": "libffi",
+  "platform": "osx",
+  "subdir": "osx-64",
+  "timestamp": 1510177287824,
+  "url": "https://repo.continuum.io/pkgs/main/osx-64/libffi-3.2.1-h475c297_4.tar.bz2",
+  "version": "3.2.1"
+}

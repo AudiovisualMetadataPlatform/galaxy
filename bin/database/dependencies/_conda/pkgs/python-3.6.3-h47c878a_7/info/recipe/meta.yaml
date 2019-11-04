@@ -1,0 +1,124 @@
+# This file created by conda-build 3.0.15+269.g9622b11
+# meta.yaml template originally from:
+# /Users/rdonnelly/conda/aggregate/python-feedstock/recipe, last modified Tue Dec  5 16:07:34 2017
+# ------------------------------------------------
+
+package:
+    name: python
+    version: 3.6.3
+source:
+    -   patches:
+            - 0001-Add-Anaconda-Distribution-version-logic.patch
+            - 0002-Darwin-Omit-PYTHONFRAMEWORK-site-packages.patch
+            - 0003-Darwin-Add-arch-x86_64-to-UnicCCompiler-ld_args.patch
+            - 0004-Win32-distutils-Also-look-for-executable.bat.patch
+            - 0005-Win32-Ensure-Library-bin-is-in-os.environ-PATH.patch
+            - 0006-Win32-Change-FD_SETSIZE-from-512-to-2048.patch
+            - 0007-Win32-distutils-Add-support-to-cygwinccompiler-for-V.patch
+            - 0008-Do-not-pass-g-to-GCC-when-not-Py_DEBUG.patch
+            - 0009-Support-cross-compiling-byte-code.patch
+            - 0010-Win32-Fixes-for-Windows-GCC-interop-needed-by-RPy2-a.patch
+            - 0011-Darwin-Look-in-sysroot-usr-lib-include-if-sysroot-is.patch
+            - 0012-runtime_library_dir_option-Use-1st-word-of-CC-as-com.patch
+            - 0013-Win32-Do-not-download-externals.patch
+            - 0014-Ignore-_PYTHON_SYSCONFIGDATA_NAME-if-it-does-not-exi.patch
+            - 0015-Fix-find_library-so-that-it-looks-in-sys.prefix-lib-.patch
+        sha256: ab6193af1921b30f587b302fe385268510e80187ca83ca82d2bfe7ab544c6f91
+        url: https://www.python.org/ftp/python/3.6.3/Python-3.6.3.tgz
+build:
+    ignore_run_exports:
+        - bzip2
+    no_link:
+        - bin/python3.6
+    number: '7'
+    string: h47c878a_7
+requirements:
+    build:
+        - bzip2 1.0.6 h649919c_2
+        - ca-certificates 2017.08.26 ha1e5d58_0
+        - cctools 895 h7512d6f_0
+        - clang 4.0.1 h662ec87_0
+        - clang_osx-64 4.0.1 h9d74b7d_5
+        - clangxx 4.0.1 hc9b4283_0
+        - clangxx_osx-64 4.0.1 h557b0ca_5
+        - compiler-rt 4.0.1 h5487866_0
+        - ld64 274.2 h7c2db76_0
+        - libcxx 4.0.1 h579ed51_0
+        - libcxxabi 4.0.1 hebd6815_0
+        - libedit 3.1 hb4e282d_0
+        - libffi 3.2.1 h475c297_4
+        - llvm 4.0.1 hc748206_0
+        - llvm-lto-tapi 4.0.1 h6701bc3_0
+        - ncurses 6.0 hd04f020_2
+        - openssl 1.0.2m h86d3e6a_1
+        - pkg-config 0.29.2 h29070b1_6
+        - readline 7.0 hc1231fa_4
+        - sqlite 3.20.1 h7e4c145_2
+        - tk 8.6.7 h35a86e2_3
+        - xz 5.2.3 h0278029_2
+        - zlib 1.2.11 hf3cbc9b_2
+    host:
+        - bzip2 1.0.6 h649919c_2
+        - ca-certificates 2017.08.26 ha1e5d58_0
+        - libcxx 4.0.1 h579ed51_0
+        - libcxxabi 4.0.1 hebd6815_0
+        - libedit 3.1 hb4e282d_0
+        - libffi 3.2.1 h475c297_4
+        - ncurses 6.0 hd04f020_2
+        - openssl 1.0.2m h86d3e6a_1
+        - readline 7.0 hc1231fa_4
+        - sqlite 3.20.1 h7e4c145_2
+        - tk 8.6.7 h35a86e2_3
+        - xz 5.2.3 h0278029_2
+        - zlib 1.2.11 hf3cbc9b_2
+    run:
+        - libcxx  >=4.0.1
+        - libffi >=3.2.1,<4.0a0
+        - openssl >=1.0.2m,<1.0.3a
+        - readline >=7.0,<8.0a0
+        - sqlite >=3.20.1,<4.0a0
+        - tk >=8.6.7,<8.7.0a0
+        - xz >=5.2.3,<6.0a0
+        - zlib >=1.2.11,<1.3.0a0
+test:
+    commands:
+        - python -V
+        - python3 -V
+        - 2to3 -h
+        - pydoc -h
+        - python3-config --help
+        - python -c "import sysconfig; print(sysconfig.get_config_var('CC'))"
+        - conda inspect linkages -p $PREFIX python
+        - conda inspect objects -p $PREFIX python
+about:
+    description: 'Python is a widely used high-level, general-purpose, interpreted,
+        dynamic
+
+        programming language. Its design philosophy emphasizes code
+
+        readability, and its syntax allows programmers to express concepts in
+
+        fewer lines of code than would be possible in languages such as C++ or
+
+        Java. The language provides constructs intended to enable clear programs
+
+        on both a small and large scale.
+
+        '
+    dev_url: https://docs.python.org/devguide/
+    doc_source_url: https://github.com/python/pythondotorg/blob/master/docs/source/index.rst
+    doc_url: https://www.python.org/doc/versions/
+    home: http://www.python.org/
+    license: PSF
+    license_file: LICENSE
+    summary: General purpose programming language
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - jakirkham
+        - jjhelmus
+        - mingwandroid
+        - msarahan
+        - ocefpaf
+        - pelson

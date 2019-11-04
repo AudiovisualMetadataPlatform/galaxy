@@ -1,0 +1,78 @@
+# This file created by conda-build 3.0.15+56.gd43c51d
+# meta.yaml template originally from:
+# /Users/rdonnelly/conda/aggregate/pycparser-feedstock/recipe, last modified Wed Sep 20 04:40:08 2017
+# ------------------------------------------------
+
+package:
+    name: pycparser
+    version: '2.18'
+source:
+    fn: pycparser-2.18.tar.gz
+    sha256: 99a8ca03e29851d96616ad0404b4aad7d9ee16f25c9f9708a11faf2810f7b226
+    url: https://pypi.io/packages/source/p/pycparser/pycparser-2.18.tar.gz
+build:
+    number: '1'
+    script: python setup.py install --single-version-externally-managed --record=record.txt
+    string: py36h724b2fc_1
+requirements:
+    build:
+        - ca-certificates 2017.08.26 ha1e5d58_0
+        - certifi 2017.7.27.1 py36hd973bb6_0
+        - libcxx 4.0.1 h579ed51_0
+        - libcxxabi 4.0.1 hebd6815_0
+        - libedit 3.1 hb4e282d_0
+        - libffi 3.2.1 hd939716_3
+        - ncurses 6.0 ha932d30_1
+        - openssl 1.0.2l h57f3a61_2
+        - python 3.6.2 hd750463_11
+        - readline 7.0 h81b24a6_3
+        - setuptools 36.2.2 py36ha346308_0
+        - sqlite 3.20.1 h900c3b0_1
+        - tk 8.6.7 hcdce994_1
+        - xz 5.2.3 ha24016e_1
+        - zlib 1.2.11 h60db283_1
+    host:
+        - ca-certificates 2017.08.26 ha1e5d58_0
+        - certifi 2017.7.27.1 py36hd973bb6_0
+        - libcxx 4.0.1 h579ed51_0
+        - libcxxabi 4.0.1 hebd6815_0
+        - libedit 3.1 hb4e282d_0
+        - libffi 3.2.1 hd939716_3
+        - ncurses 6.0 ha932d30_1
+        - openssl 1.0.2l h57f3a61_2
+        - python 3.6.2 hd750463_11
+        - readline 7.0 h81b24a6_3
+        - setuptools 36.2.2 py36ha346308_0
+        - sqlite 3.20.1 h900c3b0_1
+        - tk 8.6.7 hcdce994_1
+        - xz 5.2.3 ha24016e_1
+        - zlib 1.2.11 h60db283_1
+    run:
+        - python >=3.6,<3.7.0a0
+test:
+    imports:
+        - pycparser
+        - pycparser.ply
+about:
+    description: 'pycparser is a complete parser of the C language, written in pure
+        Python
+
+        using the PLY parsing library.  It parses C code into an AST and can serve
+
+        as a front-end for C compilers or analysis tools.
+
+        '
+    dev_url: https://github.com/eliben/pycparser
+    doc_source_url: https://github.com/eliben/pycparser
+    doc_url: https://pypi.python.org/pypi/pycparser
+    home: https://github.com/eliben/pycparser
+    license: BSD 3-clause
+    license_family: BSD
+    license_file: LICENSE
+    summary: Complete C99 parser in pure Python
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - mingwandroid
+        - synapticarbors

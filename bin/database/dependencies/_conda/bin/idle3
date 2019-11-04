@@ -1,0 +1,5 @@
+#!/Users/dan/Documents/IU/Galaxy/galaxy/database/dependencies/_conda/bin/python
+
+from idlelib.pyshell import main
+if __name__ == '__main__':
+    main()

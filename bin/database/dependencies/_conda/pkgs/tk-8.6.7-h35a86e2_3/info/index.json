@@ -1,0 +1,13 @@
+{
+  "arch": "x86_64",
+  "build": "h35a86e2_3",
+  "build_number": 3,
+  "depends": [],
+  "license": "Tcl/Tk",
+  "license_family": "BSD",
+  "name": "tk",
+  "platform": "osx",
+  "subdir": "osx-64",
+  "timestamp": 1510171949600,
+  "version": "8.6.7"
+}

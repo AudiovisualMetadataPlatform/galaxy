@@ -1,0 +1,20 @@
+{
+  "arch": "x86_64",
+  "build": "h36134e3_0",
+  "build_number": 0,
+  "depends": [],
+  "files": [],
+  "installed_by": "Miniconda3-4.3.31-MacOSX-x86_64.sh",
+  "license": "BSD 3-Clause",
+  "link": {
+    "source": "/Users/dan/Documents/IU/Galaxy/galaxy/database/dependencies/_conda/pkgs/conda-env-2.6.0-h36134e3_0",
+    "type": "hard-link"
+  },
+  "md5": "0876f412b6123634607ae9c22a7bc805",
+  "name": "conda-env",
+  "platform": "osx",
+  "subdir": "osx-64",
+  "timestamp": 1505284772326,
+  "url": "https://repo.continuum.io/pkgs/main/osx-64/conda-env-2.6.0-h36134e3_0.tar.bz2",
+  "version": "2.6.0"
+}

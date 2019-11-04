@@ -1,0 +1,27 @@
+{
+  "arch": "x86_64",
+  "build": "hc338f04_2",
+  "build_number": 2,
+  "depends": [],
+  "files": [
+    "include/yaml.h",
+    "lib/libyaml-0.2.dylib",
+    "lib/libyaml.a",
+    "lib/libyaml.dylib",
+    "lib/libyaml.la",
+    "lib/pkgconfig/yaml-0.1.pc"
+  ],
+  "installed_by": "Miniconda3-4.3.31-MacOSX-x86_64.sh",
+  "license": "MIT",
+  "link": {
+    "source": "/Users/dan/Documents/IU/Galaxy/galaxy/database/dependencies/_conda/pkgs/yaml-0.1.7-hc338f04_2",
+    "type": "hard-link"
+  },
+  "md5": "dab654341f57e56b615a678800262b0e",
+  "name": "yaml",
+  "platform": "osx",
+  "subdir": "osx-64",
+  "timestamp": 1510610700770,
+  "url": "https://repo.continuum.io/pkgs/main/osx-64/yaml-0.1.7-hc338f04_2.tar.bz2",
+  "version": "0.1.7"
+}
