@@ -27,12 +27,17 @@ def main():
 
     doc = nlp(stt.result.transcript)
 
+    # Create the result object
     result = EntityExtraction()
+
+    # Add the media information
     result.media = EntityExtractionMedia(len(stt.result.transcript), input_file)
-    # Find named entities, phrases and concepts
+    
+    # Find named entities, phrases and concepts - Add them to the result
     for entity in doc.ents:
         result.addEntity(entity.label_, entity.text, entity.start_char, entity.end_char)
     
+    # Write the json file
     write_json_file(result, json_file)
 
 # Serialize obj and write it to output file
