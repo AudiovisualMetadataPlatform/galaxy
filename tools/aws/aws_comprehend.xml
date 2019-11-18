@@ -1,0 +1,21 @@
+<tool id="aws-comprehend" name="AWS Comprehend" version="1.0.2">
+  <description>TODO</description>
+    <requirements>
+        <requirement type="package" version="1.14">aws-cli</requirement>
+    </requirements>
+  <command detect_errors="exit_code">$__tool_directory__/aws_comprehend.py $input $output_file</command>
+  <inputs>
+    <param name="input" type="data" format="txt" label="From transcript" help="An transcript file"/>
+  </inputs>
+  <outputs>
+    <data format="json" name="output_file" />
+  </outputs>
+  <tests>
+  </tests>
+  <help>
+.. class:: infomark
+
+Transcribe speech audio input to text output using Amazon Transcribe Web Service.
+
+  </help>
+</tool>
