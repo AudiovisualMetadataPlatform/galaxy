@@ -9,9 +9,10 @@ class EntityExtraction:
 		else:
 			 self.entities = entities
 
-	def addEntity(self, type, text, beginOffset, endOffset, scoreType, scoreValue):
+	def addEntity(self, type, text, beginOffset, endOffset, scoreType = None, scoreValue = None):
 		entity = EntityExtractionEntity(type, text, beginOffset, endOffset)
-		entity.score = EntityExtractionEntityScore(scoreType, scoreValue)
+		if scoreType is not None and scoreValue is not None:
+			entity.score = EntityExtractionEntityScore(scoreType, scoreValue)
 		self.entities.append(entity)
 
 	@classmethod
