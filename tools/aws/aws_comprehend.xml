@@ -15,7 +15,7 @@
   <help>
 .. class:: infomark
 
-Transcribe speech audio input to text output using Amazon Comprehend Web Service.
+Entity extraction using Amazon Comprehend Web Service.
 
   </help>
 </tool>
