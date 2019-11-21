@@ -43,7 +43,7 @@ class EntityExtractionEntity:
 	text = ""
 	type = None
 	beginOffset = None
-	endOffset = None,
+	endOffset = None
 	score = None
 	def __init__(self, type = None, text = None, beginOffset = None, endOffset = None, score = None):
 		self.type = type
