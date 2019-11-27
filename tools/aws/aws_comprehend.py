@@ -57,7 +57,7 @@ def main():
     # Make call to aws comprehend
     output_uri = run_comprehend_job(jobName, inputS3Uri, outputS3Uri, dataAccessRoleArn)
 
-    uncompressed_file = download_from_s3(output_uri, outputS3Uri)
+    uncompressed_file = download_from_s3(output_uri, outputS3Uri, bucketName)
     
     if uncompressed_file is None:
         exit(1)
@@ -90,14 +90,14 @@ def write_json_file(obj, output_file):
     with open(output_file, 'w') as outfile:
         json.dump(obj, outfile, default=lambda x: x.__dict__)
 
-def download_from_s3(output_uri, base_uri):
+def download_from_s3(output_uri, base_uri, bucket_name):
     tarFileName = "comprehend_output.tar.gz"
     output_key = output_uri.replace(base_uri, '')
     s3_client = boto3.client('s3')
 
     # get the file from s3
     with open(tarFileName, 'wb') as f:
-        s3_client.download_fileobj('amp-test-dan', output_key, f)
+        s3_client.download_fileobj(bucket_name, output_key, f)
 
     # extract the contents of the .tar.gz file
     tar = tarfile.open(tarFileName)
@@ -113,7 +113,7 @@ def download_from_s3(output_uri, base_uri):
         return None
 
 def run_comprehend_job(jobName, inputS3Uri, outputS3Uri, dataAccessRoleArn):
-    comprehend = boto3.client(service_name='comprehend', region_name='us-east-1')
+    comprehend = boto3.client(service_name='comprehend', region_name='us-east-2')
     print("input uri:" + inputS3Uri)
     response = comprehend.start_entities_detection_job(
         InputDataConfig={
@@ -127,7 +127,7 @@ def run_comprehend_job(jobName, inputS3Uri, outputS3Uri, dataAccessRoleArn):
         JobName=jobName,
         LanguageCode='en'
     )
-
+    
     status = ''
     output_uri = ''
 
@@ -136,6 +136,7 @@ def run_comprehend_job(jobName, inputS3Uri, outputS3Uri, dataAccessRoleArn):
             JobId=response['JobId']
         )
         if 'EntitiesDetectionJobProperties' in jobStatusResponse.keys():
+            print(jobStatusResponse)
             status = jobStatusResponse['EntitiesDetectionJobProperties']['JobStatus']
             output_uri = jobStatusResponse['EntitiesDetectionJobProperties']['OutputDataConfig']['S3Uri']
             print(status)
