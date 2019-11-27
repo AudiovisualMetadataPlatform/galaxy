@@ -12,20 +12,17 @@ import uuid
 import time
 import tarfile
 from datetime import datetime
-
 import boto3
+
 sys.path.insert(0, os.path.abspath('../../../../../tools/amp_json_schema'))
 
 from entity_extraction_schema import EntityExtraction, EntityExtractionMedia, EntityExtractionEntity
 from speech_to_text_schema import SpeechToText, SpeechToTextMedia, SpeechToTextResult, SpeechToTextScore, SpeechToTextWord
 
 def main():
-    (input_file, json_file) = sys.argv[1:3]
+    (input_file, json_file, bucketName, dataAccessRoleArn) = sys.argv[1:5]
 
     # Variable declaration
-    bucketName = 'amp-test-dan'
-    dataAccessRoleArn = 'arn:aws:iam::185712587703:role/comprehend-role'
-
     outputS3Uri = 's3://' + bucketName + '/'
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     jobName = 'AwsComprehend-' + timestamp + ".json"
@@ -109,7 +106,7 @@ def download_from_s3(output_uri, base_uri):
     tar.close()
 
     safe_delete(tarFileName)
-    
+
     if len(test) > 0:
         return test[0].name
     else:
