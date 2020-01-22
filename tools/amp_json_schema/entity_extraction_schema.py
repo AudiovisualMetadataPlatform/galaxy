@@ -54,7 +54,7 @@ class EntityExtractionEntity:
 			self.beginOffset = beginOffset
 		if endOffset is not None and  float(endOffset) >= 0.00:
 			self.endOffset = endOffset
-		if end is not None and  float(end) >= 0.00:
+		if start is not None and  float(start) >= 0.00:
 			self.start = start
 		if end is not None and  float(end) >= 0.00:
 			self.end = end
