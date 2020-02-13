@@ -153,6 +153,10 @@ def cleanup_files(segments):
 	# Remove concatenated temporary file
 	if os.path.exists("output.wav"):
 		os.remove("output.wav") 
+	
+	if os.path.exists("tmp_blank.wav"):
+		os.remove("tmp_blank.wav") 
+		
 	# Remove each individual part if it exists
 	for s in range(0, segments):
 		this_segment_name = "tmp_" + str(s) + ".wav"
