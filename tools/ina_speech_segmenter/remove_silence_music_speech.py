@@ -63,7 +63,16 @@ def remove_silence(remove_type, seg_data, filename, output_file):
 
 	# Concetenate each of the individual parts into one audio file of speech
 	concat_files(segments, output_file)
+
 	return kept_segments
+
+def create_empty_file(output_file):
+	tmp_filename = "tmp_blank.wav"
+	ffmpeg_out = subprocess.Popen(['ffmpeg', '-f', 'lavfi', '-i', "sine=frequency=1000:duration=5", tmp_filename], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+	stdout,stderr = ffmpeg_out.communicate()
+	print(stdout)
+	print(stderr)
+	copyfile(tmp_filename, output_file)
 
 # Get the start offset after removing the buffer
 def get_start_with_buffer(start):
@@ -131,9 +140,12 @@ def concat_files(segments, output_file):
 
 		# Copy the temporary result to the final destination
 		copyfile("output.wav", output_file)
-	else:
+	elif segments == 1:
 		# Only have one segment, copy it to output file
 		copyfile("tmp_0.wav", output_file)
+	else:
+		create_empty_file(output_file)
+
 	# Cleanup temp files
 	cleanup_files(segments)
 
