@@ -1,0 +1,21 @@
+<tool id="tesseract" name="Tesseract Video OCR" version="1.0.0">
+  <description>Runs OCR on frames in a video</description>
+    <requirements>
+    </requirements>
+  <command detect_errors="exit_code">$__tool_directory__/tesseract_wrapper.py $input $json_out</command>
+   <inputs>
+   <!-- should be video data type -->
+    <param name="input" type="data" format="audio" label="From dataset" help="A video file"/>
+  </inputs>
+  <outputs>
+    <data format="segments" name="json_out" />
+  </outputs>
+  <tests>
+  </tests>
+  <help>
+.. class:: infomark
+
+Run a OCR using Tesseract on the image frames extracted from a video
+
+  </help>
+</tool>
