@@ -45,7 +45,6 @@ class HmgmRunner(AsynchronousJobRunner):
         self._init_worker_threads()
 
     def queue_job(self, job_wrapper):
-        log.debug("hmgmtest: queue job: " + job_wrapper.working_directory)
         self.prepare_job(job_wrapper)
         job_destination = job_wrapper.job_destination
         ajs = AsynchronousJobState(files_dir=job_wrapper.working_directory, job_wrapper=job_wrapper, job_id=job_wrapper.job_id, job_destination=job_destination)
@@ -107,7 +106,7 @@ class HmgmRunner(AsynchronousJobRunner):
             return False
         return True
     
-    # This mostly copied out of runners/local.py - handle 
+    # This copied out of runners/local.py - handle 
     def stop_job(self, job_wrapper):
         # if our local job has JobExternalOutputMetadata associated, then our primary job has to have already finished
         job = job_wrapper.get_job()
@@ -138,9 +137,11 @@ class HmgmRunner(AsynchronousJobRunner):
         else:
             log.warning("stop_job(): %s: PID %d refuses to die after signaling TERM/KILL" % (job.id, pid))
     
-    # Run job is a slightly modified version of run_job in runners/local.py.  It builds a command line proc
+    # Run job is a slightly modified version of run_job in runners/local.py - queue_job().  It builds a command line proc
     # to execute, reads the stdout and stderr, and returns the status
     def _run_job(self, job_wrapper):
+        # Removed: no need to prepare local job here
+        # Removed: stderr and stdout made class variables
         exit_code = 0
 
         # command line has been added to the wrapper by prepare_job()
@@ -157,26 +158,31 @@ class HmgmRunner(AsynchronousJobRunner):
                                     cwd=job_wrapper.working_directory,
                                     stdout=stdout_file,
                                     stderr=stderr_file,
+                                    # Removed: env
                                     preexec_fn=os.setpgrp)
 
             proc.terminated_by_shutdown = False
-
+             # Removed: no current need for _proc_lock s
             try:
                 job_wrapper.set_job_destination(job_wrapper.job_destination, proc.pid)
                 job_wrapper.change_state(model.Job.states.RUNNING)
 
+                # Removed: terminated check
+
                 # Reap the process and get the exit code.
                 exit_code = proc.wait()
-                 
+                            
+            # Begin change: Handle exception here   
             except Exception:
                 log.warning("Failed to read exit code from process")
+            # End change
 
             try:
-                exit_code = int(open(exit_code_path, 'r').read())                    
+                exit_code = int(open(exit_code_path, 'r').read())      
             except Exception:
                 log.warning("Failed to read exit code from path %s" % exit_code_path)
+                # Remove "pass"
                 
-            log.debug("EXIT_CODE_AMP" + str(exit_code))
             if proc.terminated_by_shutdown:
                 self._fail_job_local(job_wrapper, "job terminated by Galaxy shutdown")
                 return -1
@@ -191,9 +197,12 @@ class HmgmRunner(AsynchronousJobRunner):
         except Exception:
             log.exception("failure running job %d", job_wrapper.job_id)
             self._fail_job_local(job_wrapper, "failure running job")
+            # Begin change: Return "Fail" exit code here
             return -1
-        
+            # End change
+        # Begin change: Return exit code
         return exit_code
+        # End change
 
     # Copied from runners/local.py
     def _fail_job_local(self, job_wrapper, message):
