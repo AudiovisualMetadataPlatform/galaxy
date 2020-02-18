@@ -29,7 +29,7 @@ from ..runners import (
 
 log = logging.getLogger(__name__)
 stdout = ''
-stderr = ''
+stderr = 'None'
 
 DEFAULT_POOL_SLEEP_TIME = 5
 
@@ -59,13 +59,13 @@ class HmgmRunner(AsynchronousJobRunner):
         if exit_code==0:
             job_state.running = False
             job_state.job_wrapper.change_state(model.Job.states.OK)
-            self.mark_as_finished(job_state)
             try:
                 # Write the output
                 self.create_log_file(job_state, exit_code)
             except Exception:
                 log.exception("Job wrapper finish method failed")
                 self._fail_job_local(job_state.job_wrapper, "Unable to finish job")
+            self.mark_as_finished(job_state)
             return None
         # This is a HMGM is not complete, try again later
         elif exit_code==1:
@@ -167,7 +167,7 @@ class HmgmRunner(AsynchronousJobRunner):
 
                 # Reap the process and get the exit code.
                 exit_code = proc.wait()
-                                  
+                 
             except Exception:
                 log.warning("Failed to read exit code from process")
 
@@ -176,7 +176,7 @@ class HmgmRunner(AsynchronousJobRunner):
             except Exception:
                 log.warning("Failed to read exit code from path %s" % exit_code_path)
                 
-
+            log.debug("EXIT_CODE_AMP" + str(exit_code))
             if proc.terminated_by_shutdown:
                 self._fail_job_local(job_wrapper, "job terminated by Galaxy shutdown")
                 return -1
