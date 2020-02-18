@@ -2,13 +2,12 @@
   <description>Runs OCR on frames in a video</description>
     <requirements>
     </requirements>
-  <command detect_errors="exit_code">$__tool_directory__/tesseract_wrapper.py $input $json_out</command>
-   <inputs>
-   <!-- should be video data type -->
-    <param name="input" type="data" format="audio" label="From dataset" help="A video file"/>
+  <command detect_errors="exit_code"> $__tool_directory__/run-tesseract.py $input $json_out</command>
+  <inputs>
+    <param name="input" type="data" format="video" label="Video File" help="A video file input for OCR"/>
   </inputs>
   <outputs>
-    <data format="segments" name="json_out" />
+    <data format="json" name="ocr_json_output" />
   </outputs>
   <tests>
   </tests>

@@ -6,35 +6,37 @@ import json
 import sys
 import time
 import subprocess
+import shlex
+import pprint
+import shutil
+# Python imports
+try:
+    from PIL import Image
+except ImportError:
+    import Image
 
 from datetime import timedelta
 from decimal import Decimal
-
-#clear old images
-#!rm -rf "temp"/*
-
+from pytesseract import Output
 
 def main():
 	(input_file, start, duration) = sys.argv[1:4]
 	os.mkdir("temp/"+input_file[:-4])
-	command = "ffmpeg -i "+input_file+ " -an -vf fps=2 'temp/"+input_file+"/frame_%05d.jpg'"
-	#print(command)
+
+	#ffmpeg part starts here
+	command = "ffmpeg -i "+input_file+ " -an -vf fps=2 'temp/"+input_file[:-4]+"/frame_%05d.jpg'"
 	subprocess.call(command, shell=True)
-	#command = "rm -R temp/"
-	#subprocess.call(command)  	
 	
 	#Tesseract part starts here	
 	script_start = time.time()
-	directory = "temp/" + input_file
-	output_name =  input_file+ "-ocr.json"
+	directory = "temp/" + input_file[:-4]
+	output_name =  input_file[:-4]+ "-ocr.json"
 	
 	# Get some stats on the video
-	dim = getDimensions(input_file)
-	framerate = getFramerate(input_file)
-	numFrames = getNumFrames(input_file)
+	(dim, framerate, numFrames) = findVideoMetada(input_file)
 
-	output = {"media": {"filename": s["filename"],
-			"duration": str(s["sample_duration"]),
+	output = {"media": {"filename": input_file,
+			"duration": str(duration),
           		"framerate": framerate,
           		"numFrames": numFrames,
           		"resolution": {
@@ -45,6 +47,7 @@ def main():
 			},
 		"frames": []
 		}
+	
 	#for every saved frame
 	for num, img in enumerate(sorted(os.listdir(directory))): 
 		start_time =+ (.5*num) 
@@ -77,14 +80,12 @@ def main():
       		#save frame if it had text
 		if len(frameList["boundingBoxes"]) > 0:
 			output["frames"].append(frameList)
-			#print(frame)
   
 	with open(output_name, 'w') as outfile:
 		json.dump(output, outfile)
-  	
-	print("Finished " + output_name + " in " + str(time.time()-script_start) + "s")		
-
-	#os.remove("temp/"+input_file+"_*.jpg")
+	
+	#clear generated images
+	shutil.rmtree("temp/"+input_file[:-4])
 
 
 def call_tesseract():
@@ -93,27 +94,26 @@ def call_tesseract():
 	
 
 # UTIL FUNCTIONS
-def getDimensions(path):
-	dim_cmd = "ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "+path
-	print("========The dim_cmd is:",dim_cmd)
-	dim = subprocess.call(dim_cmd, shell=True)
-	print(path)
-	print("dim======>",dim)
-	return dim[0].split("x")
+def findVideoMetada(pathToInputVideo):
+	cmd = "ffprobe -v quiet -print_format json -show_streams"
+	args = shlex.split(cmd)
+	args.append(pathToInputVideo)
+	
+	# run the ffprobe process, decode stdout into utf-8 & convert to JSON
+	ffprobeOutput = subprocess.check_output(args).decode('utf-8')
+	ffprobeOutput = json.loads(ffprobeOutput)
 
+	# prints all the metadata available:  ---->for debugging
+	#pp = pprint.PrettyPrinter(indent=2)
+	#pp.pprint(ffprobeOutput)
 
-def getFramerate(path):
-	fr_cmd = "ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rate -of default=nokey=1:noprint_wrappers=1 "+path
-	fr = subprocess.call(fr_cmd, shell=True)	
-	print("fr=======>",int(fr[0].split('/')[0]))
-	return int(fr[0].split('/')[0])
+	#find height and width
+	height = ffprobeOutput['streams'][0]['height']
+	width = ffprobeOutput['streams'][0]['width']
+	frame_rate = ffprobeOutput['streams'][0]['avg_frame_rate']
+	numFrames = ffprobeOutput['streams'][0]['nb_frames']
 
-def getNumFrames(path):
-	nf_cmd = "ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames -of default=nokey=1:noprint_wrappers=1 "+path
-	nf = subprocess.call(nf_cmd, shell=True)	
-	print("nf======>",int(nf[0]))
-	return int(nf[0])
-  
+	return ([height, width], frame_rate, numFrames)
 
 
 if __name__ == "__main__":
