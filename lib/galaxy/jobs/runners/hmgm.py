@@ -167,8 +167,7 @@ class HmgmRunner(AsynchronousJobRunner):
 
                 # Reap the process and get the exit code.
                 exit_code = proc.wait()
-
-                exit_code = int(open(exit_code_path, 'r').read())                    
+                                  
             except Exception:
                 log.warning("Failed to read exit code from process")
 
