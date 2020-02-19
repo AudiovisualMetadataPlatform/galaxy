@@ -1,5 +1,6 @@
-# Python imports
+#!/usr/bin/env python3
 
+# Python imports
 import pytesseract
 import os
 import json
@@ -15,28 +16,28 @@ try:
 except ImportError:
     import Image
 
-from datetime import timedelta
+from datetime import datetime
 from decimal import Decimal
 from pytesseract import Output
 
 def main():
-	(input_file, start, duration) = sys.argv[1:4]
-	os.mkdir("temp/"+input_file[:-4])
+	(input_file, output_name) = sys.argv[1:3]
+	os.mkdir(input_file[:-4])
+	dateTimeObj = datetime.now()
 
 	#ffmpeg part starts here
-	command = "ffmpeg -i "+input_file+ " -an -vf fps=2 'temp/"+input_file[:-4]+"/frame_%05d.jpg'"
+	command = "ffmpeg -i "+input_file+ " -an -vf fps=2 '"+input_file[:-4]+"/frame_%05d_"+str(dateTimeObj)+".jpg'"
 	subprocess.call(command, shell=True)
 	
 	#Tesseract part starts here	
 	script_start = time.time()
-	directory = "temp/" + input_file[:-4]
-	output_name =  input_file[:-4]+ "-ocr.json"
+	directory = input_file[:-4]+"/"
+	#output_name =  input_file[:-4]+ "-ocr_"+str(dateTimeObj)+".json"
 	
 	# Get some stats on the video
 	(dim, framerate, numFrames) = findVideoMetada(input_file)
 
 	output = {"media": {"filename": input_file,
-			"duration": str(duration),
           		"framerate": framerate,
           		"numFrames": numFrames,
           		"resolution": {
@@ -49,6 +50,7 @@ def main():
 		}
 	
 	#for every saved frame
+	start_time = 0
 	for num, img in enumerate(sorted(os.listdir(directory))): 
 		start_time =+ (.5*num) 
 		frameList = {"start": str(start_time),
@@ -83,14 +85,13 @@ def main():
   
 	with open(output_name, 'w') as outfile:
 		json.dump(output, outfile)
+	pp = pprint.PrettyPrinter(indent=2)
+	pp.pprint(output)
+
 	
 	#clear generated images
-	shutil.rmtree("temp/"+input_file[:-4])
+	#shutil.rmtree(input_file[:-4])
 
-
-def call_tesseract():
-	script_start = time.time()
-	output_name =  input_file+ "-ocr.json"
 	
 
 # UTIL FUNCTIONS
