@@ -90,7 +90,7 @@ def main():
 
 	
 	#clear generated images
-	#shutil.rmtree(input_file[:-4])
+	shutil.rmtree(input_file[:-4])
 
 	
 
