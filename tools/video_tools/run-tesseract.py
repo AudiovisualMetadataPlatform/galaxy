@@ -25,11 +25,11 @@ def main():
 	os.mkdir(input_file[:-4])
 	dateTimeObj = datetime.now()
 
-	#ffmpeg part starts here
+	#ffmpeg extracts the frames from the video input
 	command = "ffmpeg -i "+input_file+ " -an -vf fps=2 '"+input_file[:-4]+"/frame_%05d_"+str(dateTimeObj)+".jpg'"
 	subprocess.call(command, shell=True)
 	
-	#Tesseract part starts here	
+	#Tesseract runs the ocr on frames extracted
 	script_start = time.time()
 	directory = input_file[:-4]+"/"
 	#output_name =  input_file[:-4]+ "-ocr_"+str(dateTimeObj)+".json"
@@ -85,9 +85,6 @@ def main():
   
 	with open(output_name, 'w') as outfile:
 		json.dump(output, outfile)
-	pp = pprint.PrettyPrinter(indent=2)
-	pp.pprint(output)
-
 	
 	#clear generated images
 	shutil.rmtree(input_file[:-4])
