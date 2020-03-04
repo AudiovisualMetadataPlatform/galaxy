@@ -10,7 +10,7 @@ import json
 # Usage: hmgm_main.py task_type log_path context_json input_json output_json task_info 
 def main():
     # parse command line arguments
-    task_type = sys.argv[1]     # type of HMGM task: (TRANSCRIPT, NER, SEGMENTATION), there is one HMGM wrapper per type
+    task_type = sys.argv[1]     # type of HMGM task: (Transcript, NER, Segmentation, OCR), there is one HMGM wrapper per type
     log_path = sys.argv[2]      # path for HMGM logs and tmp files
     context_json = sys.argv[3]  # context info needed for creating HMGM tasks
     input_json = sys.argv[4]    # input file for HMGM task in json format
@@ -52,14 +52,14 @@ def close_task(context_json, task_info):
 # Create subclass of task instance based on task platform specified in the given context.
 def get_task_manager(log_path, context_json):
     context = json.loads(context_json)
-    manager = context['taskManager']
-    assert manager in ('JIRA', 'OPENPROJECT', 'REDMINE')
+    manager = context["taskManager"]
+    assert manager in ("Jira", "OpenProject", "Redmine")
     # create subclass of task instance based on task platform specified in context
-    if manager == 'JIRA':
+    if manager == "Jira":
         taskManager = TaskJira(task_type, log_path, context_json, input_json, output_json, task_info)
-    elif manager == 'OPENPROJECT':
+    elif manager == "OpenProject":
         taskManager = TaskOpenproject(task_type, log_path, context_json, input_json, output_json, task_info)
-    elif manager == 'REDMINE':
+    elif manager == "Redmine":
         taskManager = TaskRedmine(task_type, log_path, context_json, input_json, output_json, task_info)            
     return taskManager
 
