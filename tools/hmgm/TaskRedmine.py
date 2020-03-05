@@ -1,13 +1,15 @@
-class TaskJira (TaskManager):
+class TaskRedmine (TaskManager):
      """Subclass of TaskManager implementing HMGM task management with Redmine platforms."""
      
-     def __init__(self, log_path):
-         self.log_path = log_path
+     def __init__(self, root_dir):
+         self.root_dir = root_dir
+         # TODO add logic to set up Open Project task manager
+
      
-     def create_task(self, task_type, context, input_json, output_json, task_info):
+     def create_task(self, task_type, context, input_json, output_json, task_json):
          # TODO replace with real logic
          return None
      
-     def close_task(self, task_info):
+     def close_task(self, task_json):
          # TODO replace with real logic
          return None
