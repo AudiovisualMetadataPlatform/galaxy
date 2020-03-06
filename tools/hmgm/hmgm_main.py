@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
+import json
 import os
 import os.path
 import sys
-import json
+import shutil
+import configparser
+
 
 # class HmgmBase:
 #     """Abstract base class defining the API for all HMGM implementations, which are based on task management platforms."""
-
-
 # Usage: hmgm_main.py task_type root_dir context_json input_json output_json task_json 
 def main():
     # parse command line arguments
@@ -22,11 +23,14 @@ def main():
         if not task_created(task_json):
             create_task(task_type, root_dir, context_json, input_json, output_json, task_json)
             exit(1) 
-        elif task_completed(output_json):
-            close_task(context_json, task_json)
-            exit(0)
+#         elif task_completed(output_json):
         else:
-             exit(1)        
+            output_path = task_completed(input_json)
+            if (output_path):
+                close_task(context_json, output_path, task_json)
+                exit(0)
+            else:
+                exit(1)        
     except Exception as e:
         exit(-1)
 
@@ -36,14 +40,27 @@ def task_created(task_json):
     return os.path.exists(task_json)
 
 
-# Return true if HMGM task has already been completed, i.e. the output JSON file exists.
-def task_completed(output_json):   
-    return os.path.exists(output_json)
+# If HMGM task has already been completed, i.e. the output JSON file exists, return the output file path; otherwise return False. 
+def task_completed(input_json):   
+    # It's assumed that all HMGMs generate the output file in the same directory as the input file with ".completed" added to the original filename
+    output_path = get_editor_input_path(input_json) + ".complete"
+    if os.path.exists(output_path):
+        return output_path
+    else:
+        return False
+
+
+# # Return true if HMGM task has already been completed, i.e. the output JSON file exists.
+# def task_completed(output_json):   
+#     return os.path.exists(output_json)
 
 
 # Create an HMGM task in the specified task management platform with the given context, and input/output files, 
 # save information about the created task into a json file, and return the created task.
 def create_task(task_type, root_dir, context_json, input_json, output_json, task_json):
+    # set up the input file in the designated location for HMGM task editor to pick up
+    setup_editor_input_file(input_json)
+    
     # get task management instance based on task platform specified in context
     taskManager = get_task_manager(root_dir, context_json)
     
@@ -52,7 +69,10 @@ def create_task(task_type, root_dir, context_json, input_json, output_json, task
     
     
 # Close the HMGM task specified in the task information file in the corresponding task mamangement platform.
-def close_task(context_json, task_json):
+def close_task(context_json, output_path, task_json):
+    # set up the output file dropped by HMGM task editor in the designated location
+    
+    
     # get task management instance based on task platform specified in context
     taskManager = get_task_manager(root_dir, context_json)
     
@@ -74,6 +94,46 @@ def get_task_manager(root_dir, context_json):
     elif manager == "Redmine":
         taskManager = TaskRedmine(root_dir)            
     return taskManager
+
+
+# Derive the input json file path for HMGM tool editor, based on the given input json file passed in from the corresponding Galaxy job. 
+def get_editor_input_path(input_json):
+    # Note: 
+    # The reason we don't pass the original Galaxy input_json path to HMGM task tools is that we want to avoid exposing the internal Galaxy file system to external apps; 
+    # for security concerns. Instead, we can use a designated directory for passing input/output files, and generate a soft link in (or copy the file to) this 
+    # directory, using a filename unique mapped from the original filename. 
+
+    config = configparser.ConfigParser()
+    config.read(root_dir + "/config/hmgm.ini")    
+    io_dir = config["amppd"]["io_dir"] 
+
+    # TODO replace below code with logic to generate an obscure soft link based on the original file path
+    # for now we just use the original filename within the designated directory
+    filename = os.path.basename(input_json)
+    filepath = io_dir + "/" + filename
+    
+    return filepath
+     
+# Set up the input file of the given input json in the designated location for the HMGM editor to pick up.     
+def setup_editor_input_file(input_json):     
+    # TODO update logic here as needed to generate an obscure soft link instead of copying
+    # for now lets copy the file
+    input_path = get_editor_input_path(input_json)
+    shutil.copy(input_json, input_path)
+    return input_path
+
+
+# Set up the output file dropped by HMGM task editor for the given input json in the designated location; 
+# also, (optionally) clean up the corresponding input file in that directory 
+def setup_editor_output_file(output_path, output_json):     
+    # TODO update logic here as needed to generate an obscure soft link instead of copying
+    # for now lets copy the file
+    input_path = get_editor_input_path(input_json)
+    
+    # move the completed output file to the location expected by Galaxy
+    shutil.move(input_json, input_path)
+    return input_path
+
 
 
 if __name__ == "__main__":

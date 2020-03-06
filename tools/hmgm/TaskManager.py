@@ -1,5 +1,5 @@
 from __builtin__ import True
-
+import configparser
 
 class TaskManager:
      """Abstract base class defining the API for all HMGM task management implementations, which are based on task management platforms."""
