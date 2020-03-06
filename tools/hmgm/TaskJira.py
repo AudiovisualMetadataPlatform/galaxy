@@ -1,34 +1,34 @@
 from jira import JIRA
-import configparser
- 
+
  
 class TaskJira (TaskManager):
      """Subclass of TaskManager implementing HMGM task management with Jira platforms."""
      
      
-     # Set up jira instance with properties in the HMGM config file
-     def __init__(self, root_dir):
+     # Set up jira instance with properties in the given configuration instance.
+     def __init__(self, config):
 #          self.root_dir = root_dir
 #          self.config = configparser.ConfigParser()
 #          self.config.read(root_dir + "/config/hmgm.ini")    
-         super().__init__(root_dir)
+#          super().__init__(root_dir)
+         super().__init__(config)
          
          # get Jira server info from the config 
-         jira_server = self.config["jira"]["server"]
-         jira_username = self.config["jira"]["username"]
-         jira_password = self.config["jira"]["password"]         
+         jira_server = config["jira"]["server"]
+         jira_username = config["jira"]["username"]
+         jira_password = config["jira"]["password"]         
          self.jira = JIRA(server = jira_server, basic_auth = (jira_username, jira_password))
          
          
      # Create a jira issue given the task_type, context, input/output json, 
-     # save information about the created issue into a json file, and return the issue.
-     def create_task(self, task_type, context, input_json, output_json, task_json):
+     # save information about the created issue into a JSON file, and return the issue.
+     def create_task(self, task_type, context, input_path, task_json):
          # populate the jira fields into a dictionary with information from task_type and context etc
          project = {"key": "HMGM"}
-         issuetype = {"name": "task"}
+         issuetype = {"name": "Task"}
          labels = [task_type]
          summary = context["primaryfileName"] + " - " + context["workflowName"] 
-         description = get_task_description(task_type, context, input_json, output_json)         
+         description = get_task_description(task_type, context, input_path)         
          jira_fields = {"project" : project, "issuetype": issuetype, "labels": labels, "summary": summary, "description": description}
          
          # create a new task jira using jira module
