@@ -6,21 +6,21 @@ class TaskJira (TaskManager):
      """Subclass of TaskManager implementing HMGM task management with Jira platforms."""
      
      
-     # Set up jira instance with properties in the config file
+     # Set up jira instance with properties in the HMGM config file
      def __init__(self, root_dir):
 #          self.root_dir = root_dir
 #          self.config = configparser.ConfigParser()
 #          self.config.read(root_dir + "/config/hmgm.ini")    
-         super(root_dir)
+         super().__init__(root_dir)
          
          # get Jira server info from the config 
-         server = self.config["jira"]["server"]
-         username = self.config["jira"]["username"]
-         password = self.config["jira"]["password"]         
-         self.jira = JIRA(server = server, basic_auth = (username, password))
+         jira_server = self.config["jira"]["server"]
+         jira_username = self.config["jira"]["username"]
+         jira_password = self.config["jira"]["password"]         
+         self.jira = JIRA(server = jira_server, basic_auth = (jira_username, jira_password))
          
          
-     # Create a jira issue given the task_type, contex, input/output json, 
+     # Create a jira issue given the task_type, context, input/output json, 
      # save information about the created issue into a json file, and return the issue.
      def create_task(self, task_type, context, input_json, output_json, task_json):
          # populate the jira fields into a dictionary with information from task_type and context etc
@@ -51,7 +51,7 @@ class TaskJira (TaskManager):
          return issue
      
           
-     # Close the jira issue specified in task_json and return the issue.          
+     # Close the jira issue specified in task_json by updating its status and relevant fields, and return the issue.          
      def close_task(self, task_json):
          # read jira issue info from task_json into a dictionary
          issue_dict = json.loads(task_json)
