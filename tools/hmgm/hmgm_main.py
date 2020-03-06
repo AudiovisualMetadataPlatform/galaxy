@@ -6,6 +6,8 @@ import sys
 import shutil
 import configparser
 
+# It's assumed that all HMGMs generate the output file in the same directory as the input file with ".completed" suffix added to the original filename
+HMGM_OUTPUT_SUFFIX = ".complete"
 
 # class HmgmBase:
 #     """Abstract base class defining the API for all HMGM implementations, which are based on task management platforms."""
@@ -27,7 +29,7 @@ def main():
         else:
             output_path = task_completed(input_json)
             if (output_path):
-                close_task(context_json, output_path, task_json)
+                close_task(root_dir, context_json, output_path, output_json, task_json)
                 exit(0)
             else:
                 exit(1)        
@@ -42,8 +44,7 @@ def task_created(task_json):
 
 # If HMGM task has already been completed, i.e. the output JSON file exists, return the output file path; otherwise return False. 
 def task_completed(input_json):   
-    # It's assumed that all HMGMs generate the output file in the same directory as the input file with ".completed" added to the original filename
-    output_path = get_editor_input_path(input_json) + ".complete"
+    output_path = get_editor_input_path(input_json) + HMGM_OUTPUT_SUFFIX
     if os.path.exists(output_path):
         return output_path
     else:
@@ -69,9 +70,9 @@ def create_task(task_type, root_dir, context_json, input_json, output_json, task
     
     
 # Close the HMGM task specified in the task information file in the corresponding task mamangement platform.
-def close_task(context_json, output_path, task_json):
+def close_task(root_dir, context_json, output_path, output_json, task_json):
     # set up the output file dropped by HMGM task editor in the designated location
-    
+    cleanup_editor_output_file(output_path, output_json)
     
     # get task management instance based on task platform specified in context
     taskManager = get_task_manager(root_dir, context_json)
@@ -120,20 +121,20 @@ def setup_editor_input_file(input_json):
     # for now lets copy the file
     input_path = get_editor_input_path(input_json)
     shutil.copy(input_json, input_path)
+#     os.symlink(input_json, input_path)
     return input_path
 
 
-# Set up the output file dropped by HMGM task editor for the given input json in the designated location; 
-# also, (optionally) clean up the corresponding input file in that directory 
-def setup_editor_output_file(output_path, output_json):     
-    # TODO update logic here as needed to generate an obscure soft link instead of copying
-    # for now lets copy the file
-    input_path = get_editor_input_path(input_json)
-    
+# Clean up the output file dropped by HMGM task editor for the given input json by moving it from the designated location to the output file expected by Galaxy job;
+# also, (optionally) clean up the corresponding input file in that directory, and return the input file path.
+def cleanup_editor_output_file(output_path, output_json):     
     # move the completed output file to the location expected by Galaxy
-    shutil.move(input_json, input_path)
-    return input_path
+    shutil.move(output_path, output_json)
 
+    # TODO decide if it's better to remove the input file here or do it in a batch process
+    input_path = output_path[:-len(HMGM_OUTPUT_SUFFIX)]
+    
+    return input_path
 
 
 if __name__ == "__main__":
