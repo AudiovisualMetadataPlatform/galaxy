@@ -58,13 +58,14 @@ class TaskJira (TaskManager):
      # Close the jira issue specified in task_json by updating its status and relevant fields, and return the issue.          
      def close_task(self, task_json):
          # read jira issue info from task_json into a dictionary
-         issue_dict = json.loads(task_json)
+         with open(task_json, 'r') as task_file:
+             issue_dict = json.load(task_file)
          
          # get the jira issue using id
          issue = self.jira.issue(issue_dict["id"])
          
          # retrieve transition ID based on name = Done instead of hard coding it, if the ID might be different
-         transitions = jira.transitions(issue)
+         transitions = self.jira.transitions(issue)
          for t in transitions:
              if t["name"] == "Done":    # Done is the status when an issue is closed
                  id = t["id"]
