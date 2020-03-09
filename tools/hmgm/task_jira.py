@@ -1,4 +1,7 @@
+import json
 from jira import JIRA
+
+from task_manager import TaskManager
 
  
 class TaskJira (TaskManager):
@@ -28,7 +31,7 @@ class TaskJira (TaskManager):
          issuetype = {"name": "Task"}
          labels = [task_type]
          summary = context["primaryfileName"] + " - " + context["workflowName"] 
-         description = get_task_description(task_type, context, input_path)         
+         description = self.get_task_description(task_type, context, input_path)         
          jira_fields = {"project" : project, "issuetype": issuetype, "labels": labels, "summary": summary, "description": description}
          
          # create a new task jira using jira module
@@ -38,7 +41,8 @@ class TaskJira (TaskManager):
          issue_dict = {"id": issue.id, "key": issue.key, "url": issue.permalink()} 
 
          # write jira issue into task_json file to indicate successful creation of the task
-         json.dump(issue_dict, task_json)
+         with open(task_json, "w") as task_file:
+             json.dump(issue_dict, task_file)
          
 #          jira_json = {"fields": fields}          
 #          # create a json file containing the jira info, needed by Jira creation REST API

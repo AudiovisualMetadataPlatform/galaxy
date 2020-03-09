@@ -1,3 +1,6 @@
+from task_manager import TaskManager
+
+
 class TaskRedmine (TaskManager):
      """Subclass of TaskManager implementing HMGM task management with Redmine platforms."""
      

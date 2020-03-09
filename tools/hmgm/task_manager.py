@@ -1,4 +1,4 @@
-from __builtin__ import True
+# from __builtin__ import True
 
 
 class TaskManager:
@@ -33,26 +33,26 @@ class TaskManager:
          description += "Item " + context["itemId"] + ": " + context["itemName"] + "\n"
          description += "Primary File " + context["primaryfileId"] + ": " + context["primaryfileName"] + "\n"
          description += "Workflow " + context["workflowId"] + ": " + context["workflowName"] + "\n"              
-         description += "Editor URL: " + get_editor_url(task_type, context["primaryfileUrl"], input_path)          
+         description += "Editor URL: " + self.get_editor_url(task_type, context["primaryfileUrl"], input_path)          
          return description
      
      
      # Return the URL link to the editor tool for an HMGM task based on the given task_type, media, input file etc.
      def get_editor_url(self, task_type, media, input_path):
-         assert task_type in (TRANSCRIPT, NER, SEGMENTATION, OCR)
+         assert task_type in (self.TRANSCRIPT, self.NER, self.SEGMENTATION, self.OCR)
          
-         if task_type == TRANSCRIPT:
+         if task_type == self.TRANSCRIPT:
              url = self.amppd_server + self.transcript_api 
              url += "?" + self.transcript_input + "=" + input_path
 #              url += "&" + self.transcript_output + "=" + output_json
              url += "&" + self.transcript_media + "=" + media
-         elif task_type == NER:
+         elif task_type == self.NER:
              # TODO url for NER
              url = self.amppd_server;
-         elif task_type == SEGMENTATION:
+         elif task_type == self.SEGMENTATION:
              # TODO url for SEGMENTATION
              url = self.amppd_server;
-         elif task_type == OCR:
+         elif task_type == self.OCR:
              # TODO url for OCR
              url = self.amppd_server;
 

@@ -7,6 +7,10 @@ import os.path
 import sys
 import shutil
 
+from task_jira import TaskJira
+from task_openproject import TaskOpenproject 
+from task_redmine import TaskRedmine
+
 
 # It's assumed that all HMGMs generate the output file in the same directory as the input file with ".completed" suffix added to the original filename
 HMGM_OUTPUT_SUFFIX = ".complete"
@@ -20,24 +24,27 @@ def main():
     # parse command line arguments
     task_type = sys.argv[1]     # type of HMGM task: (Transcript, NER, Segmentation, OCR), there is one HMGM wrapper per type
     root_dir = sys.argv[2]      # path for Galaxy root directory; HMGM property files, logs and tmp files are relative to the root_dir
-    context_json = sys.argv[3]  # context info as json string needed for creating HMGM tasks
-    input_json = sys.argv[4]    # input file for HMGM task in json format
-    output_json = sys.argv[5]   # output file for HMGM task in json format
-    task_json = sys.argv[6]     # json file storing information about the HMGM task, such as ticket # etc
+    input_json = sys.argv[3]    # input file for HMGM task in json format
+    output_json = sys.argv[4]   # output file for HMGM task in json format
+    task_json = sys.argv[5]     # json file storing information about the HMGM task, such as ticket # etc
+    context_json = sys.argv[6]  # context info as json string needed for creating HMGM tasks
 
     try:
         config = config_hmgm(root_dir);
+        context = json.loads(context_json)
+
         if not task_created(task_json):
-            create_task(config, task_type, context_json, input_json, output_json, task_json)
+            create_task(config, task_type, context, input_json, output_json, task_json)
             exit(1) 
         else:
             output_path = task_completed(config, input_json)
             if (output_path):
-                close_task(config, context_json, output_path, output_json, task_json)
+                close_task(config, context, output_path, output_json, task_json)
                 exit(0)
             else:
                 exit(1)        
     except Exception as e:
+        print (e.message)
         exit(-1)
 
 
@@ -55,7 +62,7 @@ def task_created(task_json):
 
 # If HMGM task has already been completed, i.e. the output JSON file for the given input JSON file exists, return the output file path; otherwise return False. 
 def task_completed(config, input_json):   
-    output_path = get_editor_input_path(input_json) + HMGM_OUTPUT_SUFFIX
+    output_path = get_editor_input_path(config, input_json) + HMGM_OUTPUT_SUFFIX
     if os.path.exists(output_path):
         return output_path
     else:
@@ -69,24 +76,24 @@ def task_completed(config, input_json):
 
 # Create an HMGM task in the specified task management platform with the given context and input/output files, 
 # save information about the created task into a JSON file, and return the created task.
-def create_task(config, task_type, context_json, input_json, output_json, task_json):
+def create_task(config, task_type, context, input_json, output_json, task_json):
     # set up the input file in the designated location for HMGM task editor to pick up
     input_path = setup_editor_input_file(config, input_json)
     
     # get task management instance based on task platform specified in context
-    taskManager = get_task_manager(config, context_json)
+    taskManager = get_task_manager(config, context)
     
     # calling task manager API to create task in the corresponding platform
     return taskManager.create_task(task_type, context, input_path, task_json)
     
     
 # Close the HMGM task specified in the task information file in the corresponding task mamangement platform.
-def close_task(config, context_json, output_path, output_json, task_json):
+def close_task(config, context, output_path, output_json, task_json):
     # clean up the output file dropped by HMGM task editor in the designated location
     cleanup_editor_output_file(output_path, output_json)
     
     # get task management instance based on task platform specified in context
-    taskManager = get_task_manager(config, context_json)
+    taskManager = get_task_manager(config, context)
     
     # calling task manager API to close task in the corresponding platform
     return taskManager.close_task(task_json)
@@ -131,8 +138,7 @@ def get_editor_input_path(config, input_json):
      
     
 # Create subclass of task manager instance based on task platform specified in the given context.
-def get_task_manager(config, context_json):
-    context = json.loads(context_json)
+def get_task_manager(config, context):
     manager = context["taskManager"]
     assert manager in (JIRA, OPEN_PROJECT, REDMINE)
     
