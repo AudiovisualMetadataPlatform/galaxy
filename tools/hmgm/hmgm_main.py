@@ -60,7 +60,12 @@ def config_hmgm(root_dir):
  
 # Return true if HMGM task has already been created, i.e. the file containing the HMGM task info exists.
 def task_created(task_json):
-    return os.path.exists(task_json)
+    # since Galaxy creates all output files with size 0 upon starting a job, we can't use the existence of task_json file 
+    # to decide if the task has been created; rather, we can use its file size as the criteria
+    if os.path.exists(task_json):
+        return os.stat(task_json).st_size > 0
+    else:
+        return False
 
 
 # If HMGM task has already been completed, i.e. the output JSON file for the given input JSON file exists, return the output file path; otherwise return False. 
