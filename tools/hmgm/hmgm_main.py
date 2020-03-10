@@ -34,17 +34,20 @@ def main():
         context = json.loads(context_json)
 
         if not task_created(task_json):
-            create_task(config, task_type, context, input_json, output_json, task_json)
+            task = create_task(config, task_type, context, input_json, output_json, task_json)
+            print ("Successfully created HMGM task " + task)
             exit(1) 
         else:
             output_path = task_completed(config, input_json)
             if (output_path):
-                close_task(config, context, output_path, output_json, task_json)
+                task = close_task(config, context, output_path, output_json, task_json)
+                print ("Successfully closed HMGM task " + task)
                 exit(0)
             else:
+                print ("Waiting for HMGM task to complete ...")
                 exit(1)        
     except Exception as e:
-        print (e.message)
+        print ("Exception while handling HMGM task: " + e.message)
         exit(-1)
 
 
