@@ -10,10 +10,6 @@ class TaskJira (TaskManager):
      
      # Set up jira instance with properties in the given configuration instance.
      def __init__(self, config):
-#          self.root_dir = root_dir
-#          self.config = configparser.ConfigParser()
-#          self.config.read(root_dir + "/config/hmgm.ini")    
-#          super().__init__(root_dir)
          super().__init__(config)
          
          # get Jira server info from the config 
@@ -25,13 +21,13 @@ class TaskJira (TaskManager):
          
      # Create a jira issue given the task_type, context, input/output json, 
      # save information about the created issue into a JSON file, and return the issue.
-     def create_task(self, task_type, context, input_path, task_json):
+     def create_task(self, task_type, context, editor_input, task_json):
          # populate the jira fields into a dictionary with information from task_type and context etc
          project = {"key": "HMGM"}
          issuetype = {"name": "Task"}
          labels = [task_type]
          summary = context["primaryfileName"] + " - " + context["workflowName"] 
-         description = self.get_task_description(task_type, context, input_path)         
+         description = self.get_task_description(task_type, context, editor_input)         
          jira_fields = {"project" : project, "issuetype": issuetype, "labels": labels, "summary": summary, "description": description}
          
          # create a new task jira using jira module
@@ -43,14 +39,6 @@ class TaskJira (TaskManager):
          # write jira issue into task_json file to indicate successful creation of the task
          with open(task_json, "w") as task_file:
              json.dump(issue_dict, task_file)
-         
-#          jira_json = {"fields": fields}          
-#          # create a json file containing the jira info, needed by Jira creation REST API
-#          jira_path = self.log_path + "/" + "jira_create.json"
-#          with open(jira_path, "w") as jira_file: 
-#              json.dump(jira_json, jira_file) 
-#              
-#          # send REST request with the jira json file to HMGM jira server to create a jira
                   
          return issue
      

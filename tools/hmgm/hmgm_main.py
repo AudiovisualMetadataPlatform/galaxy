@@ -38,9 +38,9 @@ def main():
             print ("Successfully created HMGM task " + task)
             exit(1) 
         else:
-            output_path = task_completed(config, input_json)
-            if (output_path):
-                task = close_task(config, context, output_path, output_json, task_json)
+            editor_output = task_completed(config, output_json)
+            if (editor_output):
+                task = close_task(config, context, editor_output, output_json, task_json)
                 print ("Successfully closed HMGM task " + task)
                 exit(0)
             else:
@@ -68,37 +68,32 @@ def task_created(task_json):
         return False
 
 
-# If HMGM task has already been completed, i.e. the output JSON file for the given input JSON file exists, return the output file path; otherwise return False. 
-def task_completed(config, input_json):   
-    output_path = get_editor_input_path(config, input_json) + HMGM_OUTPUT_SUFFIX
-    if os.path.exists(output_path):
-        return output_path
+# If HMGM task has already been completed, i.e. the completed version of the given output JSON file exists, return the output file path; otherwise return False. 
+def task_completed(config, output_json):   
+    editor_output = get_editor_input_path(config, output_json) + HMGM_OUTPUT_SUFFIX
+    if os.path.exists(editor_output):
+        return editor_output
     else:
         return False
-
-
-# # Return true if HMGM task has already been completed, i.e. the output JSON file exists.
-# def task_completed(output_json):   
-#     return os.path.exists(output_json)
 
 
 # Create an HMGM task in the specified task management platform with the given context and input/output files, 
 # save information about the created task into a JSON file, and return the created task.
 def create_task(config, task_type, context, input_json, output_json, task_json):
     # set up the input file in the designated location for HMGM task editor to pick up
-    input_path = setup_editor_input_file(config, input_json)
+    editor_input = setup_editor_input_file(config, input_json, output_json)
     
     # get task management instance based on task platform specified in context
     taskManager = get_task_manager(config, context)
     
     # calling task manager API to create task in the corresponding platform
-    return taskManager.create_task(task_type, context, input_path, task_json)
+    return taskManager.create_task(task_type, context, editor_input, task_json)
     
     
 # Close the HMGM task specified in the task information file in the corresponding task mamangement platform.
-def close_task(config, context, output_path, output_json, task_json):
+def close_task(config, context, editor_output, output_json, task_json):
     # clean up the output file dropped by HMGM task editor in the designated location
-    cleanup_editor_output_file(output_path, output_json)
+    cleanup_editor_output_file(editor_output, output_json)
     
     # get task management instance based on task platform specified in context
     taskManager = get_task_manager(config, context)
@@ -108,38 +103,41 @@ def close_task(config, context, output_path, output_json, task_json):
     
     
 # Set up the input file corresponding to the given input JSON file in the designated location for HMGM editors to pick up.     
-def setup_editor_input_file(config, input_json):     
+def setup_editor_input_file(config, input_json, output_json):     
     # TODO update logic here as needed to generate an obscure soft link instead of copying
-    input_path = get_editor_input_path(config, input_json)
-    shutil.copy(input_json, input_path)
-#     os.symlink(input_json, input_path)
-    return input_path
+    # Below we pass the galaxy job output file name to the task editor because the input file name is not unique, 
+    # as multiple jobs can run on the same input file, in which case Galaxy pass the same input file path to the tool;
+    # meanwhile, the output file name is unique, as Galaxy always creates a new dataset for the output file each time a job is run.
+    editor_input = get_editor_input_path(config, output_json)
+    shutil.copy(input_json, editor_input)
+#     os.symlink(input_json, editor_input)
+    return editor_input
 
 
 # Clean up the output file dropped by HMGM task editors by moving it from the designated location to the output file expected by Galaxy job;
 # also, (optionally) remove the corresponding input file in that directory, and return the input file path.
-def cleanup_editor_output_file(output_path, output_json):     
+def cleanup_editor_output_file(editor_output, output_json):     
     # move the completed output file to the location expected by Galaxy
-    shutil.move(output_path, output_json)
+    shutil.move(editor_output, output_json)
 
     # TODO decide if it's better to remove the input file here or do it in a batch process
-    input_path = output_path[:-len(HMGM_OUTPUT_SUFFIX)]
-    os.remove(input_path)
+    editor_input = editor_output[:-len(HMGM_OUTPUT_SUFFIX)]
+    os.remove(editor_input)
     
-    return input_path
+    return editor_input
 
     
-# Derive the input file path used by HMGM tool editors for the given input JSON file passed in from the corresponding Galaxy job. 
-def get_editor_input_path(config, input_json):
+# Derive the temporary input/output file path used by HMGM tool editors for the given dataset file passed in from the corresponding Galaxy job. 
+def get_editor_input_path(config, dataset_file):
     # Note: 
-    # For security concerns, we don't pass the original input path to HMGM task editors, to avoid exposing the internal Galaxy file system to external web apps; 
-    # Instead, we use a designated directory for passing such input/output files, and generate a soft link in (or copy the file to) this directory, 
-    # using a filename uniquely mapped from the original filename.  
+    # For security concerns, we don't pass the original input/output path to HMGM task editors, to avoid exposing the internal Galaxy file system 
+    # to external web apps; Instead, we use a designated directory for passing such input/output files, and generate a soft link in 
+    # (or copy the file to) this directory, using a filename uniquely mapped from the original filename.  
     io_dir = config["amppd"]["io_dir"] 
 
     # TODO replace below code with logic to generate an obscure soft link based on the original file path
     # for now we just use the original filename within the designated directory
-    filename = os.path.basename(input_json)
+    filename = os.path.basename(dataset_file)
     filepath = io_dir + "/" + filename
     
     return filepath
