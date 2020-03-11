@@ -35,13 +35,13 @@ def main():
 
         if not task_created(task_json):
             task = create_task(config, task_type, context, input_json, output_json, task_json)
-            print ("Successfully created HMGM task " + task)
+            print ("Successfully created HMGM task " + task.key)
             exit(1) 
         else:
             editor_output = task_completed(config, output_json)
             if (editor_output):
                 task = close_task(config, context, editor_output, output_json, task_json)
-                print ("Successfully closed HMGM task " + task)
+                print ("Successfully closed HMGM task " + task.key)
                 exit(0)
             else:
                 print ("Waiting for HMGM task to complete ...")

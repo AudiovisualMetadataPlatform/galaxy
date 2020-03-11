@@ -10,7 +10,7 @@ class TaskRedmine (TaskManager):
 
      
      def create_task(self, task_type, context, input_json, output_json, task_json):
-         # TODO replace with real logic
+         # TODO replace with real logic make sure the task_json contains ID, key, URL
          return None
      
      def close_task(self, task_json):
