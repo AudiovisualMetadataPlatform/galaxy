@@ -1,4 +1,4 @@
-# from __builtin__ import True
+import urllib
 
 
 class TaskManager:
@@ -39,27 +39,26 @@ class TaskManager:
          if task_type == self.TRANSCRIPT:
              url = self.amppd_server + self.transcript_api 
              url += "?" + self.transcript_input + "=" + editor_input
-#              url += "&" + self.transcript_output + "=" + output_json
              url += "&" + self.transcript_media + "=" + media
          elif task_type == self.NER:
              # TODO url for NER
              url = self.amppd_server;
          elif task_type == self.SEGMENTATION:
              # TODO url for SEGMENTATION
-             url = self.amppd_server;
+             url = self.amppd_server
          elif task_type == self.OCR:
              # TODO url for OCR
-             url = self.amppd_server;
+             url = self.amppd_server
 
-         return url
+         return urllib.urlencode(url)
      
 
      # Abstract method to create a task in the designated task management platform, given the task_type, context, input file etc. 
      # save information about the created task into a JSON file, and return the task instance.
      def create_task(self, task_type, context, editor_input, task_json):
-         return None
+         raise Exception("Method TaskManager.create_task is an abstract method, please call an implemented version from a subclass.")
      
      
      # Abstract method to close the task specified in task_json by updating its status and relevant fields, and return the task instance.          
      def close_task(self, task_json):
-         return None
+         raise Exception("Method TaskManager.close_task is an abstract method, please call an implemented version from a subclass.")

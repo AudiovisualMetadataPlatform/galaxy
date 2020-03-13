@@ -59,9 +59,11 @@ def config_hmgm(root_dir):
 
  
 # Return true if HMGM task has already been created, i.e. the file containing the HMGM task info exists.
-def task_created(task_json):
-    # since Galaxy creates all output files with size 0 upon starting a job, we can't use the existence of task_json file 
+def task_created(task_json):    
+    # Since Galaxy creates all output files with size 0 upon starting a job, we can't use the existence of task_json file 
     # to decide if the task has been created; rather, we can use its file size as the criteria
+    # In addition, we could call TaskManager to check the task in the actual task platform, but that's an extra overhead and there is a chance of the task site being down. 
+    # Since task_json is only created with task info after a task gets created successfully, we can use it as an indicator of task existence.
     if os.path.exists(task_json):
         return os.stat(task_json).st_size > 0
     else:
