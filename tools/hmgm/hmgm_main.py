@@ -32,6 +32,7 @@ def main():
     try:
         config = config_hmgm(root_dir);
         context = json.loads(context_json)
+        print ("Started HMGM task job ...")
 
         if not task_created(task_json):
             task = create_task(config, task_type, context, input_json, output_json, task_json)
