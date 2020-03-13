@@ -33,22 +33,26 @@ def main():
         config = config_hmgm(root_dir);
         context = json.loads(context_json)
         print ("Started HMGM task job ...")
-
+        
         if not task_created(task_json):
             task = create_task(config, task_type, context, input_json, output_json, task_json)
             print ("Successfully created HMGM task " + task.key)
+            sys. stdout. flush()
             exit(1) 
         else:
             editor_output = task_completed(config, output_json)
             if (editor_output):
                 task = close_task(config, context, editor_output, output_json, task_json)
                 print ("Successfully closed HMGM task " + task.key)
+                sys. stdout. flush()
                 exit(0)
             else:
                 print ("Waiting for HMGM task to complete ...")
+                sys. stdout. flush()
                 exit(1)        
     except Exception as e:
-        print ("Exception while handling HMGM task: " + e.message)
+        print ("Exception while handling HMGM task: ", e)
+        sys. stdout. flush()
         exit(-1)
 
 
