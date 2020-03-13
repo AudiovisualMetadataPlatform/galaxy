@@ -40,8 +40,6 @@ class TaskManager:
              api_url = self.amppd_server + self.transcript_api 
              params = {self.transcript_input: editor_input, self.transcript_media: media}
              url = api_url + "?" + urllib.parse.urlencode(params)
-          #    url += "?" + self.transcript_input + "=" + editor_input
-          #    url += "&" + self.transcript_media + "=" + media
          elif task_type == self.NER:
              # TODO url for NER
              url = self.amppd_server;
