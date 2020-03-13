@@ -1,4 +1,4 @@
-import urllib
+import urllib.parse
 
 
 class TaskManager:
@@ -37,9 +37,11 @@ class TaskManager:
          assert task_type in (self.TRANSCRIPT, self.NER, self.SEGMENTATION, self.OCR)
          
          if task_type == self.TRANSCRIPT:
-             url = self.amppd_server + self.transcript_api 
-             url += "?" + self.transcript_input + "=" + editor_input
-             url += "&" + self.transcript_media + "=" + media
+             api_url = self.amppd_server + self.transcript_api 
+             params = {self.transcript_input: editor_input, self.transcript_media: media}
+             url = api_url + "?" + urllib.parse.urlencode(params)
+          #    url += "?" + self.transcript_input + "=" + editor_input
+          #    url += "&" + self.transcript_media + "=" + media
          elif task_type == self.NER:
              # TODO url for NER
              url = self.amppd_server;
@@ -50,7 +52,7 @@ class TaskManager:
              # TODO url for OCR
              url = self.amppd_server
 
-         return urllib.urlencode(url)
+         return url
      
 
      # Abstract method to create a task in the designated task management platform, given the task_type, context, input file etc. 
