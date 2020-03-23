@@ -40,7 +40,7 @@
         <param name="include_header" type="boolean" label="Include Output header" checked="True"/>
     </inputs>
     <outputs>
-        <data format="tabular" name="out_file1"/>
+        <data format="tabular" name="out_file1" label="Test For Hidden Output" hidden="true"/>
     </outputs>
     <tests>
         <test>
