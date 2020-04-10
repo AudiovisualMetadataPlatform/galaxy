@@ -8,11 +8,7 @@ from speech_to_text_schema import SpeechToText, SpeechToTextMedia, SpeechToTextR
 
 # Convert editor output to standardized json
 def main():
-    #(editor_output_file, output_json_file, media_file) = sys.argv[1:4]
-    output_json_file = 'tools/amp_json_schema/output.json'
-    editor_output_file = 'tools/amp_json_schema/Galaxy70-[HMGM_Transcript_Correction_on_data_26].json'
-    media_file = 'myfile.mp3'
-    
+    (editor_output_file, output_json_file, media_file) = sys.argv[1:4]
     with open(editor_output_file) as json_file:
         d = json.load(json_file)
         data = eval(json.dumps(d))
