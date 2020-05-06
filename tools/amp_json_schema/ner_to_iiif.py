@@ -14,8 +14,9 @@ def main():
     try:
         context = json.loads(context_json)
         ner_data = json.load(input_ner)
+
         iiif_data = generate_iiif_other_fields(context, ner_data)
-        iiif_data["annotations"] = generate_iiif_annotations(iiif_data, ner_data)
+        iiif_data["annotations"] = generate_iiif_annotations(ner_data)
 
         with open(input_iiif, "w") as outfile: 
             outfile.write(iiif_data) 
@@ -38,11 +39,11 @@ def main():
         # items_items["id"] = 
 
     except Exception as e:
-        print(f"Exception reading media info from {media_info_path}", e)
-        duration = 0
+        print(f"Exception converting NER JSON file {input_ner} to IIIF manifest {input_iiif}", e)
 
 
-# Populate IIIF fields other than annotations
+
+# Populate IIIF fields other than annotations, using the provide context and ner_data.
 def generate_iiif_other_fields(context, ner_data):
     primaryfile_name = context["primaryfileName"]
     primaryfile_url = context["primaryfileUrl"]
@@ -118,8 +119,8 @@ def generate_iiif_other_fields(context, ner_data):
     return iiif_data
 
 
-# Generate IIIF annotations
-def generate_iiif_annotations(iiif_data, ner_data):
+# Generate IIIF annotations for the given ner_data.
+def generate_iiif_annotations(ner_data):
     annotations_items = []
 
     # create a IIIF annotation for each entity in ner_data 

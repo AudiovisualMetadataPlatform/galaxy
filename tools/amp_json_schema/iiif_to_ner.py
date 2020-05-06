@@ -18,150 +18,52 @@ def main():
 		entity_dict = build_ner_entity_dictionary(ner_data)
         ner_data["entities"] = generate_ner_entities(iiif_data, entity_dict)
 
-
-
-        # iiif_data = {}
-
-        # iiif_data["@context"] = [
-        #     "http://digirati.com/ns/timeliner",
-        #     "http://www.w3.org/ns/anno.jsonld",
-        #     "http://iiif.io/api/presentation/3/context.json"
-        # ]
-
-                
-        # iiif_data["id"] = ner_data["media"]["filename"]         # use NER media filename for ID
-        # iiif_data["type"] = "Manifest"
-        # iiif_data["label"] = {"en": context["primaryfileName"]} # use Primaryfile name for label
-        # iiif_data["summary"] = {"en": "Named Entity Recognition for Primaryfile " + context["primaryfileName"]}
-            
-        # items = {"id": "canvas-1", "type": "Canvas", "duration": duration}
-        # items_items["id"] = 
-
+        with open(output_ner, "w") as outfile: 
+            outfile.write(ner_data) 
     except Exception as e:
-        print(f"Exception reading media info from {media_info_path}", e)
-        duration = 0
+        print(f"Exception converting IIIF manifest {input_iiif} to NER JSON file {input_ner}", e)
 
 
-# Populate IIIF fields other than annotations
-def generate_iiif_other_fields(context, ner_data):
-    primaryfile_name = context["primaryfileName"]
-    primaryfile_url = context["primaryfileUrl"]
-    media_info_path = context["primaryfileMediaInfo"]
-    duration = get_media_duration(media_info_path)
+# Build a dictionary for NER entities with start time as key and entity as value, to allow efficient searching of entity by timestamp.
+# Note: Matching IIIF annoation with NER entity by timestamp is based on the assumption that timestamp can not be changed by NER editor,
+# (it can be added/deleted), and at any given time there can be only one entity; thus timestamp can uniquely identify an entity in both IIIF and NER.
+def build_ner_entity_dictionary(ner_data):
+    entity_dict = {}
 
-    iiif_data = {
-        "@context": [
-            "http://digirati.com/ns/timeliner",
-            "http://www.w3.org/ns/anno.jsonld",
-            "http://iiif.io/api/presentation/3/context.json"
-        ],
-        "id": ner_data["media"]["filename"],
-        "type": "Manifest",
-        "label": { "en": [ "Primaryfile " + primaryfile_name ] },
-        "summary": { "en": [ "Named Entity Recognition for " + primaryfile_name ] },
-        "items": [
-            {
-            "id": "canvas-1",
-            "type": "Canvas",
-            "duration": duration,
-            "items": [
-                {
-                "id": "annotation-1",
-                "type": "AnnotationPage",
-                "items": [
-                    {
-                    "id": "annotation-1/1",
-                    "type": "Annotation",
-                    "motivation": "painting",
-                    "body": {
-                        "id": primaryfile_url + "#t=0,",
-                        "type": "Audio",
-                        "duration": duration
-                    },
-                    "target": "canvas-1"
-                    }
-                ]
-                }
-                ]
-            }
-            ],
-        "structures": [
-            {
-            "id": "range-1",
-            "type": "Range",
-            "label": { "en": [ "Unique Bubble" ] },
-            "tl:backgroundColour": "#ACD4E2",
-            "items": [
-                {
-                "type": "Canvas",
-                "id": f"canvas-1#t=0,{duration}"
-                }
-            ]
-            }
-        ],
-        "tl:settings": {
-            "tl:bubblesStyle": "rounded",
-            "tl:blackAndWhite": false,
-            "tl:showTimes": false,
-            "tl:autoScaleHeightOnResize": false,
-            "tl:startPlayingWhenBubbleIsClicked": false,
-            "tl:stopPlayingAtTheEndOfSection": false,
-            "tl:startPlayingAtEndOfSection": false,
-            "tl:zoomToSectionIncrementally": false,
-            "tl:showMarkers": true,
-            "tl:bubbleHeight": 80,
-            "tl:backgroundColour": "#fff",
-            "tl:colourPalette": "default"
-        }        
-    }
-
-    return iiif_data
-
-
-# Generate IIIF annotations
-def generate_iiif_annotations(iiif_data, ner_data):
-    annotations_items = []
-
-    # create a IIIF annotation for each entity in ner_data 
+    # create a {start, entity} tuple for each entity in ner_data 
     for i, entity in ner_data["entities"]:
-        annotation = {
-          "id": f"marker-{i}",
-          "type": "Annotation",
-          "label": { "en": [ entity["text"]  ]  },
-          "body": {
-            "type": "TextualBody",
-            "value": entity["type"],
-            "format": "text/plain",
-            "language": "en"
-          },
-          "target": {
-            "type": "SpecificResource",
-            "source": "canvas-1",
-            "selector": {
-              "type": "PointSelector",
-              "t":  entity["start"]
-            }
-          }
-        }
-        annotations_items.append(annotation)
+        entity_dict["start"] = entity
 
-    annotations = {
-      "type": "AnnotationPage",
-      "items": annotations_items
-    }
-    return annotations
+	return entity_dict
 
 
-# Get media duration from the media info file with the given mediaInfoPath.
-def get_media_duration(media_info_path):
-	try:
-		with open(media_info_path, 'r') as media_info_file:
-			media_info = json.load(task_file)
-			duration = media_info['streams']['audio']['duration']
-	except Exception as e:
-        print(f"Exception reading media info from {media_info_path}", e)
-        duration = 0
-	return duration
+# Generate NER entities using the given iiif_data and, entity_dict
+def generate_ner_entities(iiif_data, entity_dict):
+	entities = []
+
+    # update/create an NER entity for each IIIF annotation in iiif_data;
+    for annotation in iiif_data["annotations"]["items"]:		
+		time = annotation["target"]["t"]
+		if time in entity_dict:
+			# if the annotation timestamp matches an entity start time, update the entity text/type with that from the annotation
+			entity = entity_dict[time]
+			entity["type"] = annotation["body"]["value"]
+			entity["text"] = annotation["label"]["en"][0]
+			# start, score and other fields in entity remain the same
+		else:
+			# otherwise create a new entity using fields in the annotation and with a full score	
+		entity = {
+			"type": annotation["body"]["value"],
+			"text": annotation["label"]["en"][0],
+			"start": time,
+			"score": {
+				"type": "relevance",
+				"scoreValue": 1.0
+		}		
+		entities.append(entity)
+
+	# those in original NER but not in IIIF (i.e. deleted by NER editor) are excluded from the entity list
+	return entities
 
 
 if __name__ == "__main__":
