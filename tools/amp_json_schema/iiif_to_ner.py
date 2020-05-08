@@ -13,19 +13,19 @@ def main():
     input_ner = sys.argv[2]        # input file to feed to NER editor in IIIF json format to convert to
     output_ner = sys.argv[3]    # context info as json string needed for creating HMGM tasks
 
-#     try:
+    # parse output IIIF and original input NER
     with open(output_iiif, 'r') as iiif_file:
         iiif_data = json.load(iiif_file)
     with open(input_ner, 'r') as ner_file:
         ner_data = json.load(ner_file)
 
+    # update entities in original input NER
     entity_dict = build_ner_entity_dictionary(ner_data)
     ner_data["entities"] = generate_ner_entities(iiif_data, entity_dict)
 
+    # write entities back to output NER
     with open(output_ner, "w") as outfile: 
         json.dump(ner_data, outfile) 
-#     except Exception as e:
-#         print(f"Exception converting IIIF manifest {input_iiif} to NER JSON file {input_ner}", e)
 
 
 # Build a dictionary for NER entities with start time as key and entity as value, to allow efficient searching of entity by timestamp.
@@ -41,7 +41,7 @@ def build_ner_entity_dictionary(ner_data):
     return entity_dict
 
 
-# Generate NER entities using the given iiif_data and, entity_dict
+# Generate NER entities using the given iiif_data and entity_dict
 def generate_ner_entities(iiif_data, entity_dict):
     entities = []
 
