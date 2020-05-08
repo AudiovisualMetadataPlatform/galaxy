@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import json
 import sys
 import os
@@ -15,14 +17,14 @@ def main():
 
 #     try:
     context = json.loads(context_json)
-    with open(input_ner, 'r') as infile:
-        ner_data = json.load(infile)
+    with open(input_ner, 'r') as ner_file:
+        ner_data = json.load(ner_file)
 
     iiif_data = generate_iiif_other_fields(context, ner_data)
     iiif_data["annotations"] = generate_iiif_annotations(ner_data)
 
-    with open(input_iiif, "w") as outfile: 
-        json.dump(iiif_data, outfile) 
+    with open(input_iiif, "w") as iiif_file: 
+        json.dump(iiif_data, iiif_file) 
 #     except Exception as e:
 #         print(f"Exception converting NER JSON file {input_ner} to IIIF manifest {input_iiif}:", e)
 
