@@ -63,7 +63,7 @@ def generate_iiif_other_fields(context, ner_data):
                     "type": "Annotation",
                     "motivation": "painting",
                     "body": {
-                        "id": primaryfile_url + "#t=0,",    # media file played by Timeliner, start from beginning
+                        "id": primaryfile_url,    # media file played by Timeliner, start from beginning
                         "type": "Audio",
                         "duration": duration
                     },
