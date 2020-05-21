@@ -26,7 +26,7 @@ class TaskJira (TaskManager):
          project = {"key": "HMGM"}
          issuetype = {"name": "Task"}
          labels = [task_type]
-         summary = self.desanitize_text(context["primaryfileName"]) + " - " + self.desanitize_text(context["workflowName"]) 
+         summary = context["primaryfileName"] + " - " + context["workflowName"] 
          description = self.get_task_description(task_type, context, editor_input)         
          jira_fields = {"project" : project, "issuetype": issuetype, "labels": labels, "summary": summary, "description": description}
          

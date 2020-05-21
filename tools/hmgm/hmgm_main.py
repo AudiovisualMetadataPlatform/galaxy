@@ -66,18 +66,20 @@ def config_hmgm(root_dir):
 
 # Desanitize all the names in the given context.
 def desanitize_context(context):
+    # all the names have been sanitized before passed to context, thus need to be decoded to original values
     context["unitName"] = desanitize_text(context["unitName"])
     context["collectionName"] = desanitize_text(context["collectionName"])
     context["itemName"] = desanitize_text(context["itemName"])
     context["primaryfileName"] = desanitize_text(context["primaryfileName"])
     context["workflowName"] = desanitize_text(context["workflowName"])
+    return context
 
 
 # Decode the given text which has been encoded with sanitizing rule for context JSON string,
 # i.e. single/double quotes were replaced with % followed by the hex code of the quote.
 def desanitize_text(text):
-    text.replace("%27", "'");      
-    text.replace('%22', '"');      
+    text = text.replace("%27", "'");      
+    text = text.replace('%22', '"');      
     return text
 
  
