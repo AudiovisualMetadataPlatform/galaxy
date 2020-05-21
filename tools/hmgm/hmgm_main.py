@@ -66,7 +66,7 @@ def config_hmgm(root_dir):
 
 # Desanitize all the names in the given context.
 def desanitize_context(context):
-    # all the names have been sanitized before passed to context, thus need to be decoded to original values
+    # all the names were sanitized before passed to context, thus need to be decoded to original values
     context["unitName"] = desanitize_text(context["unitName"])
     context["collectionName"] = desanitize_text(context["collectionName"])
     context["itemName"] = desanitize_text(context["itemName"])
