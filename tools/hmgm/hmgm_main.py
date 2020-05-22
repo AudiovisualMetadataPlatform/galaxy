@@ -28,6 +28,7 @@ def main():
     output_json = sys.argv[4]   # output file for HMGM task in json format
     task_json = sys.argv[5]     # json file storing information about the HMGM task, such as ticket # etc
     context_json = sys.argv[6]  # context info as json string needed for creating HMGM tasks
+#     context_json = '{ "submittedBy": "yingfeng", "unitId": "1", "unitName": "Test%27s Unit", "collectionId": "2", "collectionName": "Test%22s Collection", "taskManager": "Jira", "itemId": "3", "itemName": "Test%27s Item", "primaryfileId": "4", "primaryfileName": "Test%22s primaryfile", "primaryfileUrl": "http://techslides.com/demos/sample-videos/small.mp4", "primaryfileMediaInfo": "/tmp/hmgm/mediaInfo.json", "workflowId": "123456789", "workflowName": "Test%27%22 Workflow" }'
 
     try:
         config = config_hmgm(root_dir);
