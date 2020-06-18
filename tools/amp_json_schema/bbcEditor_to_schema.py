@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-
+import difflib
+#from difflib_data import *
 import json
 import sys
 import os
+from os import path
 import aws_transcribe_to_schema
 from speech_to_text_schema import SpeechToText, SpeechToTextMedia, SpeechToTextResult, SpeechToTextScore, SpeechToTextWord
 
@@ -12,26 +14,31 @@ def main():
     with open(editor_output_file) as json_file:
         d = json.load(json_file)
         data = eval(json.dumps(d))
+
+    #read original file for extracting only the confidence score of each word
+    original_input = open(media_file)
+    original_json = json.loads(original_input.read())
+    original_items = original_json["results"]["items"]
 	
     result = SpeechToTextResult()
-
-    transcript = word_type = text = ''
+    word_type = text = ''
     confidence = start_time = end_time = -1
     duration = 0.0
-
     #Standardising draft js format
     if "entityMap" in data.keys():
+        transcript = ''
         entityMap = data["entityMap"]
-        for entity in entityMap.values():
+        for i in range(0, len(entityMap.keys())):
             punctuation = ''
+            entity = entityMap[str(i)]
             if "data" in entity:
                 if "text" in entity["data"].keys():
                     text = entity["data"]["text"]
-                    transcript += text+" "
+                    transcript += entity["data"]["text"]+" "
                     if text[-1] in [',','.','!','?']:
                         punctuation = text[-1]
                         text = text[0:-1]
-
+                        
                 if "type" in entity:
                     entity_type = entity["type"]
                     if entity_type == "WORD":
@@ -46,14 +53,37 @@ def main():
                             duration = end_time
                     else:
                         word_type = entity_type
-                
-                if "confidence" in entity["data"].keys():
-                    confidence = float(entity["data"]["confidence"])
+
             result.addWord(word_type, start_time, end_time, text, "confidence",confidence)   
             if len(punctuation) > 0:
-                result.addWord('punctuation', None, None, punctuation, "confidence",confidence)
+                result.addWord('punctuation', None, None, punctuation, "confidence",0.0)
 
-        result.transcript = transcript 
+        result.transcript = transcript
+        words = result.words
+        #Now retrieving the confidence values from the original input file and assigning them to 'result'
+        list_items = []
+        list_result = []
+        for i in range(0,len(original_items)):
+            list_items.append(original_items[i]["alternatives"][0]["content"])
+        
+        for j in range(0, len(words)):
+            list_result.append(words[j].text)
+        
+        d = difflib.Differ()
+        res = list(d.compare(list_items, list_result))
+        print(len(res[0]))
+
+        i = j= 0
+        for ele in res:
+            if ele.startswith("- "):
+                i += 1
+            elif len(ele) > 2 and ele[0:2] == "+ ":
+                words[j].score.scoreValue = 1.0
+                j += 1
+            elif words[j].text == original_items[i]["alternatives"][0]["content"]:
+                words[j].score.scoreValue = float(original_items[i]["alternatives"][0]["confidence"])
+                i += 1
+                j += 1
 
     #Standardizing AWS Transcribe file
     elif "jobName" in data.keys() and "results" in data.keys():
@@ -110,6 +140,9 @@ def main():
 def write_output_json(input_json, json_file):
 	with open(json_file, 'w') as outfile:
 		json.dump(input_json, outfile, default=lambda x: x.__dict__)
+
+# Retrieve the confidence values from the original file into the standardised output
+#def retrieve_confidence_scores()
 
 if __name__ == "__main__":
 	main()
