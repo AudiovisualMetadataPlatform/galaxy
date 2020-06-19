@@ -24,9 +24,10 @@ def main():
     #read original file for extracting only the confidence score of each word
     original_input = open(media_file)
     original_json = json.loads(original_input.read())
-    original_items = original_json["results"]["items"]
+    print(original_json)
+    original_items = original_json["result"]["words"]
 	
-    print("the data in editor output is:",data)
+    #print("the data in editor output is:",data)
     result = SpeechToTextResult()
     word_type = text = ''
     confidence = start_time = end_time = -1
@@ -71,7 +72,7 @@ def main():
         list_items = []
         list_result = []
         for i in range(0,len(original_items)):
-            list_items.append(original_items[i]["alternatives"][0]["content"])
+            list_items.append(original_items[i]["text"])
         
         for j in range(0, len(words)):
             list_result.append(words[j].text)
@@ -87,8 +88,8 @@ def main():
             elif len(ele) > 2 and ele[0:2] == "+ ":
                 words[j].score.scoreValue = 1.0
                 j += 1
-            elif words[j].text == original_items[i]["alternatives"][0]["content"]:
-                words[j].score.scoreValue = float(original_items[i]["alternatives"][0]["confidence"])
+            elif words[j].text == original_items[i]["text"]:
+                words[j].score.scoreValue = float(original_items[i]["score"]["scoreValue"])
                 i += 1
                 j += 1
 
