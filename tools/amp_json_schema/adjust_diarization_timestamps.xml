@@ -10,7 +10,7 @@
     <param name="adj_json" type="data" format="json" label="Kept segments JSON From Remove Segments" help="List of kept segments"/>
   </inputs>
   <outputs>
-    <data format="json" name="amp_diarization" />
+    <data format="json" name="amp_diarization" label="AMP Diarization JSON with Timestamp Adjusted"/>
   </outputs>
   <tests>
   </tests>
