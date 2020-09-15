@@ -105,7 +105,7 @@ class Video(Binary):
         except Exception:
             return "Binary video file (%s)" % (nice_size(dataset.get_size()))
 
-class Music(Binary):
+class Music(Audio):
     """Class describing an audio music file"""
     file_ext = "music"
 
@@ -123,7 +123,7 @@ class Music(Binary):
         except Exception:
             return "Audio music file (%s)" % (nice_size(dataset.get_size()))
 
-class Speech(Binary):
+class Speech(Audio):
     """Class describing an audio speech file"""
     file_ext = "speech"
 
