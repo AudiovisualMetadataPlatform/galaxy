@@ -11,7 +11,7 @@
     <datatype extension="segments" type="galaxy.datatypes.text:Segments" subclass="true" display_in_upload="true" />
     <datatype extension="transcript" type="galaxy.datatypes.text:Transcript" mimetype="application/json" subclass="true" display_in_upload="true"/>
 	<datatype extension="ner" type="galaxy.datatypes.text:Ner" mimetype="application/json" subclass="true" display_in_upload="true"/>
-    <datatype extension="ocr" type="galaxy.datatypes.text:Ocr" mimetype="application/json" subclass="true" display_in_upload="true"/>
+    <datatype extension="vocr" type="galaxy.datatypes.text:VideoOcr" mimetype="application/json" subclass="true" display_in_upload="true"/>
     <datatype extension="vtt" type="galaxy.datatypes.text:Vtt" mimetype="application/json" subclass="true" display_in_upload="true"/>
     <!-- END AMP Data Type Extension -->
 
@@ -745,7 +745,7 @@
     <sniffer type="galaxy.datatypes.text:Segments"/>    
     <sniffer type="galaxy.datatypes.text:Transcript"/>    
     <sniffer type="galaxy.datatypes.text:Ner"/>    
-    <sniffer type="galaxy.datatypes.text:Ocr"/>    
+    <sniffer type="galaxy.datatypes.text:VideoOcr"/>    
     <sniffer type="galaxy.datatypes.text:Vtt"/>    
     <!-- END AMP Data Types Extension -->
 

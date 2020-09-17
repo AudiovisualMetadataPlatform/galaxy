@@ -228,8 +228,8 @@ class Ner(Json):
             return False
        
 @build_sniff_from_prefix
-class Ocr(Json):
-    file_ext = "ocr"
+class VideoOcr(Json):
+    file_ext = "vocr"
 
     def set_peek(self, dataset, is_multi_byte=False):
         if not dataset.dataset.purged:
@@ -263,6 +263,31 @@ class Ocr(Json):
             start = file_prefix.string_io().read(500).strip()
             if start:
                 return start.contains("\"media\":") and start.contains("\"frames\":") and start.contains("\"objects\":") 
+            return False
+    
+@build_sniff_from_prefix
+class Vtt(Json):
+    file_ext = "vtt"
+
+    def set_peek(self, dataset, is_multi_byte=False):
+        if not dataset.dataset.purged:
+            dataset.peek = get_file_peek(dataset.file_name)
+            dataset.blurb = "AMP Web VTT"
+        else:
+            dataset.peek = 'file does not exist'
+            dataset.blurb = 'file purged from disc'
+
+    def sniff_prefix(self, file_prefix):
+        return self._looks_like_ocr(file_prefix)
+
+    def _looks_like_vtt(self, file_prefix):
+        # WEBVTT is the header of a WebVTT file. 
+        # We assume that no other kind of text files use this as the first line content; otherwise further checking  
+        # on following lines can be done to detect if they match the regexp patterns for timestamp & speaker diarization.
+        first_line = file_prefix.string_io().readline().strip()        
+        if (first_line and first_line.equals("WEBVTT")):
+            return True
+        else:
             return False
        
 ######################
