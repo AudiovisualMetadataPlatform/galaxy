@@ -78,9 +78,9 @@ class Json(Text):
         """
             Try to load the string with the json module. If successful it's a json file.
         """
-        return self._looks_like_json(file_prefix)
+        return self._looks_like(file_prefix)
 
-    def _looks_like_json(self, file_prefix):
+    def _looks_like(self, file_prefix):
         # Pattern used by SequenceSplitLocations
         if file_prefix.file_size < 50000 and not file_prefix.truncated:
             # If the file is small enough - don't guess just check.
@@ -115,21 +115,7 @@ class Segment(Json):
     file_ext = "segment"
     label = "AMP Segment JSON"
 
-#     def set_peek(self, dataset, is_multi_byte=False):
-#         if not dataset.dataset.purged:
-#             dataset.peek = get_file_peek(dataset.file_name)
-#             dataset.blurb = label
-#         else:
-#             dataset.peek = 'file does not exist'
-#             dataset.blurb = 'file purged from disc'
-
-    def sniff_prefix(self, file_prefix):
-        """
-            Try to load the string with the json module. If successful it's a json file.
-        """
-        return self._looks_like_segment(file_prefix)
-
-    def _looks_like_segment(self, file_prefix):
+    def _looks_like(self, file_prefix):
         # Pattern used by SequenceSplitLocations
         if file_prefix.file_size < 50000 and not file_prefix.truncated:
             # If the file is small enough - don't guess just check.
@@ -146,30 +132,13 @@ class Segment(Json):
             if start:
                 return start.startswith("{\"segments\"")
             return False
-
-#     def display_peek(self, dataset):
-#         try:
-#             return dataset.peek
-#         except Exception:
-#             return label % (nice_size(dataset.get_size()))
        
 @build_sniff_from_prefix
 class Transcript(Json):
     file_ext = "transcript"
     label = "AMP Transcript JSON"
 
-#     def set_peek(self, dataset, is_multi_byte=False):
-#         if not dataset.dataset.purged:
-#             dataset.peek = get_file_peek(dataset.file_name)
-#             dataset.blurb = label
-#         else:
-#             dataset.peek = 'file does not exist'
-#             dataset.blurb = 'file purged from disc'
-
-    def sniff_prefix(self, file_prefix):
-        return self._looks_like_transcript(file_prefix)
-
-    def _looks_like_transcript(self, file_prefix):
+    def _looks_like(self, file_prefix):
         # Pattern used by SequenceSplitLocations
         if file_prefix.file_size < 50000 and not file_prefix.truncated:
             # If the file is small enough - don't guess just check.
@@ -191,30 +160,13 @@ class Transcript(Json):
             if start:
                 return start.contains("\"media\":") and start.contains("\"results\":") and start.contains("\"transcript\":") 
             return False
-
-#     def display_peek(self, dataset):
-#         try:
-#             return dataset.peek
-#         except Exception:
-#             return "AMP Transcript JSON (%s)" % (nice_size(dataset.get_size()))
        
 @build_sniff_from_prefix
 class Ner(Json):
     file_ext = "ner"
     label = "AMP NER JSON"
-
-#     def set_peek(self, dataset, is_multi_byte=False):
-#         if not dataset.dataset.purged:
-#             dataset.peek = get_file_peek(dataset.file_name)
-#             dataset.blurb = "AMP NER JSON"
-#         else:
-#             dataset.peek = 'file does not exist'
-#             dataset.blurb = 'file purged from disc'
-
-    def sniff_prefix(self, file_prefix):
-        return self._looks_like_ner(file_prefix)
-
-    def _looks_like_ner(self, file_prefix):
+    
+    def _looks_like(self, file_prefix):
         # Pattern used by SequenceSplitLocations
         if file_prefix.file_size < 50000 and not file_prefix.truncated:
             # If the file is small enough - don't guess just check.
@@ -234,29 +186,12 @@ class Ner(Json):
                 return start.contains("\"media\":") and start.contains("\"entities\":") 
             return False
        
-#     def display_peek(self, dataset):
-#         try:
-#             return dataset.peek
-#         except Exception:
-#             return "AMP NER JSON (%s)" % (nice_size(dataset.get_size()))
-       
 @build_sniff_from_prefix
 class VideoOcr(Json):
     file_ext = "vocr"
     label = "AMP Video OCR JSON"
 
-#     def set_peek(self, dataset, is_multi_byte=False):
-#         if not dataset.dataset.purged:
-#             dataset.peek = get_file_peek(dataset.file_name)
-#             dataset.blurb = "AMP Video OCR JSON"
-#         else:
-#             dataset.peek = 'file does not exist'
-#             dataset.blurb = 'file purged from disc'
-
-    def sniff_prefix(self, file_prefix):
-        return self._looks_like_ocr(file_prefix)
-
-    def _looks_like_ocr(self, file_prefix):
+    def _looks_like(self, file_prefix):
         # Pattern used by SequenceSplitLocations
         if file_prefix.file_size < 50000 and not file_prefix.truncated:
             # If the file is small enough - don't guess just check.
@@ -277,23 +212,14 @@ class VideoOcr(Json):
             start = file_prefix.string_io().read(500).strip()
             if start:
                 return start.contains("\"media\":") and start.contains("\"frames\":") and start.contains("\"objects\":") 
-            return False
-    
-#     def display_peek(self, dataset):
-#         try:
-#             return dataset.peek
-#         except Exception:
-#             return "AMP Video OCR JSON (%s)" % (nice_size(dataset.get_size()))
+            return False    
    
 @build_sniff_from_prefix
 class Shot(Json):
     file_ext = "shot"
     label = "AMP Shot JSON"
 
-    def sniff_prefix(self, file_prefix):
-        return self._looks_like_shot(file_prefix)
-
-    def _looks_like_ocr(self, file_prefix):
+    def _looks_like(self, file_prefix):
         # Pattern used by SequenceSplitLocations
         if file_prefix.file_size < 50000 and not file_prefix.truncated:
             # If the file is small enough - don't guess just check.
@@ -317,19 +243,8 @@ class Shot(Json):
 class Vtt(Text):
     file_ext = "vtt"
     label = "AMP Web VTT"
-    
-#     def set_peek(self, dataset, is_multi_byte=False):
-#         if not dataset.dataset.purged:
-#             dataset.peek = get_file_peek(dataset.file_name)
-#             dataset.blurb = "AMP Web VTT"
-#         else:
-#             dataset.peek = 'file does not exist'
-#             dataset.blurb = 'file purged from disc'
 
-    def sniff_prefix(self, file_prefix):
-        return self._looks_like_ocr(file_prefix)
-
-    def _looks_like_vtt(self, file_prefix):
+    def _looks_like(self, file_prefix):
         # WEBVTT is the header of a WebVTT file. 
         # We assume that no other kind of text files use this as the first line content; otherwise further checking  
         # on following lines can be done to detect if they match the regexp patterns for timestamp & speaker diarization.
@@ -338,12 +253,6 @@ class Vtt(Text):
             return True
         else:
             return False
-
-#     def display_peek(self, dataset):
-#         try:
-#             return dataset.peek
-#         except Exception:
-#             return "AMP Web VTT (%s)" % (nice_size(dataset.get_size()))
               
 ######################
 ## END AMP Data Types
