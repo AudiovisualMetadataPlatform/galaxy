@@ -111,9 +111,9 @@ class Json(Text):
 ######################
 
 @build_sniff_from_prefix
-class Segments(Json):
-    file_ext = "segments"
-    label = "AMP Segments JSON"
+class Segment(Json):
+    file_ext = "segment"
+    label = "AMP Segment JSON"
 
 #     def set_peek(self, dataset, is_multi_byte=False):
 #         if not dataset.dataset.purged:
@@ -127,9 +127,9 @@ class Segments(Json):
         """
             Try to load the string with the json module. If successful it's a json file.
         """
-        return self._looks_like_segments(file_prefix)
+        return self._looks_like_segment(file_prefix)
 
-    def _looks_like_segments(self, file_prefix):
+    def _looks_like_segment(self, file_prefix):
         # Pattern used by SequenceSplitLocations
         if file_prefix.file_size < 50000 and not file_prefix.truncated:
             # If the file is small enough - don't guess just check.
@@ -284,7 +284,35 @@ class VideoOcr(Json):
 #             return dataset.peek
 #         except Exception:
 #             return "AMP Video OCR JSON (%s)" % (nice_size(dataset.get_size()))
-       
+   
+@build_sniff_from_prefix
+class Shot(Json):
+    file_ext = "shot"
+    label = "AMP Shot JSON"
+
+    def sniff_prefix(self, file_prefix):
+        return self._looks_like_shot(file_prefix)
+
+    def _looks_like_ocr(self, file_prefix):
+        # Pattern used by SequenceSplitLocations
+        if file_prefix.file_size < 50000 and not file_prefix.truncated:
+            # If the file is small enough - don't guess just check.
+            try:
+                # exclude simple types, must set format in these cases
+                item = json.loads(file_prefix.contents_header)
+                assert isinstance(item, (list, dict))
+                if 'shots' in item and 'media' in item:
+                    return True
+                else:
+                    return False
+            except Exception:
+                return False
+        else:
+            start = file_prefix.string_io().read(500).strip()
+            if start:
+                return start.contains("\"media\":") and start.contains("\"shots\":")
+            return False
+           
 @build_sniff_from_prefix
 class Vtt(Json):
     file_ext = "vtt"

@@ -9,10 +9,11 @@
     <datatype extension="speech" type="galaxy.datatypes.binary:Speech" subclass="true" display_in_upload="true"/>
     <datatype extension="audio" type="galaxy.datatypes.binary:Audio" subclass="true" display_in_upload="true"/>
     <datatype extension="wav" type="galaxy.datatypes.binary:Wav" subclass="true" display_in_upload="true"/>
-    <datatype extension="segments" type="galaxy.datatypes.text:Segments" subclass="true" display_in_upload="true" />
+    <datatype extension="segment" type="galaxy.datatypes.text:Segment" subclass="true" display_in_upload="true" />
     <datatype extension="transcript" type="galaxy.datatypes.text:Transcript" mimetype="application/json" subclass="true" display_in_upload="true"/>
 	<datatype extension="ner" type="galaxy.datatypes.text:Ner" mimetype="application/json" subclass="true" display_in_upload="true"/>
     <datatype extension="vocr" type="galaxy.datatypes.text:VideoOcr" mimetype="application/json" subclass="true" display_in_upload="true"/>
+    <datatype extension="shot" type="galaxy.datatypes.text:Shot" mimetype="application/json" subclass="true" display_in_upload="true"/>
     <datatype extension="vtt" type="galaxy.datatypes.text:Vtt" mimetype="application/json" subclass="true" display_in_upload="true"/>
     <!-- END AMP Data Type Extension -->
 
@@ -740,13 +741,15 @@
     -->
     
     <!-- AMP Data Types Extension -->    
+    <sniffer type="galaxy.datatypes.binary:Wav"/>
     <sniffer type="galaxy.datatypes.binary:Audio"/>
     <sniffer type="galaxy.datatypes.binary:Video"/>
-    <sniffer type="galaxy.datatypes.binary:Wav"/>
-    <sniffer type="galaxy.datatypes.text:Segments"/>    
+    <sniffer type="galaxy.datatypes.binary:AudioVideo"/>
+    <sniffer type="galaxy.datatypes.text:Segment"/>    
     <sniffer type="galaxy.datatypes.text:Transcript"/>    
     <sniffer type="galaxy.datatypes.text:Ner"/>    
     <sniffer type="galaxy.datatypes.text:VideoOcr"/>    
+    <sniffer type="galaxy.datatypes.text:Shot"/>    
     <sniffer type="galaxy.datatypes.text:Vtt"/>    
     <!-- END AMP Data Types Extension -->
 

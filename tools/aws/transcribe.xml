@@ -31,7 +31,7 @@
   <outputs>
     <data name="aws_transcript" format="json" label='AWS Transcript JSON' />
     <data name="amp_transcript" format="transcript" label='AMP Transcript' />
-    <data name="amp_diarization" format="segments" label='AMP Diarization' />
+    <data name="amp_diarization" format="segment" label='AMP Diarization' />
   </outputs>
   <tests>
   </tests>

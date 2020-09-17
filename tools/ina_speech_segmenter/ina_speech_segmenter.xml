@@ -8,7 +8,7 @@
     <param name="input" type="data" format="audio" label="Input Audio" help="An audio file"/>
   </inputs>
   <outputs>
-    <data name="amp_segmentation" format="segments" label="AMP Segments Generated"/>
+    <data name="amp_segmentation" format="segment" label="AMP Segments Generated"/>
   </outputs>
   <tests>
   </tests>

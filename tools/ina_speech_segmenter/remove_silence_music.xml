@@ -7,7 +7,7 @@
    <inputs>
    <!-- should be wave data type -->
     <param name="input" type="data" format="audio" label="Original Audio" help="An audio file"/>
-    <param name="input_segmentation_json" type="data" format="segments" label="Segments in the Audio" help="Segments generated from Segmentation"/>
+    <param name="input_segmentation_json" type="data" format="segment" label="Segments in the Audio" help="Segments generated from Segmentation"/>
   </inputs>
   <outputs>
     <data name="segmented_audio_file" format="audio" label="Audio with only Speech Segments"/>
