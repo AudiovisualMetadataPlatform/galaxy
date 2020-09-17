@@ -58,11 +58,35 @@ class Binary(data.Data):
     def get_mime(self):
         """Returns the mime type of the datatype"""
         return 'application/octet-stream'
+    
 ##########################
 # AMP data types
 ##########################
-class Audio(Binary):
-    """Class describing a binary audio file"""
+
+class AudioVideo(Binary):
+    """Class describing an audio/video binary file"""
+    file_ext = "av"
+
+    def sniff(self, filename):
+        mt = subprocess.check_output(['file', '--mime-type', filename])
+        return  mt.find("audio/")>=0 or mt.find("video/")>=0
+    
+    def set_peek(self, dataset, is_multi_byte=False):
+        if not dataset.dataset.purged:
+            dataset.peek = "AMP audio/video binary file"
+            dataset.blurb = nice_size(dataset.get_size())
+        else:
+            dataset.peek = 'file does not exist'
+            dataset.blurb = 'file purged from disk'
+
+    def display_peek(self, dataset):
+        try:
+            return dataset.peek
+        except Exception:
+            return "AMP audio/video binary file (%s)" % (nice_size(dataset.get_size()))
+
+class Audio(AudioVideo):
+    """Class describing an audio file"""
     file_ext = "audio"
 
     def sniff(self, filename):
@@ -71,7 +95,7 @@ class Audio(Binary):
     
     def set_peek(self, dataset, is_multi_byte=False):
         if not dataset.dataset.purged:
-            dataset.peek = "Binary audio file"
+            dataset.peek = "AMP audio file"
             dataset.blurb = nice_size(dataset.get_size())
         else:
             dataset.peek = 'file does not exist'
@@ -81,10 +105,10 @@ class Audio(Binary):
         try:
             return dataset.peek
         except Exception:
-            return "Binary audio file (%s)" % (nice_size(dataset.get_size()))
+            return "AMP audio file (%s)" % (nice_size(dataset.get_size()))
 
-class Video(Binary):
-    """Class describing a binary video file"""
+class Video(AudioVideo):
+    """Class describing a video file"""
     file_ext = "video"
 
     def sniff(self, filename):
@@ -93,7 +117,7 @@ class Video(Binary):
     
     def set_peek(self, dataset, is_multi_byte=False):
         if not dataset.dataset.purged:
-            dataset.peek = "Binary video file"
+            dataset.peek = "AMP video file"
             dataset.blurb = nice_size(dataset.get_size())
         else:
             dataset.peek = 'file does not exist'
@@ -103,7 +127,7 @@ class Video(Binary):
         try:
             return dataset.peek
         except Exception:
-            return "Binary video file (%s)" % (nice_size(dataset.get_size()))
+            return "AMP video file (%s)" % (nice_size(dataset.get_size()))
 
 class Music(Audio):
     """Class describing an audio music file"""
@@ -111,7 +135,7 @@ class Music(Audio):
 
     def set_peek(self, dataset, is_multi_byte=False):
         if not dataset.dataset.purged:
-            dataset.peek = "Audio music file"
+            dataset.peek = "AMP music audio file"
             dataset.blurb = nice_size(dataset.get_size())
         else:
             dataset.peek = 'file does not exist'
@@ -121,7 +145,7 @@ class Music(Audio):
         try:
             return dataset.peek
         except Exception:
-            return "Audio music file (%s)" % (nice_size(dataset.get_size()))
+            return "AMP music audio file (%s)" % (nice_size(dataset.get_size()))
 
 class Speech(Audio):
     """Class describing an audio speech file"""
@@ -129,7 +153,7 @@ class Speech(Audio):
 
     def set_peek(self, dataset, is_multi_byte=False):
         if not dataset.dataset.purged:
-            dataset.peek = "Audio speech file"
+            dataset.peek = "AMP speech audio file"
             dataset.blurb = nice_size(dataset.get_size())
         else:
             dataset.peek = 'file does not exist'
@@ -139,7 +163,7 @@ class Speech(Audio):
         try:
             return dataset.peek
         except Exception:
-            return "Audio speech file (%s)" % (nice_size(dataset.get_size()))
+            return "AMP speech audio file (%s)" % (nice_size(dataset.get_size()))
 
 class Wav(Audio):
     """Class describing a wave audio file"""
@@ -151,7 +175,7 @@ class Wav(Audio):
 
     def set_peek(self, dataset, is_multi_byte=False):
         if not dataset.dataset.purged:
-            dataset.peek = "Wave audio file"
+            dataset.peek = "AMP Wave audio file"
             dataset.blurb = nice_size(dataset.get_size())
         else:
             dataset.peek = 'file does not exist'
@@ -161,11 +185,12 @@ class Wav(Audio):
         try:
             return dataset.peek
         except Exception:
-            return "Wave audio file (%s)" % (nice_size(dataset.get_size()))
+            return "AMP Wave audio file (%s)" % (nice_size(dataset.get_size()))
 
 ##########################
 # End AMP data types
 ##########################
+
 class Ab1(Binary):
     """Class describing an ab1 binary sequence file"""
     file_ext = "ab1"

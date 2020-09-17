@@ -60,11 +60,12 @@ class Html(Text):
 class Json(Text):
     edam_format = "format_3464"
     file_ext = "json"
+    label = "JSON"
 
     def set_peek(self, dataset, is_multi_byte=False):
         if not dataset.dataset.purged:
             dataset.peek = get_file_peek(dataset.file_name)
-            dataset.blurb = "JavaScript Object Notation (JSON)"
+            dataset.blurb = label
         else:
             dataset.peek = 'file does not exist'
             dataset.blurb = 'file purged from disc'
@@ -102,27 +103,25 @@ class Json(Text):
         try:
             return dataset.peek
         except Exception:
-            return "JSON file (%s)" % (nice_size(dataset.get_size()))
+            return label + " file (%s)" % (nice_size(dataset.get_size()))
 
 
 ######################
 ## AMP Data Types
 ######################
+
 @build_sniff_from_prefix
 class Segments(Json):
     file_ext = "segments"
+    label = "AMP Segments JSON"
 
-    def set_peek(self, dataset, is_multi_byte=False):
-        if not dataset.dataset.purged:
-            dataset.peek = get_file_peek(dataset.file_name)
-            dataset.blurb = "AMP Segments JSON"
-        else:
-            dataset.peek = 'file does not exist'
-            dataset.blurb = 'file purged from disc'
-
-#     def get_mime(self):
-#         """Returns the mime type of the datatype"""
-#         return 'application/json'
+#     def set_peek(self, dataset, is_multi_byte=False):
+#         if not dataset.dataset.purged:
+#             dataset.peek = get_file_peek(dataset.file_name)
+#             dataset.blurb = label
+#         else:
+#             dataset.peek = 'file does not exist'
+#             dataset.blurb = 'file purged from disc'
 
     def sniff_prefix(self, file_prefix):
         """
@@ -152,19 +151,20 @@ class Segments(Json):
 #         try:
 #             return dataset.peek
 #         except Exception:
-#             return "JSON file (%s)" % (nice_size(dataset.get_size()))
+#             return label % (nice_size(dataset.get_size()))
        
 @build_sniff_from_prefix
 class Transcript(Json):
     file_ext = "transcript"
+    label = "AMP Transcript JSON"
 
-    def set_peek(self, dataset, is_multi_byte=False):
-        if not dataset.dataset.purged:
-            dataset.peek = get_file_peek(dataset.file_name)
-            dataset.blurb = "AMP Transcript JSON"
-        else:
-            dataset.peek = 'file does not exist'
-            dataset.blurb = 'file purged from disc'
+#     def set_peek(self, dataset, is_multi_byte=False):
+#         if not dataset.dataset.purged:
+#             dataset.peek = get_file_peek(dataset.file_name)
+#             dataset.blurb = label
+#         else:
+#             dataset.peek = 'file does not exist'
+#             dataset.blurb = 'file purged from disc'
 
     def sniff_prefix(self, file_prefix):
         return self._looks_like_transcript(file_prefix)
@@ -191,18 +191,25 @@ class Transcript(Json):
             if start:
                 return start.contains("\"media\":") and start.contains("\"results\":") and start.contains("\"transcript\":") 
             return False
+
+#     def display_peek(self, dataset):
+#         try:
+#             return dataset.peek
+#         except Exception:
+#             return "AMP Transcript JSON (%s)" % (nice_size(dataset.get_size()))
        
 @build_sniff_from_prefix
 class Ner(Json):
     file_ext = "ner"
+    label = "AMP NER JSON"
 
-    def set_peek(self, dataset, is_multi_byte=False):
-        if not dataset.dataset.purged:
-            dataset.peek = get_file_peek(dataset.file_name)
-            dataset.blurb = "AMP NER JSON"
-        else:
-            dataset.peek = 'file does not exist'
-            dataset.blurb = 'file purged from disc'
+#     def set_peek(self, dataset, is_multi_byte=False):
+#         if not dataset.dataset.purged:
+#             dataset.peek = get_file_peek(dataset.file_name)
+#             dataset.blurb = "AMP NER JSON"
+#         else:
+#             dataset.peek = 'file does not exist'
+#             dataset.blurb = 'file purged from disc'
 
     def sniff_prefix(self, file_prefix):
         return self._looks_like_ner(file_prefix)
@@ -227,17 +234,24 @@ class Ner(Json):
                 return start.contains("\"media\":") and start.contains("\"entities\":") 
             return False
        
+#     def display_peek(self, dataset):
+#         try:
+#             return dataset.peek
+#         except Exception:
+#             return "AMP NER JSON (%s)" % (nice_size(dataset.get_size()))
+       
 @build_sniff_from_prefix
 class VideoOcr(Json):
     file_ext = "vocr"
+    label = "AMP Video OCR JSON"
 
-    def set_peek(self, dataset, is_multi_byte=False):
-        if not dataset.dataset.purged:
-            dataset.peek = get_file_peek(dataset.file_name)
-            dataset.blurb = "AMP Video OCR JSON"
-        else:
-            dataset.peek = 'file does not exist'
-            dataset.blurb = 'file purged from disc'
+#     def set_peek(self, dataset, is_multi_byte=False):
+#         if not dataset.dataset.purged:
+#             dataset.peek = get_file_peek(dataset.file_name)
+#             dataset.blurb = "AMP Video OCR JSON"
+#         else:
+#             dataset.peek = 'file does not exist'
+#             dataset.blurb = 'file purged from disc'
 
     def sniff_prefix(self, file_prefix):
         return self._looks_like_ocr(file_prefix)
@@ -265,17 +279,24 @@ class VideoOcr(Json):
                 return start.contains("\"media\":") and start.contains("\"frames\":") and start.contains("\"objects\":") 
             return False
     
+#     def display_peek(self, dataset):
+#         try:
+#             return dataset.peek
+#         except Exception:
+#             return "AMP Video OCR JSON (%s)" % (nice_size(dataset.get_size()))
+       
 @build_sniff_from_prefix
 class Vtt(Json):
     file_ext = "vtt"
-
-    def set_peek(self, dataset, is_multi_byte=False):
-        if not dataset.dataset.purged:
-            dataset.peek = get_file_peek(dataset.file_name)
-            dataset.blurb = "AMP Web VTT"
-        else:
-            dataset.peek = 'file does not exist'
-            dataset.blurb = 'file purged from disc'
+    label = "AMP Web VTT"
+    
+#     def set_peek(self, dataset, is_multi_byte=False):
+#         if not dataset.dataset.purged:
+#             dataset.peek = get_file_peek(dataset.file_name)
+#             dataset.blurb = "AMP Web VTT"
+#         else:
+#             dataset.peek = 'file does not exist'
+#             dataset.blurb = 'file purged from disc'
 
     def sniff_prefix(self, file_prefix):
         return self._looks_like_ocr(file_prefix)
@@ -289,7 +310,13 @@ class Vtt(Json):
             return True
         else:
             return False
-       
+
+#     def display_peek(self, dataset):
+#         try:
+#             return dataset.peek
+#         except Exception:
+#             return "AMP Web VTT (%s)" % (nice_size(dataset.get_size()))
+              
 ######################
 ## END AMP Data Types
 ######################

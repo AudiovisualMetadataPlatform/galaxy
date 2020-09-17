@@ -3,6 +3,7 @@
   <registration converters_path="lib/galaxy/datatypes/converters" display_path="display_applications">
 
     <!-- AMP Data Types Extension -->
+    <datatype extension="av" type="galaxy.datatypes.binary:AudioVideo" subclass="true" display_in_upload="true"/>
     <datatype extension="video" type="galaxy.datatypes.binary:Video" subclass="true" display_in_upload="true"/>
     <datatype extension="music" type="galaxy.datatypes.binary:Music" subclass="true" display_in_upload="true"/>
     <datatype extension="speech" type="galaxy.datatypes.binary:Speech" subclass="true" display_in_upload="true"/>
