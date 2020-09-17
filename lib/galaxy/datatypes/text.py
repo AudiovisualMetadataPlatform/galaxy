@@ -314,7 +314,7 @@ class Shot(Json):
             return False
            
 @build_sniff_from_prefix
-class Vtt(Json):
+class Vtt(Text):
     file_ext = "vtt"
     label = "AMP Web VTT"
     
