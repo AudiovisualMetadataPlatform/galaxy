@@ -65,7 +65,7 @@ class Json(Text):
     def set_peek(self, dataset, is_multi_byte=False):
         if not dataset.dataset.purged:
             dataset.peek = get_file_peek(dataset.file_name)
-            dataset.blurb = label
+            dataset.blurb = self.label
         else:
             dataset.peek = 'file does not exist'
             dataset.blurb = 'file purged from disc'
@@ -103,7 +103,7 @@ class Json(Text):
         try:
             return dataset.peek
         except Exception:
-            return label + " file (%s)" % (nice_size(dataset.get_size()))
+            return self.label + " file (%s)" % (nice_size(dataset.get_size()))
 
 
 ######################
