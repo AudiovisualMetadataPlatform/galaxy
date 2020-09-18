@@ -252,7 +252,8 @@ class Vtt(Text):
             first_line = file_prefix.string_io().readline().strip()      
 #             log.debug ("-------------------- first_line = " + first_line)  
 #             print ("-------------------- first_line = " + first_line)  
-            if (first_line and first_line =="WEBVTT"):
+#             if (first_line and first_line =="WEBVTT"):
+            if (first_line and first_line.contains("WEBVTT")):
 #                 log.debug ("-------------------- Vtt sniffer true")  
 #                 print ("-------------------- Vtt sniffer true")  
                 return True
