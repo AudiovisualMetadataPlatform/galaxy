@@ -244,26 +244,26 @@ class Vtt(Text):
     file_ext = "vtt"
     label = "AMP Web VTT"
 
-    def _looks_like(self, file_prefix):
+    def sniff_prefix(self, file_prefix):
         # WEBVTT is the header of a WebVTT file. 
         # We assume that no other kind of text files use this as the first line content; otherwise further checking  
         # on following lines can be done to detect if they match the regexp patterns for timestamp & speaker diarization.
         try:
             first_line = file_prefix.string_io().readline().strip()      
-#             log.debug ("-------------------- first_line = " + first_line)  
-#             print ("-------------------- first_line = " + first_line)  
-#             if (first_line and first_line =="WEBVTT"):
-            if (first_line and first_line.contains("WEBVTT")):
-#                 log.debug ("-------------------- Vtt sniffer true")  
-#                 print ("-------------------- Vtt sniffer true")  
+            log.debug ("-------------------- first_line = " + first_line)  
+            print ("-------------------- first_line = " + first_line)  
+            if (first_line == "WEBVTT"):
+#             if (first_line and first_line.contains("WEBVTT")):
+                log.debug ("-------------------- Vtt sniffer true")  
+                print ("-------------------- Vtt sniffer true")  
                 return True
             else:
-#                 log.debug ("-------------------- Vtt sniffer false")  
-#                 print ("-------------------- Vtt sniffer false")  
+                log.debug ("-------------------- Vtt sniffer false")  
+                print ("-------------------- Vtt sniffer false")  
                 return False
         except Exception as e:
             log.exception(e)
-#             print (e)  
+            print (e)  
             return False
               
 ######################
