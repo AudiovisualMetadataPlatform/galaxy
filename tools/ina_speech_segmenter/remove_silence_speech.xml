@@ -10,7 +10,7 @@
     <param name="input_segmentation_json" type="data" format="segment" label="Segments in the Audio" help="Segments generated from Segmentation"/>
   </inputs>
   <outputs>
-    <data name="segmented_audio_file" format="audio" label="Audio with only Music Segments"/>
+    <data name="segmented_audio_file" format="music" label="Audio with only Music Segments"/>
     <data name="amp_kept_segments" format="json" label="Kept Segments JSON" />
   </outputs>
   <tests>

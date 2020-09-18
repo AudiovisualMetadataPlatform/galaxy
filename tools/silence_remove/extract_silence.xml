@@ -9,7 +9,7 @@
     <param name="start_threshold" type="integer" value="-60" label="Silence threshold" help="A threshold decibel value for silence"/> 
   </inputs>
   <outputs>
-    <data name="audio_file" format="audio" label="Audio Without Trailing Silence"/>
+    <data name="audio_file" format="wav" label="Audio Without Trailing Silence"/>
   </outputs>
   <tests>
   </tests>

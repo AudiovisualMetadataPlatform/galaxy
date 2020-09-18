@@ -24,7 +24,7 @@
     </param>
   </inputs>
   <outputs>
-    <data name="audio_file" format="audio" label="Audio Extracted" />
+    <data name="audio_file" format="wav" label="Audio Extracted" />
   </outputs>
   <tests>
   </tests>

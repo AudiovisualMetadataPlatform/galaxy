@@ -9,7 +9,7 @@
 	<param name="duration" type="integer" value="0" label="Duration of video in seconds" help="Duration of the video to passed through OCR"/> -->
   </inputs>
   <outputs>
-    <data name="amp_ocr" format="ocr" label="AMP Video OCR"/>
+    <data name="amp_ocr" format="vocr" label="AMP Video OCR"/>
   </outputs>
   <tests>
   </tests>
