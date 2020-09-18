@@ -202,7 +202,7 @@ class VideoOcr(Json):
                 if not ('frames' in item and 'media' in item):
                     return False                
                 frames = item['frames']
-                if 'objects' in frames:
+                if  (len(frames) == 0 or 'objects' in frames[0]):
                     return True
                 else:
                     return False
@@ -249,7 +249,7 @@ class Vtt(Text):
         # We assume that no other kind of text files use this as the first line content; otherwise further checking  
         # on following lines can be done to detect if they match the regexp patterns for timestamp & speaker diarization.
         first_line = file_prefix.string_io().readline().strip()        
-        if (first_line and first_line.equals("WEBVTT")):
+        if (first_line and first_line =="WEBVTT"):
             return True
         else:
             return False
