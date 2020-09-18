@@ -248,7 +248,8 @@ class Vtt(Text):
         # WEBVTT is the header of a WebVTT file. 
         # We assume that no other kind of text files use this as the first line content; otherwise further checking  
         # on following lines can be done to detect if they match the regexp patterns for timestamp & speaker diarization.
-        first_line = file_prefix.string_io().readline().strip()        
+        first_line = file_prefix.string_io().readline().strip()      
+        print ("-------------------- first_line = " + first_line)  
         if (first_line and first_line =="WEBVTT"):
             return True
         else:
