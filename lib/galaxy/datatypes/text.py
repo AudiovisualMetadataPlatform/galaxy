@@ -250,19 +250,19 @@ class Vtt(Text):
         # on following lines can be done to detect if they match the regexp patterns for timestamp & speaker diarization.
         try:
             first_line = file_prefix.string_io().readline().strip()      
-            log.debug ("-------------------- first_line = " + first_line)  
-            print ("-------------------- first_line = " + first_line)  
+#             log.debug ("-------------------- first_line = " + first_line)  
+#             print ("-------------------- first_line = " + first_line)  
             if (first_line and first_line =="WEBVTT"):
-                log.debug ("-------------------- Vtt sniffer true")  
-                print ("-------------------- Vtt sniffer true")  
+#                 log.debug ("-------------------- Vtt sniffer true")  
+#                 print ("-------------------- Vtt sniffer true")  
                 return True
             else:
-                log.debug ("-------------------- Vtt sniffer false")  
-                print ("-------------------- Vtt sniffer false")  
+#                 log.debug ("-------------------- Vtt sniffer false")  
+#                 print ("-------------------- Vtt sniffer false")  
                 return False
         except Exception as e:
             log.exception(e)
-            print (e)  
+#             print (e)  
             return False
               
 ######################
