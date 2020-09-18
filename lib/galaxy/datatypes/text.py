@@ -244,6 +244,18 @@ class Vtt(Text):
     file_ext = "vtt"
     label = "AMP Web VTT"
 
+    def set_peek(self, dataset, is_multi_byte=False):
+        if not dataset.dataset.purged:
+            dataset.peek = self.label
+            dataset.blurb = nice_size(dataset.get_size())
+        else:
+            dataset.peek = 'file does not exist'
+            dataset.blurb = 'file purged from disk'
+
+    def get_mime(self):
+        """Returns the mime type of the datatype"""
+        return 'text/vtt'
+
     def sniff_prefix(self, file_prefix):
         # WEBVTT is the header of a WebVTT file. 
         # We assume that no other kind of text files use this as the first line content; otherwise further checking  
@@ -253,7 +265,6 @@ class Vtt(Text):
             log.debug ("-------------------- first_line = " + first_line)  
             print ("-------------------- first_line = " + first_line)  
             if (first_line == "WEBVTT"):
-#             if (first_line and first_line.contains("WEBVTT")):
                 log.debug ("-------------------- Vtt sniffer true")  
                 print ("-------------------- Vtt sniffer true")  
                 return True
@@ -264,8 +275,14 @@ class Vtt(Text):
         except Exception as e:
             log.exception(e)
             print (e)  
-            return False
-              
+            return False              
+
+    def display_peek(self, dataset):
+        try:
+            return dataset.peek
+        except Exception:
+            return self.label + " file (%s)" % (nice_size(dataset.get_size()))
+                      
 ######################
 ## END AMP Data Types
 ######################
