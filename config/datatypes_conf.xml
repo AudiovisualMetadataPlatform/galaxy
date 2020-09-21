@@ -4,11 +4,11 @@
 
     <!-- AMP Data Types Extension -->
     <datatype extension="av" type="galaxy.datatypes.binary:AudioVideo" subclass="true" display_in_upload="true"/>
+    <datatype extension="audio" type="galaxy.datatypes.binary:Audio" subclass="true" display_in_upload="true"/>
     <datatype extension="video" type="galaxy.datatypes.binary:Video" subclass="true" display_in_upload="true"/>
+    <datatype extension="wav" type="galaxy.datatypes.binary:Wav" subclass="true" display_in_upload="true"/>
     <datatype extension="music" type="galaxy.datatypes.binary:Music" subclass="true" display_in_upload="true"/>
     <datatype extension="speech" type="galaxy.datatypes.binary:Speech" subclass="true" display_in_upload="true"/>
-    <datatype extension="audio" type="galaxy.datatypes.binary:Audio" subclass="true" display_in_upload="true"/>
-    <datatype extension="wav" type="galaxy.datatypes.binary:Wav" subclass="true" display_in_upload="true"/>
     <datatype extension="segment" type="galaxy.datatypes.text:Segment" subclass="true" display_in_upload="true" />
     <datatype extension="transcript" type="galaxy.datatypes.text:Transcript" mimetype="application/json" subclass="true" display_in_upload="true"/>
 	<datatype extension="ner" type="galaxy.datatypes.text:Ner" mimetype="application/json" subclass="true" display_in_upload="true"/>
