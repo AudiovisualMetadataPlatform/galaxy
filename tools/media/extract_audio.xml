@@ -1,11 +1,14 @@
 <tool id="extract_audio" name="Extract Audio" version="1.0.2">
   <description>Extract audio from audio/video file</description>
-    <requirements>
-        <requirement type="package" version="8.30">coreutils</requirement>
-    </requirements>
-  <command>ffmpeg -y -hide_banner -nostats -loglevel panic -i $input -ar $rate -ac $channels -c:a $samplesize -f wav $audio_file</command>
+  <requirements>
+    <requirement type="package" version="8.30">coreutils</requirement>
+    <requirement type="package" version="3.4">ffmpeg</requirement>
+  </requirements>
+  <command>
+  	ffmpeg -y -hide_banner -nostats -loglevel panic -i '$input_av' -ar '$rate' -ac '$channels' -c:a '$sample_size' -f wav '$audio_extracted'
+  </command>
   <inputs>
-    <param name="input" type="data" format="av" label="Input Audio/Video" help="An audio/video file"/>
+    <param name="input_av" type="data" format="av" label="Input Audio/Video" help="An audio/video file"/>
     <param name="rate" type="select" label="Sample Rate">
       <option value="8000">8KHz</option>
       <option value="16000">16KHz</option>
@@ -18,13 +21,13 @@
 	  <option value="1">Mono</option>
 	  <option value="2">Stereo</option>
     </param>
-    <param name="samplesize" type="select" label="Sample Size" help="Sample size of output in bits per sample">
+    <param name="sample_size" type="select" label="Sample Size" help="Sample size of output in bits per sample">
       <option value="pcm_s16le">16 Bits per Sample</option>
       <option value="pcm_s24le">24 Bits per Sample</option>
     </param>
   </inputs>
   <outputs>
-    <data name="audio_file" format="wav" label="Audio Extracted" />
+    <data name="audio_extracted" format="wav" label="Audio Extracted" />
   </outputs>
   <tests>
   </tests>

@@ -1,16 +1,16 @@
-<tool id="aws_transcribe" name="AWS Transcribe" version="1.0.2">
+<tool id="aws_transcribe_stt" name="AWS Transcribe Speech to Tex" version="1.0.2">
   <description>Transcribe speech to text via AWS Transcribe</description>
-    <requirements>
-        <requirement type="package" version="8.30">coreutils</requirement>
-        <requirement type="package" version="1.14">aws-cli</requirement>
-        <requirement type="package" version="1.5">jq</requirement>
-    </requirements>
+  <requirements>
+	<requirement type="package" version="8.30">coreutils</requirement>
+	<requirement type="package" version="1.14">aws-cli</requirement>
+	<requirement type="package" version="1.5">jq</requirement>
+  </requirements>
   <command detect_errors="exit_code">
-	'$__tool_directory__/transcribe.sh' '$__root_dir__/../galaxy_tmp/aws/transcribe' '$input_file' '$aws_transcript' '$audio_format' '$s3_bucket' '$s3_directory';
-	'$__tool_directory__/../amp_json_schema/aws_transcribe_to_schema.py' '$input_file' '$aws_transcript' '$amp_transcript' '$amp_diarization'
+	'$__tool_directory__/transcribe.sh' '$__root_dir__/../galaxy_tmp/aws/transcribe' '$input_audio' '$aws_transcript' '$audio_format' '$s3_bucket' '$s3_directory';
+	'$__tool_directory__/../amp_json_schema/aws_transcribe_to_schema.py' '$input_audio' '$aws_transcript' '$amp_transcript' '$amp_diarization'
   </command>
   <inputs>
-    <param name="input_file" type="data" format="audio" label="Input Audio" help="Audio file to transcribe"/>
+    <param name="input_audio" type="data" format="audio" label="Input Audio" help="Audio file to transcribe"/>
     <param name="audio_format" type="select" label="Audio Format" help="Format of the audio file. For best results use a lossless format such as FLAC or WAV with PCM 16-bit encoding.">
       <option value="wav">WAV</option>
       <option value="flac">FLAC</option>

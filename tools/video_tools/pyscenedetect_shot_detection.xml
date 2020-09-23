@@ -1,12 +1,14 @@
 <tool id="pyscenedetect_shot_detection" name="PySceneDetect" version="1.0.0">
   <description>Runs shot detection on a video</description>
-    <requirements>
-    <requirement type="package">python</requirement>
+  <requirements>
+	<requirement type="package" version="3.8">python</requirement>
     <requirement type="package">PySceneDetect</requirement>
-    </requirements>
-  <command detect_errors="exit_code"> '$__tool_directory__/pyscenedetect_shot_detection.py' '$input' '$threshold' '$amp_shots' '$frame_stats'</command>
+  </requirements>
+  <command detect_errors="exit_code"> 
+  	'$__tool_directory__/pyscenedetect_shot_detection.py' '$input_video' '$threshold' '$amp_shots' '$frame_stats'
+  </command>
   <inputs>
-	<param name="input" type="data" format="video" label="Input Video" help="An input video file for shot detection"/>
+	<param name="input_video" type="data" format="video" label="Input Video" help="An input video file for shot detection"/>
 	<param name="threshold" type="integer" label="(Optional) Threshold" value="30" min="0" max="100" optional="true" help="Sensitivity of the shot detection. The default is 30"/>
   </inputs>
   <outputs>

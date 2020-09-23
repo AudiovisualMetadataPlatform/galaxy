@@ -1,19 +1,25 @@
 <tool id="hmgm_segmentation" name="HMGM Segmentation Correction" version="1.0.0">
   <description>Manual segmentation correction by a human</description>
+  <requirements>
+	<requirement type="package" version="3.8">python</requirement>
+	<requirement type="package" version="2.0">jira</requirement>
+  </requirements>
   <command detect_errors="exit_code">
-	'$__tool_directory__/hmgm_main.py' 'Segmentation' '$__root_dir__' '$original_structmeta' '$corrected_structmeta' '$task_info' '$context_json';
+	<!-- '$__tool_directory__/../amp_json_schema/segment_to_structmeta.py' '$__root_dir__' '$amp_segments_uncorrected' '$structmeta_uncorrected'; -->
+	'$__tool_directory__/hmgm_main.py' 'Segmentation' '$__root_dir__' '$structmeta_uncorrected' '$structmeta_corrected' '$task_info' '$context_json';
+	<!-- '$__tool_directory__/../amp_json_schema/structmeta_to_segment.py' '$__root_dir__' '$structmeta_corrected' '$amp_segments_uncorrected' '$amp_segments_corrected' -->
   </command>
   <inputs>
-    <param name="input_segment" type="data" format="segment" label="Input Segmentation" help="Original AMP segment file to be corrected "/>
+    <param name="amp_segments_uncorrected" type="data" format="segment" label="AMP Segments Uncorrected" help="Original AMP segment file to be corrected "/>
     <param name="context_json" type="text" label="Human MGM Task Context" help="JSON string containing context information needed for creating Human MGM task">
 		<sanitizer sanitize="false">
     	</sanitizer>
 	</param>
   </inputs>
   <outputs>
-    <data name="original_structmeta" format="xml" label="Original Structural Metadata" help="Structural Metadata XML file converted from the original AMP Segment file" />
-    <data name="corrected_structmeta" format="xml" label="Corrected Structural Metadata" help="Structural Metadata XML file with corrected segmentation"  />
-    <data name="output_segment" format="segment" label="Output Segmentation" help="AMP segment file converted from the corrected structural metadata file" />
+    <data name="structmeta_uncorrected" format="xml" label="Structural Metadata Uncorrected" help="Structural Metadata XML file converted from the original AMP Segment file" />
+    <data name="structmeta_corrected" format="xml" label="Structural Metadata Corrected" help="Structural Metadata XML file with corrected segmentation"  />
+    <data name="amp_segments_corrected" format="segment" label="AMP Segments Corrected" help="AMP segment file converted from the corrected structural metadata file" />
     <data name="task_info" format="json" label="HMGM Task Info" help="Information about the Human MMGM task created for Segmentation Correction" />
   </outputs>
   <tests>
