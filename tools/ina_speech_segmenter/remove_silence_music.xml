@@ -12,7 +12,11 @@
     <param name="amp_segments" type="data" format="segment" label="AMP Segments" help="AMP Segment file with all segments generated from Segmentation"/>
   </inputs>
   <outputs>
-    <data name="speech_audio" format="speech" label="Speech Audio"/>
+  	<!-- TODO 
+  		music_audio format should be speech, however, setting so disallows it to be fed into tools taking wav as input.
+  	 	This appears to be a bug in Galaxy, as subtype (music) should be allowed to feed into parent type (wav).
+  	-->    
+    <data name="speech_audio" format="wav" label="Speech Audio"/>
     <data name="kept_segments" format="json" label="Kept Segments" />
   </outputs>
   <tests>
