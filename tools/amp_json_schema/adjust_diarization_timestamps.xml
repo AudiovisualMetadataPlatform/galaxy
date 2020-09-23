@@ -4,13 +4,15 @@
 	<requirement type="package" version="3.8">python</requirement>
 	<requirement type="package" version="8.30">coreutils</requirement>
   </requirements>
-  <command detect_errors="exit_code">'$__tool_directory__/adjust_diarization_timestamps.py' '$amp_diarization_unadjusted' '$kept_segments' '$amp_diarization_adjusted'</command>
+  <command detect_errors="exit_code">
+  	'$__tool_directory__/adjust_diarization_timestamps.py' '$amp_diarization_unadjusted' '$kept_segments' '$amp_diarization_adjusted'
+  </command>
   <inputs>
     <param name="amp_diarization_unadjusted" type="data" format="segment" label="AMP Diarization Unadjusted" help="AMP Diarization generated from speech-to-text without timestamp adjusted"/>
-    <param name="kept_segments" type="data" format="json" label="Kept segments JSON" help="List of kept segments from RemoveSegments""/>
+    <param name="kept_segments" type="data" format="json" label="Kept segments JSON" help="List of kept segments from RemoveSegments"/>
   </inputs>
   <outputs>
-    <data name="amp_diarization_adjusted" format="segment" label="AMP Diarization Timestamp-Adjusted"/>
+    <data name="amp_diarization_adjusted" format="segment" label="AMP Diarization Timestamp Adjusted"/>
   </outputs>
   <tests>
   </tests>
