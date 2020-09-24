@@ -1,4 +1,4 @@
-<tool id="spacy_ner" name="spaCy Named Entity Recoginition" version="1.0.0">
+<tool id="spacy_ner" name="spaCy Entity Extraction" version="1.0.0">
   <description>Named entity recognition with a local spaCy instance</description>
   <requirements>
 	<requirement type="package" version="3.8">python</requirement>

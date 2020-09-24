@@ -1,5 +1,5 @@
-<tool id="vtt_generator" name="AMP Transcript to VTT generator" version="1.0.0">
-  <description>Convert AMP transcript to Web VTT</description>
+<tool id="vtt_generator" name="AMP Transcript to VTT Generator" version="1.0.0">
+  <description>Convert AMP transcript/diarization to Web VTT</description>
   <requirements>
 	<requirement type="package" version="3.8">python</requirement>
   </requirements>
