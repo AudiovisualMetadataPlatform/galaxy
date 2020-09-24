@@ -17,7 +17,7 @@
     </param>
   </inputs>
   <outputs>
-    <data name="amp_entities" format="ner" label="AMP Named Entities Recgonized"/>
+    <data name="amp_entities" format="ner" label="AMP Entities Extracted"/>
   </outputs>
   <tests>
   </tests>

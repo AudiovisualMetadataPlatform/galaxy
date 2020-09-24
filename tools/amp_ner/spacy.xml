@@ -1,4 +1,4 @@
-<tool id="spacy_local_ner" name="spaCy Local Named Entity Recoginition" version="1.0.0">
+<tool id="spacy_ner" name="spaCy Named Entity Recoginition" version="1.0.0">
   <description>Named entity recognition with a local spaCy instance</description>
   <requirements>
 	<requirement type="package" version="3.8">python</requirement>
@@ -15,14 +15,14 @@
     </param>
   </inputs>
   <outputs>
-    <data name="amp_entities" format="ner" label="AMP Named Entities Recgonized"/>
+    <data name="amp_entities" format="ner" label="AMP Entities Extracted"/>
   </outputs>
   <tests>
   </tests>
   <help>
 .. class:: infomark
 
-Extract named entities using spaCy
+Extract named entities using local spaCy instance
 
   </help>
 </tool>

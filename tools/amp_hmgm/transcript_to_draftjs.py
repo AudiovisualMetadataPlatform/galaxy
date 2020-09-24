@@ -6,7 +6,7 @@ from os import path
 import sys
 import logging
 
-from adjustment import Adjustment
+# from adjustment import Adjustment
 from amp_logger import AmpLogger
 
 log = logging.getLogger(__name__)

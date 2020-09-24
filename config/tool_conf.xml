@@ -8,16 +8,12 @@
     <tool file="cloud/send.xml" />
   </section>
   
-  <section id="media" name="Media Tools">
-    <tool file="media/extract_audio.xml"/>
-    <!--
-    <tool file="media/pocketsphinx.xml"/>
-    <tool file="media/sox_trim.xml"/>
-    -->
+  <section id="media" name="Media Pre-Processing">
+    <tool file="amp_media/extract_audio.xml"/>
+    <tool file="amp_media/remove_trailing_silence.xml"/>
   </section>
   
   <section id="silence" name="Silence Tools">
-    <tool file="silence_remove/extract_silence.xml"/>
   </section>
   
   <section id="Transcribe" name="Speech to Text">
