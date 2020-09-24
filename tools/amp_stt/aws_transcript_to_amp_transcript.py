@@ -4,15 +4,16 @@ import json
 import os
 import sys
 
-import hmgm_utils
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_utils'))
+import mgm_utils
 
 from speech_to_text_schema import SpeechToText, SpeechToTextMedia, SpeechToTextResult, SpeechToTextScore, SpeechToTextWord
-from segmentation_schema import SegmentationSchema, SegmentationSchemaMedia, SegmentationSchemaSegment
+from segmentation import SegmentationSchema, SegmentationSchemaMedia, SegmentationSchemaSegment
 
 def main():
 	(media_file, transcribe_file, output_stt_json_file, output_seg_json_file) = sys.argv[1:5]
 		
-	hmgm_utils.exit_if_output_not_ready(transcribe_file)
+	mgm_utils.exit_if_output_not_ready(transcribe_file)
 
 	# Open the transcribe output
 	with open(transcribe_file) as json_file:

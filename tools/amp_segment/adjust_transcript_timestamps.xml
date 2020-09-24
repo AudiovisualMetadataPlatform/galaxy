@@ -5,7 +5,7 @@
     <requirement type="package" version="8.30">coreutils</requirement>
   </requirements>
   <command detect_errors="exit_code">
-    '$__tool_directory__/adjust_timestamps.py' '$amp_transcript_unadjusted' '$kept_segments' '$amp_transcript_adjusted'
+    '$__tool_directory__/adjust_transcript_timestamps.py' '$amp_transcript_unadjusted' '$kept_segments' '$amp_transcript_adjusted'
   </command>
   <inputs>
     <param name="amp_transcript_unadjusted" type="data" format="transcript" label="AMP Transcript Unadjusted" help="AMP Transcript generated from speech-to-text without timestamp adjusted"/>

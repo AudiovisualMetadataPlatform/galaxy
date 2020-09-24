@@ -4,7 +4,8 @@ import json
 import os
 import sys
 
-from segmentation_schema import SegmentationSchema, SegmentationSchemaMedia, SegmentationSchemaSegment
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_schema'))
+from segmentation import SegmentationSchema, SegmentationSchemaMedia, SegmentationSchemaSegment
 from adjustment import Adjustment
 
 def main():

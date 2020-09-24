@@ -7,9 +7,8 @@ import os.path
 import sys
 import shutil
 
-sys.path.insert(0, os.path.abspath('../../../../../tools/amp_json_schema'))
-
-from amp_logger import AmpLogger
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_utils'))
+from mgm_logger import MgmLogger
 
 from task_jira import TaskJira
 from task_openproject import TaskOpenproject 
@@ -35,7 +34,7 @@ def main():
 #     context_json = '{ "submittedBy": "yingfeng", "unitId": "1", "unitName": "Test%27s Unit", "collectionId": "2", "collectionName": "Test%22s Collection", "taskManager": "Jira", "itemId": "3", "itemName": "Test%27s Item", "primaryfileId": "4", "primaryfileName": "Test%22s primaryfile", "primaryfileUrl": "http://techslides.com/demos/sample-videos/small.mp4", "primaryfileMediaInfo": "/tmp/hmgm/mediaInfo.json", "workflowId": "123456789", "workflowName": "Test%27%22 Workflow" }'
 
 	try:
-		logger = AmpLogger(root_dir, "hmgm_" + task_type, input_json)
+		logger = MgmLogger(root_dir, "hmgm_" + task_type, input_json)
 		sys.stdout = logger
 		sys.stderr = logger
 		

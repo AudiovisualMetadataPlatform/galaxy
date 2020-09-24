@@ -15,7 +15,7 @@ import boto3
 
 from requests_toolbelt import MultipartEncoder
 
-sys.path.insert(0, os.path.abspath('../../../../../tools/amp_json_schema'))
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_schema'))
 
 from video_ocr import VideoOcrSchema, VideoOcrMediaSchema, VideoOcrResolutionSchema, VideoOcrFrameSchema, VideoOcrBoundingBoxSchema, VideoOcrBoundingBoxScoreSchema, VideoOcrBoundingBoxVerticesSchema
 

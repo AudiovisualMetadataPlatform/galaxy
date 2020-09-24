@@ -6,7 +6,7 @@
 	<requirement type="package" version="3.8">python</requirement>
   </requirements>
   <command detect_errors="exit_code">
-  	'$__tool_directory__/run-tesseract.py' '$input_video' '$amp_vocr'
+  	'$__tool_directory__/tesseract.py' '$input_video' '$amp_vocr'
   </command>
   <inputs>
 	<param name="input_video" type="data" format="video" label="Input Video" help="An input video file for OCR"/>

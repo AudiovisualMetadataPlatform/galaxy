@@ -4,6 +4,7 @@ import json
 import os
 import sys
 
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_schema'))
 from speech_to_text_schema import SpeechToText, SpeechToTextMedia, SpeechToTextResult, SpeechToTextScore, SpeechToTextWord
 from adjustment import Adjustment
 

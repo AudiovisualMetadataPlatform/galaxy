@@ -10,10 +10,9 @@ import sys
 import tempfile
 import uuid
 
-sys.path.insert(0, os.path.abspath('../../../../../tools/amp_json_schema'))
-
-from entity_extraction_schema import EntityExtraction, EntityExtractionMedia, EntityExtractionEntity
-from speech_to_text_schema import SpeechToText, SpeechToTextMedia, SpeechToTextResult, SpeechToTextScore, SpeechToTextWord
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_schema'))
+from entity_extraction import EntityExtraction, EntityExtractionMedia, EntityExtractionEntity
+from speech_to_text import SpeechToText, SpeechToTextMedia, SpeechToTextResult, SpeechToTextScore, SpeechToTextWord
 
 
 def main():

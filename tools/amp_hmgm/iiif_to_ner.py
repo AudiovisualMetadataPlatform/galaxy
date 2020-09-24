@@ -4,8 +4,9 @@ import json
 import sys
 import os
 
-from amp_logger import AmpLogger
-import hmgm_utils
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_utils'))
+from mgm_logger import MgmLogger
+import mgm_utils
 
 
 # Convert IIIF manifest JSON file to standard NER output JSON file.
@@ -17,11 +18,11 @@ def main():
     input_ner = sys.argv[3]     # input file to feed to NER editor in IIIF json format to convert to
     output_ner = sys.argv[4]    # context info as json string needed for creating HMGM tasks
 
-    logger = AmpLogger(root_dir, "hmgm_ner", input_ner)
+    logger = MgmLogger(root_dir, "hmgm_ner", input_ner)
     sys.stdout = logger
     sys.stderr = logger
 
-    hmgm_utils.exit_if_output_not_ready(output_iiif)
+    mgm_utils.exit_if_output_not_ready(output_iiif)
         
     # parse output IIIF and original input NER
     with open(output_iiif, 'r') as iiif_file:

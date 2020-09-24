@@ -17,8 +17,7 @@ import subprocess
 import shutil
 from PIL import Image, ImageDraw, ImageFont
 
-sys.path.insert(0, os.path.abspath('../../../../../tools/amp_json_schema'))
-
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_schema'))
 from contact_sheet import ContactSheet
 
 def main():

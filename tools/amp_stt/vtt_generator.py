@@ -3,6 +3,7 @@ import json
 import sys
 import os.path
 from os import path
+
 class JsonToVtt:
 	output = ''
 	max_words = 6

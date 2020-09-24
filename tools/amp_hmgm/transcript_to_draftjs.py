@@ -6,10 +6,12 @@ from os import path
 import sys
 import logging
 
-# from adjustment import Adjustment
-from amp_logger import AmpLogger
 
-log = logging.getLogger(__name__)
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_utils'))
+from mgm_logger import MgmLogger
+# from adjustment import Adjustment
+
+# log = logging.getLogger(__name__)
 
 segments = list()
 
@@ -18,7 +20,7 @@ def main():
 
 	(root_dir, amp_json, segmentation_json, output_json) = sys.argv[1:5]
 
-	logger = AmpLogger(root_dir, "hmgm_transcript", amp_json)
+	logger = MgmLogger(root_dir, "hmgm_transcript", amp_json)
 	sys.stdout = logger
 	sys.stderr = logger
 

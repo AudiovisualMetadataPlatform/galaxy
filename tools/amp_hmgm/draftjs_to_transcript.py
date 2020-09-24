@@ -2,27 +2,29 @@
 import difflib
 #from difflib_data import *
 
-import hmgm_utils
 
 import json
 import sys
 import os
 from os import path
 
-from amp_logger import AmpLogger
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_utils'))
+from mgm_logger import MgmLogger
+import mgm_utils
 
-import aws_transcribe_to_schema
-from speech_to_text_schema import SpeechToText, SpeechToTextMedia, SpeechToTextResult, SpeechToTextScore, SpeechToTextWord
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_schema'))
+from speech_to_text import SpeechToText, SpeechToTextMedia, SpeechToTextResult, SpeechToTextScore, SpeechToTextWord
+# import aws_transcribe_to_schema
 
 # Convert editor output to standardized json
 def main():
     (root_dir, editor_output_file, output_json_file, media_file) = sys.argv[1:5]
     
-    logger = AmpLogger(root_dir, "hmgm_transcript", editor_output_file)
+    logger = MgmLogger(root_dir, "hmgm_transcript", editor_output_file)
     sys.stdout = logger
     sys.stderr = logger
 
-    hmgm_utils.exit_if_output_not_ready(editor_output_file)
+    mgm_utils.exit_if_output_not_ready(editor_output_file)
 
     with open(editor_output_file) as json_file:
         d = json.load(json_file)

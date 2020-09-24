@@ -7,7 +7,7 @@ import shutil
 import zipfile
 import gzip
 
-class AmpLogger(object):
+class MgmLogger(object):
     log_file_size = 1000000
     def __init__(self, root_dir, logname, input_file):
         self.terminal = sys.stdout

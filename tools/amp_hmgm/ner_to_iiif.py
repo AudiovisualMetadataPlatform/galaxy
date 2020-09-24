@@ -4,7 +4,8 @@ import json
 import sys
 import os
 
-from amp_logger import AmpLogger
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_utils'))
+from mgm_logger import MgmLogger
 
 # Convert NER generated JSON file to IIIF manifest JSON file.
 # Usage: ner_to_iiif.py input_ner input_iiif context_json
@@ -17,7 +18,7 @@ def main():
 #     context_json = '{ "submittedBy": "yingfeng", "unitId": "1", "unitName": "Test Unit", "collectionId": "2", "collectionName": "Test Collection", "taskManager": "Jira", "itemId": "3", "itemName": "Test Item", "primaryfileId": "4", "primaryfileName": "Test primaryfile", "primaryfileUrl": "http://techslides.com/demos/sample-videos/small.mp4", "primaryfileMediaInfo": "/tmp/hmgm/mediaInfo.json", "workflowId": "123456789", "workflowName": "Test Workflow" }'
     
     
-    logger = AmpLogger(root_dir, "hmgm_ner", input_ner)
+    logger = MgmLogger(root_dir, "hmgm_ner", input_ner)
 
     sys.stdout = logger
     sys.stderr = logger

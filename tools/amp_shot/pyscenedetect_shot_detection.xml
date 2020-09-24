@@ -2,7 +2,7 @@
   <description>Runs shot detection on a video</description>
   <requirements>
 	<requirement type="package" version="3.8">python</requirement>
-    <requirement type="package">PySceneDetect</requirement>
+    <requirement type="package" version="0.5">PySceneDetect</requirement>
   </requirements>
   <command detect_errors="exit_code"> 
   	'$__tool_directory__/pyscenedetect_shot_detection.py' '$input_video' '$threshold' '$amp_shots' '$frame_stats'

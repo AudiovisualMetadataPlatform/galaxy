@@ -4,7 +4,7 @@
 	<requirement type="package" version="3.8">python</requirement>
   </requirements>
   <command detect_errors="exit_code">
-  	'$__tool_directory__/jsonToVtt.py' '$amp_diarization' '$amp_transcript' '$web_vtt'
+  	'$__tool_directory__/vtt_generator.py' '$amp_diarization' '$amp_transcript' '$web_vtt'
   </command>
   <inputs>
     <param name="amp_diarization" type="data" format="segment" optional="true" label="AMP Diarization" help="AMP diarization input with speaker diarization info to be added to VTT"/>
