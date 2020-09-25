@@ -51,7 +51,13 @@ class ContactSheet:
 		valid_input = self.validate_facial(amp_facial_recognition)
 		if valid_input == False:
 			exit(1)
-		exit(1)
+		
+		times, labels = self.getTimesFacialRecognition(amp_facial_recognition
+		)
+		# Get images
+		filenames = self.get_thumbs(self.input_file, times, self.temporary_directory.name)
+		
+		self.create_contact_sheet(filenames, labels)
 
 	def create_shots(self, amp_shots):
 		valid_input = self.validate_shots(amp_shots)
@@ -85,21 +91,21 @@ class ContactSheet:
 	def contact_sheet_assembly(self, fnames, ftimes, headerInfo, nrows, photoh):
 		"""\
 		Make a contact sheet from a group of filenames:
-
+		
 		fnames       A list of names of the image files
 		
 		ncols        Number of columns in the contact sheet
 		nrows        Number of rows in the contact sheet
 		photow       The width of the photo thumbs in pixels
 		photoh       The height of the photo thumbs in pixels
-
+		
 		marl         The left margin in pixels
 		mart         The top margin in pixels
 		marr         The right margin in pixels
 		marl         The left margin in pixels
-
+		
 		padding      The padding between images in pixels
-
+		
 		returns a PIL image object.
 		"""
 		# Calculate the size of the output image, based on the
@@ -148,7 +154,7 @@ class ContactSheet:
 		return int(len)
 
 	def getTimesInterval(self, videoLength, interval):
-		times = [t for t in range(0, videoLength, interval)]
+		times = [t for t in range(interval, videoLength, interval)]
 		labels = []
 		for t in times:
 			labels.append(str(timedelta(seconds=round(t))))
@@ -156,12 +162,28 @@ class ContactSheet:
 
 	def getTimesQuantity(self, videoLength, numFrames):
 		step = math.floor(videoLength/numFrames)
+		print("Length: " + str(videoLength))
+		print("Frames: " + str(numFrames))
+		print("Step: " + str(step))
 		return self.getTimesInterval(videoLength, step)
+
+	def getTimesFacialRecognition(self, data):
+		times = []
+		labels = []
+		
+		for i, shot in enumerate(data["frames"]):
+			# Find the timestamp for the middle frame of the shot
+			start = float(self.get_seconds_from_time_string(shot["start"]))
+			times.append(start)
+
+			# Save a formatted time range for this shot in the list of times
+			range = str(timedelta(seconds=round(start)))
+			labels.append(range)
+		return times, labels
 
 	def getTimesShotDetection(self, data):
 		times = []
 		labels = []
-		
 		for i, shot in enumerate(data["shots"]):
 			if shot["type"] == "scene": # for Azure-- skip things labeled "scene"
 				continue
@@ -176,6 +198,7 @@ class ContactSheet:
 			range = str(timedelta(seconds=round(start))) + " - " + str(timedelta(seconds=round(end)))
 			labels.append(range)
 		return times, labels
+
 	def get_seconds_from_time_string(self, time_string):
 		pt = datetime.strptime(time_string,'%H:%M:%S.%f')
 		total_seconds = pt.second + pt.minute*60 + pt.hour*3600
