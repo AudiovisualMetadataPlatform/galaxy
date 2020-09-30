@@ -16,7 +16,7 @@ from requests_toolbelt import MultipartEncoder
 def main():
 	apiUrl = "https://api.videoindexer.ai"
 
-	(input_file, location, root_dir, include_ocr, index_file, ocr_file) = sys.argv[1:7]
+	(input_file, include_ocr, include_shot, location, root_dir, index_file, ocr_file, shot_file) = sys.argv[1:9]
 
 	try:
 		import http.client as http_client
@@ -66,14 +66,19 @@ def main():
 	# Turn on HTTP debugging here
 	http_client.HTTPConnection.debuglevel = 1
 
-	# Get the video index json
+	# Get the simple video index json
 	auth_token = get_auth_token(apiUrl, location, accountId, apiKey)
 	index_json = get_video_index_json(apiUrl, location, accountId, videoId, auth_token, apiKey)
 	write_json_file(index_json, index_file)
 
-	# Get the advanced OCR via the artifact URL if requested
+	# Get the advanced OCR json via the artifact URL if requested
 	if include_ocr:
 		artifacts_url = get_artifacts_url(apiUrl, location, accountId, videoId, auth_token)
+		download_artifacts(artifacts_url, ocr_file)
+	
+	# Get the advanced Shot json via the artifact URL if requested
+	if include_shot:
+		artifacts_url = get_artifacts_url(apiUrl, location, accountId, videoId, auth_token, )
 		download_artifacts(artifacts_url, ocr_file)
 	
 	delete_from_s3(s3_path, s3_bucket)
@@ -86,10 +91,10 @@ def download_artifacts(artifacts_url, output_name):
 	return output_name
 
 # Get the url where the artifacts json is stored
-def get_artifacts_url(apiUrl, location, accountId, videoId, auth_token):
+def get_artifacts_url(apiUrl, location, accountId, videoId, auth_token, type):
 	url = apiUrl + "/" + location + "/Accounts/" + accountId + "/Videos/" + videoId + "/ArtifactUrl"
 	params = {'accessToken':auth_token,
-				'type':'ocr'}
+				'type':type}
 	r = requests.get(url = url, params = params)
 	return r.text.replace("\"", "")
 
