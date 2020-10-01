@@ -8,7 +8,7 @@ import json
 import tempfile
 import os
 import uuid
-# import boto3
+import boto3
 
 from requests_toolbelt import MultipartEncoder
 
