@@ -72,7 +72,7 @@ def main():
 	write_json_file(index_json, index_file)
 
 	# Get the advanced OCR json via the artifact URL if requested
-	if include_ocr:
+	if include_ocr == 'True':
 		artifacts_url = get_artifacts_url(apiUrl, location, accountId, videoId, auth_token, 'ocr')
 		download_artifacts(artifacts_url, ocr_file)
 	# TODO otherwise do we need to generate a dummy file so the output is not empty and cause error?

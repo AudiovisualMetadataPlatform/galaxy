@@ -25,7 +25,7 @@ def main():
 		azure_index_json = json.load(azure_index_file)
 
 	# Create AMP Shot object
-	amp_shots_obj = create_amp_shots(azure_index_json)
+	amp_shots_obj = create_amp_shots(input_video, azure_index_json)
 	
 	# write AMP Video OCR JSON file
 	write_json_file(amp_shots_obj, amp_shots)
