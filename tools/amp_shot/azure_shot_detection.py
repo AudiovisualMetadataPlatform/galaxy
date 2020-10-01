@@ -43,10 +43,10 @@ def create_amp_shots(input_video, azure_index_json):
 	
 	# Currently we don't use Azure scenes, only shots
 # 	# Add shots from Azure scenes 
-# 	addShots(amp_shots.shots, azure_index_json['videos']['scenes'], 'scene')
+# 	addShots(amp_shots.shots, azure_index_json['videos']['insights']['scenes'], 'scene')
 	
 	# Add shots from Azure shots 
-	addShots(amp_shots.shots, azure_index_json['videos']['shots'], 'shot')	
+	addShots(amp_shots.shots, azure_index_json['videos']['insights']['shots'], 'shot')	
 
 	return amp_shots
 

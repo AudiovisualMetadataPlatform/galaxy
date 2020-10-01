@@ -10,7 +10,7 @@
   
 <!--  AMP MGM Sections -->  
   
-  <section id="audio_processing" name="Audio Processing">
+  <section id="audio_processing" name="Audio Extraction">
     <tool file="amp_audio/extract_audio.xml"/>
     <tool file="amp_audio/remove_trailing_silence.xml"/>
   </section>
@@ -34,13 +34,14 @@
     <tool file="amp_ner/aws_comprehend.xml"/>
   </section>
 
-  <section id="video_processing" name="Video Processing">
+  <section id="video_processing" name="Video Indexing">
     <tool file="amp_video/azure_video_indexer.xml"/>
     <tool file="amp_video/contact_sheets.xml"/>
   </section>
 
   <section id="shot_detection" name="Shot Detection">
     <tool file="amp_shot/pyscenedetect.xml"/>
+    <tool file="amp_shot/azure_shot_detection.xml"/>
   </section>
   
   <section id="facial_recognition" name="Facial Recognition">
