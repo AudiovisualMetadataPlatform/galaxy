@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.abspath('../../../../../tools/amp_schema'))
 from video_ocr import VideoOcrSchema, VideoOcrMediaSchema, VideoOcrResolutionSchema, VideoOcrFrameSchema, VideoOcrBoundingBoxSchema, VideoOcrBoundingBoxScoreSchema, VideoOcrBoundingBoxVerticesSchema
 
 def main():
-	(azure_video_index, azure_artifact_ocr, amp_vocr) = sys.argv[1:4]
+	(input_video, azure_video_index, azure_artifact_ocr, amp_vocr) = sys.argv[1:5]
 
 	# You must initialize logging, otherwise you'll not see debug output.
 	logging.basicConfig()
@@ -35,7 +35,7 @@ def main():
 	write_json_file(amp_vocr_obj, amp_vocr)
 
 # Parse the results
-def create_amp_ocr(azure_index_json, azure_ocr_json):
+def create_amp_ocr(input_video, azure_index_json, azure_ocr_json):
 	amp_ocr = VideoOcrSchema()
 
 	# Create the resolution obj
@@ -47,7 +47,7 @@ def create_amp_ocr(azure_index_json, azure_ocr_json):
 	framerate = azure_ocr_json["framerate"]
 	duration = azure_index_json["summarizedInsights"]["duration"]["seconds"]
 	frames = int(framerate * duration)
-	amp_media  = VideoOcrMediaSchema(duration, input_file, framerate, frames, resolution)
+	amp_media  = VideoOcrMediaSchema(duration, input_video, framerate, frames, resolution)
 	amp_ocr.media = amp_media
 
 	# Create a dictionary of all the frames [FrameNum : List of Terms]

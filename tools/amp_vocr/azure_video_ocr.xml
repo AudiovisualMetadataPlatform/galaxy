@@ -4,9 +4,10 @@
 	<requirement type="package" version="3.8">python</requirement>
   </requirements>
   <command detect_errors="exit_code">
-  	'$__tool_directory__/azure_video_ocr.py' '$azure_video_index' '$azure_artifact_ocr' '$amp_vocr'
+  	'$__tool_directory__/azure_video_ocr.py' 'input_video' '$azure_video_index' '$azure_artifact_ocr' '$amp_vocr'
   </command>
   <inputs>
+	<param name="input_video" type="data" format="video" label="Input Video" help="Input video file used by Azure Video Indexer"/>
 	<param name="azure_video_index" type="data" format="json" label="Azure Video Index JSON" help="Azure Video Index JSON file from Azure Video Indexer"/>
 	<param name="azure_artifact_ocr" type="data" format="json" label="Azure Artifact OCR JSON" help="Azure Artifact OCR JSON file from Azure Video Indexer"/>
   </inputs>
@@ -18,6 +19,6 @@
   <help>
 .. class:: infomark
 
-  Generate Video OCR using Microsoft Azure Video Indexer
+  Generate AMP Video OCR using results from Microsoft Azure Video Indexer
   </help>
 </tool>

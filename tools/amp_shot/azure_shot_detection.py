@@ -12,10 +12,10 @@ import math
 from requests_toolbelt import MultipartEncoder
 
 sys.path.insert(0, os.path.abspath('../../../../../tools/amp_schema'))
-from video_ocr import VideoOcrSchema, VideoOcrMediaSchema, VideoOcrResolutionSchema, VideoOcrFrameSchema, VideoOcrBoundingBoxSchema, VideoOcrBoundingBoxScoreSchema, VideoOcrBoundingBoxVerticesSchema
+from shot_detection import ShotDetectionSchema, ShotDetectionMediaSchema, ShotDetectionShotSchema
 
 def main():
-	(azure_video_index, azure_artifact_ocr, amp_vocr) = sys.argv[1:4]
+	(input_video, azure_video_index, amp_shots) = sys.argv[1:4]
 
 	# You must initialize logging, otherwise you'll not see debug output.
 	logging.basicConfig()
@@ -24,42 +24,39 @@ def main():
 	with open(azure_video_index, 'r') as azure_index_file:
 		azure_index_json = json.load(azure_index_file)
 
-	# Get Azure artifact OCR json
-	with open(azure_artifact_ocr, 'r') as azure_ocr_file:
-		azure_ocr_json = json.load(azure_ocr_file)
-
-	# Create AMP Video OCR object
-	amp_vocr_obj = create_amp_ocr(azure_index_json, azure_ocr_json)
+	# Create AMP Shot object
+	amp_shots_obj = create_amp_shots(azure_index_json)
 	
 	# write AMP Video OCR JSON file
-	write_json_file(amp_vocr_obj, amp_vocr)
+	write_json_file(amp_shots_obj, amp_shots)
 
 # Parse the results
-def create_amp_ocr(azure_index_json, azure_ocr_json):
-	amp_ocr = VideoOcrSchema()
-
-	# Create the resolution obj
-	width = azure_ocr_json["width"]
-	height = azure_ocr_json["height"]
-	resolution = VideoOcrResolutionSchema(width, height)
+def create_amp_shots(input_video, azure_index_json):
+	amp_shots = ShotDetectionSchema()
 
 	# Create the media object
-	framerate = azure_ocr_json["framerate"]
 	duration = azure_index_json["summarizedInsights"]["duration"]["seconds"]
-	frames = int(framerate * duration)
-	amp_media  = VideoOcrMediaSchema(duration, input_file, framerate, frames, resolution)
-	amp_ocr.media = amp_media
+	amp_media  = ShotDetectionMediaSchema(input_video, duration)
+	amp_shots.media = amp_media
 
-	# Create a dictionary of all the frames [FrameNum : List of Terms]
-	frame_dict = createFrameDictionary(azure_index_json['videos'], framerate)
+	amp_shots.shots = []
 	
-	# Convert to amp frame objects with bounding boxes
-	amp_frames = createAmpFrames(frame_dict, framerate)
+	# Add shots from Azure scenes 
+	addShots(amp_shots.shots, azure_index_json['videos']['scenes'], 'scene')
 	
-	# Add the frames to the schema
-	amp_ocr.frames = amp_frames
+	# Add shots from Azure shots 
+	addShots(amp_shots.shots, azure_index_json['videos']['shots'], 'shot')	
 
-	return amp_ocr
+	return amp_shots
+
+# Add the given Azure shot list to the given AMP shot list using the given type.
+def addShots(amp_shot_list, azure_shot_list, type):
+	for shot in azure_shot_list:
+		for instance in shot['instances']:
+			start = convertTimestampToSeconds(instance['start'])
+			end = convertTimestampToSeconds(instance['end'])
+			shot = ShotDetectionShotSchema(type, start, end)
+			amp_shot_list.append(shot)
 
 # Convert the timestamp to total seconds
 def convertTimestampToSeconds(timestamp):
@@ -70,71 +67,7 @@ def convertTimestampToSeconds(timestamp):
 	hourSec = x.hour * 60.0 * 60.0
 	minSec = x.minute * 60.0
 	total_seconds = hourSec + minSec + x.second + x.microsecond/600000
-
 	return total_seconds
-
-# Calculate the frame index based on the start time and frames per second
-def getFrameIndex(start_time, fps):
-	startSeconds = convertTimestampToSeconds(start_time)
-	frameSeconds = 1/fps
-	frameFraction = startSeconds/frameSeconds
-	frame = 0.0
-	ceilFrame = abs(math.ceil(frameFraction) - frameFraction)
-	floorFrame = abs(math.floor(frameFraction) - frameFraction)
-	if ceilFrame < floorFrame:
-		frame = math.ceil(frameFraction)
-	else:
-		frame = math.floor(frameFraction)
-
-	return frame
-
-# Create a list of terms for each of the frames
-def createFrameDictionary(video_json, framerate):
-	frame_dict={}
-	for v in video_json:
-		for ocr in v['insights']['ocr']:
-			for i in ocr['instances']:
-				# Get where this term starts and end in terms of frame number
-				frameIndexStart = getFrameIndex(i['start'], framerate)
-				frameIndexEnd = getFrameIndex(i['end'], framerate)
-				# Create a temp obj to store the results
-				newOcr = {
-					"text" : ocr["text"],
-					"language" : ocr["language"],
-					"confidence" : ocr["confidence"],
-					"left" : ocr["left"],
-					"top" : ocr["top"],
-					"width" : ocr["width"],
-					"height" : ocr["height"]
-				}
-				# From the first frame to the last, add the bounding box info
-				for frameIndex in range(frameIndexStart, frameIndexEnd + 1):
-					# If it already exists, append it.  Otherwise create new list
-					if frameIndex in frame_dict.keys():
-						thisFrame = frame_dict[frameIndex]
-						thisFrame.append(newOcr)
-						frame_dict[frameIndex] = thisFrame
-					else:
-						frame_dict[frameIndex] = [newOcr]
-	return frame_dict
-
-# Convert the dictionary into AMP objects we need
-def createAmpFrames(frame_dict, framerate):
-	amp_frames = []
-	for frameNum, boundingBoxList in frame_dict.items():
-		bounding_boxes = []
-		for b in boundingBoxList:
-			amp_score = VideoOcrBoundingBoxScoreSchema("confidence", b["confidence"])
-			bottom = b['top'] - b['height']
-			right = b['left'] + b['width']
-			amp_vertice = VideoOcrBoundingBoxVerticesSchema(b['left'], bottom, right, b['top'])
-			amp_bounding_box = VideoOcrBoundingBoxSchema(b["text"], b["language"], amp_score, amp_vertice)
-			bounding_boxes.append(amp_bounding_box)
-		amp_frame = VideoOcrFrameSchema((frameNum) * (1/framerate), bounding_boxes)
-		amp_frames.append(amp_frame)
-	
-	amp_frames.sort(key=lambda x: x.start, reverse = False)
-	return amp_frames
 
 # Serialize obj and write it to output file
 def write_json_file(obj, output_file):
