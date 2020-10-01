@@ -160,3 +160,4 @@ client/webpack-stats.json
 .vscode
 /.project
 /.pydevproject
+/.settings
