@@ -8,7 +8,7 @@ import json
 import tempfile
 import os
 import uuid
-import boto3
+# import boto3
 
 from requests_toolbelt import MultipartEncoder
 
@@ -73,7 +73,7 @@ def main():
 
 	# Get the advanced OCR json via the artifact URL if requested
 	if include_ocr:
-		artifacts_url = get_artifacts_url(apiUrl, location, accountId, videoId, auth_token)
+		artifacts_url = get_artifacts_url(apiUrl, location, accountId, videoId, auth_token, 'ocr')
 		download_artifacts(artifacts_url, ocr_file)
 	# TODO otherwise do we need to generate a dummy file so the output is not empty and cause error?
 	
@@ -190,6 +190,7 @@ def delete_from_s3(s3_path, bucket):
 def read_config(root_dir):
 	config = configparser.ConfigParser()
 	config.read(root_dir + "/config/azure.ini")
+# 	print("config:" + config)
 	return config
 
 # Serialize obj and write it to output file
