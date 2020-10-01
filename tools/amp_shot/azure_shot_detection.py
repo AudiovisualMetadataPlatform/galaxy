@@ -41,8 +41,9 @@ def create_amp_shots(input_video, azure_index_json):
 
 	amp_shots.shots = []
 	
-	# Add shots from Azure scenes 
-	addShots(amp_shots.shots, azure_index_json['videos']['scenes'], 'scene')
+	# Currently we don't use Azure scenes, only shots
+# 	# Add shots from Azure scenes 
+# 	addShots(amp_shots.shots, azure_index_json['videos']['scenes'], 'scene')
 	
 	# Add shots from Azure shots 
 	addShots(amp_shots.shots, azure_index_json['videos']['shots'], 'shot')	
@@ -57,6 +58,10 @@ def addShots(amp_shot_list, azure_shot_list, type):
 			end = convertTimestampToSeconds(instance['end'])
 			shot = ShotDetectionShotSchema(type, start, end)
 			amp_shot_list.append(shot)
+	# Note: 
+	# We can either use each instance of an Azure shot as an AMP shot; or
+	# we can combine all instances of an Azure shot (i.e. take start of the first instance and end of the last instance) into one AMP shot.  
+	# Here we use the former option
 
 # Convert the timestamp to total seconds
 def convertTimestampToSeconds(timestamp):
