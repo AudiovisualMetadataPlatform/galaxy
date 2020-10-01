@@ -29,7 +29,7 @@ def main():
 		azure_ocr_json = json.load(azure_ocr_file)
 
 	# Create AMP Video OCR object
-	amp_vocr_obj = create_amp_ocr(azure_index_json, azure_ocr_json)
+	amp_vocr_obj = create_amp_ocr(input_video, azure_index_json, azure_ocr_json)
 	
 	# write AMP Video OCR JSON file
 	write_json_file(amp_vocr_obj, amp_vocr)
