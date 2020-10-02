@@ -41,12 +41,14 @@ def create_amp_shots(input_video, azure_index_json):
 
 	amp_shots.shots = []
 	
-	# Currently we don't use Azure scenes, only shots
-# 	# Add shots from Azure scenes 
-# 	addShots(amp_shots.shots, azure_index_json['videos']['insights']['scenes'], 'scene')
-	
-	# Add shots from Azure shots 
-	addShots(amp_shots.shots, azure_index_json['videos']['insights']['shots'], 'shot')	
+	# in our case, there should be only one video in videos, but let's loop through the list just in case
+	for video in azure_index_json['videos']:
+		# Currently we don't use Azure scenes, only shots
+# 	 	# Add shots from Azure scenes 
+# 	 	addShots(amp_shots.shots, video['insights']['scenes'], 'scene')
+		
+		# Add shots from Azure shots 
+		addShots(amp_shots.shots, video['insights']['shots'], 'shot')	
 
 	return amp_shots
 
@@ -61,7 +63,7 @@ def addShots(amp_shot_list, azure_shot_list, type):
 	# Note: 
 	# We can either use each instance of an Azure shot as an AMP shot; or
 	# we can combine all instances of an Azure shot (i.e. take start of the first instance and end of the last instance) into one AMP shot.  
-	# Here we use the former option
+	# Here we use the former option. In reality the instances most likely only contain one instance.
 
 # Convert the timestamp to total seconds
 def convertTimestampToSeconds(timestamp):
