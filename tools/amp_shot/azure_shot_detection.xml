@@ -4,14 +4,14 @@
 	<requirement type="package" version="3.8">python</requirement>
   </requirements>
   <command detect_errors="exit_code">
-  	'$__tool_directory__/azure_shot_detection.py' 'input_video' '$azure_video_index' '$amp_shots'
+  	'$__tool_directory__/azure_shot_detection.py' '$input_video' '$azure_video_index' '$amp_shots'
   </command>
   <inputs>
 	<param name="input_video" type="data" format="video" label="Input Video" help="Input video file used by Azure Video Indexer"/>
 	<param name="azure_video_index" type="data" format="json" label="Azure Video Index JSON" help="Azure Video Index JSON file from Azure Video Indexer"/>
   </inputs>
   <outputs>
-    <data name="amp_shots" format="shot" label="AMP Video OCR Generated" />
+    <data name="amp_shots" format="shot" label="AMP Shots Generated" />
   </outputs>
   <tests>
   </tests>
