@@ -60,11 +60,12 @@ class Html(Text):
 class Json(Text):
     edam_format = "format_3464"
     file_ext = "json"
+    label = "JSON"
 
     def set_peek(self, dataset, is_multi_byte=False):
         if not dataset.dataset.purged:
             dataset.peek = get_file_peek(dataset.file_name)
-            dataset.blurb = "JavaScript Object Notation (JSON)"
+            dataset.blurb = self.label
         else:
             dataset.peek = 'file does not exist'
             dataset.blurb = 'file purged from disc'
@@ -77,9 +78,9 @@ class Json(Text):
         """
             Try to load the string with the json module. If successful it's a json file.
         """
-        return self._looks_like_json(file_prefix)
+        return self._looks_like(file_prefix)
 
-    def _looks_like_json(self, file_prefix):
+    def _looks_like(self, file_prefix):
         # Pattern used by SequenceSplitLocations
         if file_prefix.file_size < 50000 and not file_prefix.truncated:
             # If the file is small enough - don't guess just check.
@@ -102,35 +103,29 @@ class Json(Text):
         try:
             return dataset.peek
         except Exception:
-            return "JSON file (%s)" % (nice_size(dataset.get_size()))
+            return self.label + " file (%s)" % (nice_size(dataset.get_size()))
 
 
 ######################
 ## AMP Data Types
 ######################
+
 @build_sniff_from_prefix
 class Segments(Json):
     file_ext = "segments"
-
-    def set_peek(self, dataset, is_multi_byte=False):
-        if not dataset.dataset.purged:
-            dataset.peek = get_file_peek(dataset.file_name)
-            dataset.blurb = "Segments JavaScript Object Notation (JSON)"
-        else:
-            dataset.peek = 'file does not exist'
-            dataset.blurb = 'file purged from disc'
-
-    def get_mime(self):
-        """Returns the mime type of the datatype"""
-        return 'application/json'
+    label = "AMP Segments JSON (depreated, use segnment instead)"
 
     def sniff_prefix(self, file_prefix):
-        """
-            Try to load the string with the json module. If successful it's a json file.
-        """
-        return self._looks_like_segments(file_prefix)
+        # this sniffer should not be called and it's not included as one of the sniffers in datatypes config;
+        # just in case it's called, it always returns false so no new dataset will be associated with this type 
+        return false
+       
+@build_sniff_from_prefix
+class Segment(Json):
+    file_ext = "segment"
+    label = "AMP Segment JSON"
 
-    def _looks_like_segments(self, file_prefix):
+    def _looks_like(self, file_prefix):
         # Pattern used by SequenceSplitLocations
         if file_prefix.file_size < 50000 and not file_prefix.truncated:
             # If the file is small enough - don't guess just check.
@@ -145,15 +140,180 @@ class Segments(Json):
         else:
             start = file_prefix.string_io().read(100).strip()
             if start:
-                return start.startswith("{\"segments\"")
+                return "\"media\":" in start and "\"segments\":" in start
             return False
+       
+@build_sniff_from_prefix
+class Transcript(Json):
+    file_ext = "transcript"
+    label = "AMP Transcript JSON"
+
+    def _looks_like(self, file_prefix):
+        # Pattern used by SequenceSplitLocations
+        if file_prefix.file_size < 50000 and not file_prefix.truncated:
+            # If the file is small enough - don't guess just check.
+            try:
+                # exclude simple types, must set format in these cases
+                item = json.loads(file_prefix.contents_header)
+                assert isinstance(item, (list, dict))
+                if not ('results' in item and 'media' in item):
+                    return False                
+                results = item['results']
+                if 'transcript' in results:
+                    return True
+                else:
+                    return False
+            except Exception:
+                return False
+        else:
+            start = file_prefix.string_io().read(500).strip()
+            if start:
+                return "\"media\":" in start and "\"results\":" in start and "\"transcript\":" in start 
+            return False
+       
+@build_sniff_from_prefix
+class Ner(Json):
+    file_ext = "ner"
+    label = "AMP NER JSON"
+    
+    def _looks_like(self, file_prefix):
+        # Pattern used by SequenceSplitLocations
+        if file_prefix.file_size < 50000 and not file_prefix.truncated:
+            # If the file is small enough - don't guess just check.
+            try:
+                # exclude simple types, must set format in these cases
+                item = json.loads(file_prefix.contents_header)
+                assert isinstance(item, (list, dict))
+                if 'entities' in item and 'media' in item:
+                    return True
+                else:
+                    return False
+            except Exception:
+                return False
+        else:
+            start = file_prefix.string_io().read(500).strip()
+            if start:
+                return "\"media\":" in start and "\"entities\":" in start
+            return False
+       
+@build_sniff_from_prefix
+class VideoOcr(Json):
+    file_ext = "vocr"
+    label = "AMP Video OCR JSON"
+
+    def _looks_like(self, file_prefix):
+        # Pattern used by SequenceSplitLocations
+        if file_prefix.file_size < 50000 and not file_prefix.truncated:
+            # If the file is small enough - don't guess just check.
+            try:
+                # exclude simple types, must set format in these cases
+                item = json.loads(file_prefix.contents_header)
+                assert isinstance(item, (list, dict))
+                if not ('frames' in item and 'media' in item):
+                    return False                
+                frames = item['frames']
+                if  (len(frames) == 0 or 'objects' in frames[0]):
+                    return True
+                else:
+                    return False
+            except Exception:
+                return False
+        else:
+            start = file_prefix.string_io().read(500).strip()
+            if start:
+                return "\"media\":" in start and "\"frames\":" in start and "\"objects\":" in start 
+            return False    
+   
+@build_sniff_from_prefix
+class Shot(Json):
+    file_ext = "shot"
+    label = "AMP Shot JSON"
+
+    def _looks_like(self, file_prefix):
+        # Pattern used by SequenceSplitLocations
+        if file_prefix.file_size < 50000 and not file_prefix.truncated:
+            # If the file is small enough - don't guess just check.
+            try:
+                # exclude simple types, must set format in these cases
+                item = json.loads(file_prefix.contents_header)
+                assert isinstance(item, (list, dict))
+                if 'shots' in item and 'media' in item:
+                    return True
+                else:
+                    return False
+            except Exception:
+                return False
+        else:
+            start = file_prefix.string_io().read(500).strip()
+            if start:
+                return "\"media\":" in start and "\"shots\":" in start
+            return False
+           
+@build_sniff_from_prefix
+class Face(Json):
+    file_ext = "face"
+    label = "AMP Face JSON"
+
+    def _looks_like(self, file_prefix):
+        # Pattern used by SequenceSplitLocations
+        if file_prefix.file_size < 50000 and not file_prefix.truncated:
+            # If the file is small enough - don't guess just check.
+            try:
+                # exclude simple types, must set format in these cases
+                item = json.loads(file_prefix.contents_header)
+                assert isinstance(item, (list, dict))
+                if 'faces' in item and 'media' in item:
+                    return True
+                else:
+                    return False
+            except Exception:
+                return False
+        else:
+            start = file_prefix.string_io().read(500).strip()
+            if start:
+                return "\"media\":" in start and "\"faces\":" in start
+            return False
+           
+@build_sniff_from_prefix
+class Vtt(Text):
+    file_ext = "vtt"
+    label = "Web VTT"
+
+    def set_peek(self, dataset, is_multi_byte=False):
+        if not dataset.dataset.purged:
+            dataset.peek = self.label
+            dataset.blurb = nice_size(dataset.get_size())
+        else:
+            dataset.peek = 'file does not exist'
+            dataset.blurb = 'file purged from disk'
+
+    def get_mime(self):
+        """Returns the mime type of the datatype"""
+        return 'text/vtt'
+
+    def sniff_prefix(self, file_prefix):
+        # WEBVTT is the header of a WebVTT file. 
+        # We assume that no other kind of text files use this as the first line content; otherwise further checking  
+        # on following lines can be done to detect if they match the regexp patterns for timestamp & speaker diarization.
+        try:
+            first_line = file_prefix.string_io().readline().strip()      
+            log.debug ("Vtt.sniff_prefix: first_line = " + first_line)  
+            if (first_line == "WEBVTT"):
+                log.debug ("Vtt.sniff_prefix: return true")  
+                return True
+            else:
+                log.debug ("Vtt.sniff_prefix: return false")  
+                return False
+        except Exception as e:
+            log.exception(e)
+            return False              
 
     def display_peek(self, dataset):
         try:
             return dataset.peek
         except Exception:
-            return "JSON file (%s)" % (nice_size(dataset.get_size()))
-       
+            return self.label + " file (%s)" % (nice_size(dataset.get_size()))
+                      
 ######################
 ## END AMP Data Types
 ######################
