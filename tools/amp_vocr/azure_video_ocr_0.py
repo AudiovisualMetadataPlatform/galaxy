@@ -13,10 +13,14 @@ import math
 import uuid
 import boto3
 
-from requests_toolbelt import MultipartEncoder
+#from requests_toolbelt import MultipartEncoder
 
 sys.path.insert(0, os.path.abspath('../../../../../tools/amp_schema'))
-from video_ocr import VideoOcrSchema, VideoOcrMediaSchema, VideoOcrResolutionSchema, VideoOcrFrameSchema, VideoOcrBoundingBoxSchema, VideoOcrBoundingBoxScoreSchema, VideoOcrBoundingBoxVerticesSchema
+from video_ocr import VideoOcr, VideoOcrMedia, VideoOcrResolution, VideoOcrFrame, VideoOcrObject, VideoOcrObjectScore, VideoOcrObjectVertices
+
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_util'))
+import mgm_utils
+
 
 def main():
 	apiUrl = "https://api.videoindexer.ai"
@@ -30,9 +34,9 @@ def main():
 		import httplib as http_client
 
 	config = read_config(root_dir)
-	s3_bucket = config['videoindexer']['s3Bucket']
-	accountId = config['videoindexer']['accountId']
-	apiKey = config['videoindexer']['apiKey']
+	s3_bucket = config['azure']['s3Bucket']
+	accountId = config['azure']['accountId']
+	apiKey = config['azure']['apiKey']
 
 	# You must initialize logging, otherwise you'll not see debug output.
 	logging.basicConfig()
@@ -72,7 +76,7 @@ def main():
 	# Get the video index json (simple)
 	auth_token = get_auth_token(apiUrl, location, accountId, apiKey)
 	simple_json = get_video_index_json(apiUrl, location, accountId, videoId, auth_token, apiKey)
-	write_json_file(simple_json, output_from_azure_simple)
+	mgm_utils.write_json_file(simple_json, output_from_azure_simple)
 
 	# Get the advanced OCR via a URL 
 	artifacts_url = get_artifacts_url(apiUrl, location, accountId, videoId, auth_token)
@@ -112,41 +116,41 @@ def getFrameIndex(start_time, fps):
 
 # Parse the results
 def parse_json(input_file, output_file, advanced_json, simple_json):
-	amp_ocr = VideoOcrSchema()
+	amp_ocr = VideoOcr()
 
 	# Create the resolution obj
 	width = advanced_json["width"]
 	height = advanced_json["height"]
-	resolution = VideoOcrResolutionSchema(width, height)
+	resolution = VideoOcrResolution(width, height)
 
 	# Create the media object
-	framerate = advanced_json["framerate"]
+	frameRate = advanced_json["framerate"]
 	duration = simple_json["summarizedInsights"]["duration"]["seconds"]
-	frames = int(framerate * duration)
-	amp_media  = VideoOcrMediaSchema(duration, input_file, framerate, frames, resolution)
+	frames = int(frameRate * duration)
+	amp_media  = VideoOcrMedia(duration, input_file, frameRate, frames, resolution)
 	amp_ocr.media = amp_media
 
 	# Create a dictionary of all the frames [FrameNum : List of Terms]
-	frame_dict = createFrameDictionary(simple_json['videos'], framerate)
+	frame_dict = createFrameDictionary(simple_json['videos'], frameRate)
 	
 	# Convert to amp frame objects with bounding boxes
-	amp_frames = createAmpFrames(frame_dict, framerate)
+	amp_frames = createAmpFrames(frame_dict, frameRate)
 	
 	# Add the frames to the schema
 	amp_ocr.frames = amp_frames
 
 	# Write the output json file
-	write_json_file(amp_ocr, output_file)
+	mgm_utils.write_json_file(amp_ocr, output_file)
 
 # Create a list of terms for each of the frames
-def createFrameDictionary(video_json, framerate):
+def createFrameDictionary(video_json, frameRate):
 	frame_dict={}
 	for v in video_json:
 		for ocr in v['insights']['ocr']:
 			for i in ocr['instances']:
 				# Get where this term starts and end in terms of frame number
-				frameIndexStart = getFrameIndex(i['start'], framerate)
-				frameIndexEnd = getFrameIndex(i['end'], framerate)
+				frameIndexStart = getFrameIndex(i['start'], frameRate)
+				frameIndexEnd = getFrameIndex(i['end'], frameRate)
 				# Create a temp obj to store the results
 				newOcr = {
 					"text" : ocr["text"],
@@ -169,18 +173,18 @@ def createFrameDictionary(video_json, framerate):
 	return frame_dict
 
 # Convert the dictionary into AMP objects we need
-def createAmpFrames(frame_dict, framerate):
+def createAmpFrames(frame_dict, frameRate):
 	amp_frames = []
 	for frameNum, boundingBoxList in frame_dict.items():
 		bounding_boxes = []
 		for b in boundingBoxList:
-			amp_score = VideoOcrBoundingBoxScoreSchema("confidence", b["confidence"])
+			amp_score = VideoOcrObjectScore("confidence", b["confidence"])
 			bottom = b['top'] - b['height']
 			right = b['left'] + b['width']
-			amp_vertice = VideoOcrBoundingBoxVerticesSchema(b['left'], bottom, right, b['top'])
-			amp_bounding_box = VideoOcrBoundingBoxSchema(b["text"], b["language"], amp_score, amp_vertice)
+			amp_vertice = VideoOcrObjectVertices(b['left'], bottom, right, b['top'])
+			amp_bounding_box = VideoOcrObject(b["text"], b["language"], amp_score, amp_vertice)
 			bounding_boxes.append(amp_bounding_box)
-		amp_frame = VideoOcrFrameSchema((frameNum) * (1/framerate), bounding_boxes)
+		amp_frame = VideoOcrFrame((frameNum) * (1/frameRate), bounding_boxes)
 		amp_frames.append(amp_frame)
 	
 	amp_frames.sort(key=lambda x: x.start, reverse = False)
@@ -296,14 +300,9 @@ def delete_from_s3(s3_path, bucket):
 
 def read_config(root_dir):
 	config = configparser.ConfigParser()
-	config.read(root_dir + "/config/azure.ini")
+	config.read(root_dir + "/config/mgm.ini")
 	return config
 
-# Serialize obj and write it to output file
-def write_json_file(obj, output_file):
-	# Serialize the object
-	with open(output_file, 'w') as outfile:
-		json.dump(obj, outfile, default=lambda x: x.__dict__)
 
 if __name__ == "__main__":
 	main()

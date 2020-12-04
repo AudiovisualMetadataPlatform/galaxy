@@ -18,6 +18,9 @@ sys.path.insert(0, os.path.abspath('../../../../../tools/amp_schema'))
 from entity_extraction import EntityExtraction, EntityExtractionMedia, EntityExtractionEntity
 from speech_to_text import SpeechToText, SpeechToTextMedia, SpeechToTextResult, SpeechToTextScore, SpeechToTextWord
 
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_util'))
+import mgm_utils
+
 def main():
     (input_file, json_file, bucketName, dataAccessRoleArn) = sys.argv[1:5]
 
@@ -37,7 +40,7 @@ def main():
     # Get the transcript text from the input file
     with open(input_file, 'r') as file:
         stt = SpeechToText().from_json(json.load(file))
-    
+
     # Create the ner object
     ner = EntityExtraction()
 
@@ -50,9 +53,9 @@ def main():
     # If we have a blank file, don't error.  Create another blank json file to pass to the next process
     if mediaLength == 0:
         ner.media = EntityExtractionMedia(mediaLength, input_file)
-        write_json_file(ner, json_file)
+        mgm_utils.write_json_file(ner, json_file)
         exit(0)
-    
+
     # Create a temp file to upload to S3
     tmpfile = create_temp_transcript_file(jobName, stt.results.transcript)
 
@@ -63,12 +66,12 @@ def main():
     output_uri = run_comprehend_job(jobName, inputS3Uri, outputS3Uri, dataAccessRoleArn)
 
     uncompressed_file = download_from_s3(output_uri, outputS3Uri, bucketName)
-    
+
     if uncompressed_file is None:
         exit(1)
 
     comprehend_data = read_comprehend_response(uncompressed_file)
-    
+
     ner.media = EntityExtractionMedia(mediaLength, input_file)
 
     # Variables for filling time offsets based on speech to text
@@ -102,12 +105,12 @@ def main():
                     else:
                         start = None
                         end = None
-            
+
             if clean_text(entity_type) not in ignore_cats_list and start is not None:
                 ner.addEntity(entity_type, text, None, None, "relevance", float(entity["Score"]), start, None)  #AMP-636 removed startOffset=endOffset=end=None
 
     #Write the json file
-    write_json_file(ner, json_file)
+    mgm_utils.write_json_file(ner, json_file)
 
     #Cleanup temp files
     safe_delete(uncompressed_file)
@@ -121,16 +124,10 @@ def create_temp_transcript_file(jobName, transcript):
     return tmpfile
 
 def clean_entity_word(entity_word):
-    cleaned_word = entity_word 
+    cleaned_word = entity_word
     if(entity_word.endswith('\'s')):
         cleaned_word = entity_word.replace('\'s', '')
     return cleaned_word
-    
-# Serialize obj and write it to output file
-def write_json_file(obj, output_file):
-    # Serialize the object
-    with open(output_file, 'w') as outfile:
-        json.dump(obj, outfile, default=lambda x: x.__dict__)
 
 def download_from_s3(output_uri, base_uri, bucket_name):
     tarFileName = "comprehend_output.tar.gz"
@@ -169,7 +166,7 @@ def run_comprehend_job(jobName, inputS3Uri, outputS3Uri, dataAccessRoleArn):
         JobName=jobName,
         LanguageCode='en'
     )
-    
+
     status = ''
     output_uri = ''
 
@@ -183,7 +180,7 @@ def run_comprehend_job(jobName, inputS3Uri, outputS3Uri, dataAccessRoleArn):
             output_uri = jobStatusResponse['EntitiesDetectionJobProperties']['OutputDataConfig']['S3Uri']
             print(status)
             time.sleep(20)
-    
+
     return output_uri
 
 # Read a list of categories to ignore

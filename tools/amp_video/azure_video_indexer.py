@@ -10,7 +10,8 @@ import os
 import uuid
 import boto3
 
-from requests_toolbelt import MultipartEncoder
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_util'))
+import mgm_utils
 
 
 def main():
@@ -25,9 +26,9 @@ def main():
 		import httplib as http_client
 
 	config = read_config(root_dir)
-	s3_bucket = config['videoindexer']['s3Bucket']
-	accountId = config['videoindexer']['accountId']
-	apiKey = config['videoindexer']['apiKey']
+	s3_bucket = config['azure']['s3Bucket']
+	accountId = config['azure']['accountId']
+	apiKey = config['azure']['apiKey']
 
 	# You must initialize logging, otherwise you'll not see debug output.
 	logging.basicConfig()
@@ -69,7 +70,7 @@ def main():
 	# Get the simple video index json
 	auth_token = get_auth_token(apiUrl, location, accountId, apiKey)
 	index_json = get_video_index_json(apiUrl, location, accountId, videoId, auth_token, apiKey)
-	write_json_file(index_json, index_file)
+	mgm_utils.write_json_file(index_json, index_file)
 
 	# Get the advanced OCR json via the artifact URL if requested
 	if include_ocr.lower() == 'true':
@@ -189,15 +190,10 @@ def delete_from_s3(s3_path, bucket):
 
 def read_config(root_dir):
 	config = configparser.ConfigParser()
-	config.read(root_dir + "/config/azure.ini")
+	config.read(root_dir + "/config/mgm.ini")
 # 	print("config:" + config)
 	return config
 
-# Serialize obj and write it to output file
-def write_json_file(obj, output_file):
-	# Serialize the object
-	with open(output_file, 'w') as outfile:
-		json.dump(obj, outfile, default=lambda x: x.__dict__)
 
 if __name__ == "__main__":
 	main()
