@@ -115,7 +115,16 @@ def create_audio_part(input_file, start, end, segment, file_duration):
 	print(stdout)
 	print(stderr)
 
-	return {start_offset : end_offset}
+	# Split stdout on time and bitrate to get exact time duration
+	split1 = stdout.decode().split('time=')[1]
+	actual_duration = split1.split('bitrate=')[0].strip()
+	# Split actual duration on decimal to get hms and ms
+	actual_duration_hms, actual_duration_ms = actual_duration.split('.')
+	# Convert hms to seconds, add to start, append ms, convert to float
+	actual_end_offset = float(str(start_offset + get_sec_from_hms_str(actual_duration_hms)) + "." + str(actual_duration_ms))
+
+	print("Returning start offset: %s, end offset: %s" % (str(start_offset), str(actual_end_offset)))
+	return {start_offset : actual_end_offset}
 
 # Take each of the individual parts, create one larger file and copy it to the destination file
 def concat_files(segments, output_file):
@@ -182,6 +191,11 @@ def write_kept_segments_json(kept_segments, kept_segments_file):
 	# Serialize the segmentation object
 	with open(kept_segments_file, 'w') as outfile:
 		json.dump(kept_segments, outfile, default=lambda x: x.__dict__)
+
+def get_sec_from_hms_str(time_str):
+	# Get seconds from hms time string
+	h, m, s = time_str.split(':')
+	return int(h) * 3600 + int(m) * 60 + int(s)
 
 if __name__ == "__main__":
 	main()
