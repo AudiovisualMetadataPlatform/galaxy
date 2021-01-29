@@ -1,7 +1,7 @@
 import sys
 import os
 import json
-
+import stat
 
 ERR_SUFFIX = ".err"
 
@@ -78,5 +78,4 @@ def cleanup_err_file(file):
 def write_json_file(object, output_file):
     with open(output_file, 'w') as file:
         json.dump(object, file, default = lambda x: x.__dict__)
-        
         

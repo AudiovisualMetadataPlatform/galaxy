@@ -11,18 +11,18 @@ sys.path.insert(0, os.path.abspath('../../../../../tools/amp_schema'))
 from speech_to_text import SpeechToText, SpeechToTextMedia, SpeechToTextResult, SpeechToTextScore, SpeechToTextWord
 
 # Convert kaldi output to standardized json
-def main():
-	(media_file, kaldi_file, kaldi_transcript_file, output_json_file) = sys.argv[1:5]
+def convert(media_file, kaldi_file, kaldi_transcript_file, output_json_file):
 	mgm_utils.exception_if_file_not_exist(kaldi_file)
-	mgm_utils.exception_if_file_not_exist(kaldi_transcript_file)
+	if not os.path.exists(kaldi_transcript_file):
+		raise Exception("Exception: File " + kaldi_transcript_file + " doesn't exist, the previous command generating it must have failed.")
 	results = SpeechToTextResult()
 
 	# Open the kaldi json
 	with open(kaldi_file) as json_file:
 		data = json.load(json_file)
 
-	transcript = open(kaldi_transcript_file, "r")
-	
+	# Get the kaldi transcript
+	transcript = open(kaldi_transcript_file, "r")	
 	results.transcript = transcript.read()
 
 	# Get a list of words
@@ -47,7 +47,10 @@ def main():
 	#write the output
 	write_output_json(outputFile, output_json_file)
 
-
+def main():
+	(media_file, kaldi_file, kaldi_transcript_file, output_json_file) = sys.argv[1:5]
+	convert(media_file, kaldi_file, kaldi_transcript_file, output_json_file)
+	
 # Serialize schema obj and write it to output file
 def write_output_json(transcribe_schema, json_file):
 	# Serialize the segmentation object
