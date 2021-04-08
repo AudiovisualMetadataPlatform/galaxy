@@ -10,6 +10,7 @@ import sys
 import threading
 import time
 import traceback
+from .perflogging import job2json, queue2json
 
 from six.moves.queue import (
     Empty,
@@ -41,6 +42,8 @@ from galaxy.util.monitors import Monitors
 from .state_handler_factory import build_state_handlers
 
 log = logging.getLogger(__name__)
+# AMP: create a performance log instance
+perflog = logging.getLogger("performance")
 
 STOP_SIGNAL = object()
 
@@ -110,24 +113,32 @@ class BaseJobRunner(object):
         """Run the next item in the work queue (a job waiting to run)
         """
         while True:
-            (method, arg) = self.work_queue.get()
+            (method, arg) = self.work_queue.get()            
             if method is STOP_SIGNAL:
                 return
             # id and name are collected first so that the call of method() is the last exception.
             try:
                 if isinstance(arg, AsynchronousJobState):
                     job_id = arg.job_wrapper.get_id_tag()
+                    jw = arg.job_wrapper
                 else:
                     # arg should be a JobWrapper/TaskWrapper
                     job_id = arg.get_id_tag()
+                    jw = arg
             except Exception:
                 job_id = 'unknown'
             try:
                 name = method.__name__
             except Exception:
                 name = 'unknown'
-            try:
+            try:                
+                # AMP: Add performance logging
+                start = time.time()
                 method(arg)
+                try:
+                    perflog.info(job2json(jw, start))
+                except Exception as e:
+                    log.warning("Cannot log job performance: %s" % traceback.format_exc())                
             except Exception:
                 log.exception("(%s) Unhandled exception calling %s" % (job_id, name))
 
@@ -136,8 +147,9 @@ class BaseJobRunner(object):
         """Add a job to the queue (by job identifier), indicate that the job is ready to run.
         """
         put_timer = ExecutionTimer()
+        perflog.info(queue2json(job_wrapper))
         job_wrapper.enqueue()
-        self.mark_as_queued(job_wrapper)
+        self.mark_as_queued(job_wrapper)        
         log.debug("Job [%s] queued %s" % (job_wrapper.job_id, put_timer))
 
     def mark_as_queued(self, job_wrapper):

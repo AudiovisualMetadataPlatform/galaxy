@@ -950,14 +950,34 @@ galaxy:
   # Verbosity of console log messages.  Acceptable values can be found
   # here: https://docs.python.org/library/logging.html#logging-levels A
   # custom debug level of "TRACE" is available for even more verbosity.
-  #log_level: DEBUG
+  log_level: DEBUG
 
   # Controls where and how the server logs messages. If unset, the
   # default is to log all messages to standard output at the level
   # defined by the `log_level` configuration option. Configuration is
   # described in the documentation at:
   # https://docs.galaxyproject.org/en/master/admin/config_logging.html
-  #logging: null
+  logging:
+    version: 1
+    handlers:
+      logfile:
+        class: logging.FileHandler
+        level: DEBUG
+        filename: logs/galaxy.log
+        mode: a
+      perflog:
+        class: logging.FileHandler
+        level: DEBUG
+        filename: logs/performance.log  
+    loggers:
+      '':        
+        handlers:
+          - logfile
+        level: INFO
+      'performance':
+        handlers:
+          - perflog
+        level: DEBUG
 
   # Print database operations to the server log (warning, quite
   # verbose!).
@@ -969,7 +989,7 @@ galaxy:
 
   # Turn on logging of application events and some user events to the
   # database.
-  #log_events: true
+  log_events: true
 
   # Turn on logging of user actions to the database.  Actions currently
   # logged are grid views, tool searches, and use of "recently" used
