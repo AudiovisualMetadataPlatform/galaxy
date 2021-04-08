@@ -10,7 +10,13 @@ import sys
 import threading
 import time
 import traceback
-from .perflogging import job2json, queue2json
+from .perflogging import (
+    perf_job_queued_msg, 
+    perf_job_started_msg,
+    perf_job_finished_msg,
+    perf_async_submit_msg, 
+    perf_async_submitted_msg,
+)
 
 from six.moves.queue import (
     Empty,
@@ -120,11 +126,11 @@ class BaseJobRunner(object):
             try:
                 if isinstance(arg, AsynchronousJobState):
                     job_id = arg.job_wrapper.get_id_tag()
-                    jw = arg.job_wrapper
+                    is_async = True
                 else:
                     # arg should be a JobWrapper/TaskWrapper
                     job_id = arg.get_id_tag()
-                    jw = arg
+                    is_async = False
             except Exception:
                 job_id = 'unknown'
             try:
@@ -133,12 +139,16 @@ class BaseJobRunner(object):
                 name = 'unknown'
             try:                
                 # AMP: Add performance logging
+                if is_async:
+                    perflog.info(perf_async_submit_msg(arg.job_wrapper, self.runner_name))
+                else:
+                    perflog.info(perf_job_started_msg(arg, self.runner_name))
                 start = time.time()
                 method(arg)
-                try:
-                    perflog.info(job2json(jw, start))
-                except Exception as e:
-                    log.warning("Cannot log job performance: %s" % traceback.format_exc())                
+                if is_async:
+                    perflog.info(perf_async_submitted_msg(arg.job_wrapper, self.runner_name))
+                #else:
+                #    perflog.info(perf_job_finished_msg(arg, self.runner_name))
             except Exception:
                 log.exception("(%s) Unhandled exception calling %s" % (job_id, name))
 
@@ -147,7 +157,7 @@ class BaseJobRunner(object):
         """Add a job to the queue (by job identifier), indicate that the job is ready to run.
         """
         put_timer = ExecutionTimer()
-        perflog.info(queue2json(job_wrapper))
+        perflog.info(perf_job_queued_msg(job_wrapper, self.runner_name))
         job_wrapper.enqueue()
         self.mark_as_queued(job_wrapper)        
         log.debug("Job [%s] queued %s" % (job_wrapper.job_id, put_timer))
@@ -468,8 +478,10 @@ class BaseJobRunner(object):
             self._handle_runner_state('failure', job_state)
             # Was resubmitted or something - I think we are done with it.
             if job_state.runner_state_handled:
-                return
+                perflog.info(perf_job_finished_msg(job_state.job_wrapper, self.runner_name))
+                return        
         job_state.job_wrapper.finish(stdout, stderr, exit_code, check_output_detected_state=check_output_detected_state)
+        perflog.info(perf_job_finished_msg(job_state.job_wrapper, self.runner_name))
 
 
 class JobState(object):
