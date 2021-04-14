@@ -147,8 +147,7 @@ class BaseJobRunner(object):
                 method(arg)
                 if is_async:
                     perflog.info(perf_async_submitted_msg(arg.job_wrapper, self.runner_name))
-                #else:
-                #    perflog.info(perf_job_finished_msg(arg, self.runner_name))
+
             except Exception:
                 log.exception("(%s) Unhandled exception calling %s" % (job_id, name))
 
@@ -157,6 +156,7 @@ class BaseJobRunner(object):
         """Add a job to the queue (by job identifier), indicate that the job is ready to run.
         """
         put_timer = ExecutionTimer()
+        # AMP: Log when the job is put into the queue
         perflog.info(perf_job_queued_msg(job_wrapper, self.runner_name))
         job_wrapper.enqueue()
         self.mark_as_queued(job_wrapper)        
@@ -478,9 +478,11 @@ class BaseJobRunner(object):
             self._handle_runner_state('failure', job_state)
             # Was resubmitted or something - I think we are done with it.
             if job_state.runner_state_handled:
+                # AMP: Log that the job has finished
                 perflog.info(perf_job_finished_msg(job_state.job_wrapper, self.runner_name))
                 return        
         job_state.job_wrapper.finish(stdout, stderr, exit_code, check_output_detected_state=check_output_detected_state)
+        # AMP: Log that the job has finished
         perflog.info(perf_job_finished_msg(job_state.job_wrapper, self.runner_name))
 
 
