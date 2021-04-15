@@ -20,7 +20,6 @@ a generic histogram builder based on gnuplot backend
 anton nekrutenko | anton@bx.psu.edu
 """
 
-import string
 import sys
 import tempfile
 
@@ -41,9 +40,9 @@ def main(tmpFileName):
     gf = open(tmpFileName, 'w')
 
     try:
-        in_file = open(sys.argv[1], 'r')
+        in_file = open(sys.argv[1])
         xtic = int(sys.argv[2])
-        col_list = string.split(sys.argv[3], ",")
+        col_list = sys.argv[3].split(',')
         title = 'set title "' + sys.argv[4] + '"'
         ylabel = 'set ylabel "' + sys.argv[5] + '"'
         ymin = sys.argv[6]

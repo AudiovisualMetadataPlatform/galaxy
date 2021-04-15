@@ -1,17 +1,19 @@
 <%inherit file="/webapps/galaxy/base_panels.mako"/>
 
+<%def name="title()">
+    Page Editor
+</%def>
+
 <%def name="init()">
 <%
-    self.has_left_panel=False
-    self.has_right_panel=False
     self.active_view="user"
-    self.overlay_visible=False
 %>
 </%def>
 
 <%def name="javascripts()">
     ${parent.javascripts()}
     <script type="text/javascript">
+<<<<<<< HEAD
         // Define variables needed by galaxy.pages script.
         var page_id = "${trans.security.encode_id(page.id)}",
             page_list_url = '${h.url_for( controller='pages', action='list' )}',
@@ -24,11 +26,19 @@
 
         $(function(){
             bundleEntries.pages()
+=======
+        config.addInitialization(function(){
+            console.log("editor.mako, javascript_app", "define variables needed by galaxy.pages script");
+            window.bundleEntries.mountPageEditor({
+                pageId: "${id}",
+            });
+>>>>>>> refs/heads/release_21.01
         });
 
     </script>
 </%def>
 
+<<<<<<< HEAD
 <%def name="stylesheets()">
     ${parent.stylesheets()}
     ${h.css( "base", "autocomplete_tagging", "embed_item" )}
@@ -40,19 +50,14 @@
             padding: 0.2em;
         }
     </style>
+=======
+<%def name="left_panel()">
+>>>>>>> refs/heads/release_21.01
 </%def>
 
 <%def name="center_panel()">
-
-    <div class="unified-panel-header" unselectable="on">
-        <div class="unified-panel-header-inner">
-            Page Editor: ${page.title | h}
-            <a id="save-button" class="btn btn-secondary fa fa-save float-right"></a>
-        </div>
-    </div>
-
-    <div class="unified-panel-body">
-        <textarea name="page_content">${ content }</textarea>
-    </div>
-
 </%def>
+
+<%def name="right_panel()">
+</%def>
+

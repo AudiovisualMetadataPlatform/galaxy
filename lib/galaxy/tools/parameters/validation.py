@@ -4,7 +4,6 @@ Classes related to parameter validation.
 import logging
 import re
 
-from six import string_types
 
 from galaxy import (
     model,
@@ -14,7 +13,7 @@ from galaxy import (
 log = logging.getLogger(__name__)
 
 
-class Validator(object):
+class Validator:
     """
     A validator checks that a value meets some conditions OR raises ValueError
     """
@@ -34,7 +33,7 @@ class RegexValidator(Validator):
     """
     Validator that evaluates a regular expression
 
-    >>> from xml.etree.ElementTree import XML
+    >>> from galaxy.util import XML
     >>> from galaxy.tools.parameters.basic import ToolParameter
     >>> p = ToolParameter.build(None, XML('''
     ... <param name="blah" type="text" value="10">
@@ -44,6 +43,11 @@ class RegexValidator(Validator):
     >>> t = p.validate("Foo")
     >>> t = p.validate("foo")
     >>> t = p.validate("Fop")
+    Traceback (most recent call last):
+        ...
+    ValueError: Not gonna happen
+    >>> t = p.validate(["Foo", "foo"])
+    >>> t = p.validate(["Foo", "Fop"])
     Traceback (most recent call last):
         ...
     ValueError: Not gonna happen
@@ -60,15 +64,18 @@ class RegexValidator(Validator):
         self.expression = expression
 
     def validate(self, value, trans=None):
-        if re.match(self.expression, value or '') is None:
-            raise ValueError(self.message)
+        if not isinstance(value, list):
+            value = [value]
+        for val in value:
+            if re.match(self.expression, val or '') is None:
+                raise ValueError(self.message)
 
 
 class ExpressionValidator(Validator):
     """
     Validator that evaluates a python expression using the value
 
-    >>> from xml.etree.ElementTree import XML
+    >>> from galaxy.util import XML
     >>> from galaxy.tools.parameters.basic import ToolParameter
     >>> p = ToolParameter.build(None, XML('''
     ... <param name="blah" type="text" value="10">
@@ -94,10 +101,15 @@ class ExpressionValidator(Validator):
         self.expression = compile(expression, '<string>', 'eval')
 
     def validate(self, value, trans=None):
-        if not(eval(self.expression, dict(value=value))):
-            message = self.message
-            if self.substitute_value_in_message:
-                message = message % value
+        message = self.message
+        if self.substitute_value_in_message:
+            message = message % value
+        try:
+            evalresult = eval(self.expression, dict(value=value))
+        except Exception:
+            log.debug("Validator {} could not be evaluated on {}".format(self.expression, str(value)), exc_info=True)
+            raise ValueError(message)
+        if not(evalresult):
             raise ValueError(message)
 
 
@@ -105,7 +117,7 @@ class InRangeValidator(Validator):
     """
     Validator that ensures a number is in a specific range
 
-    >>> from xml.etree.ElementTree import XML
+    >>> from galaxy.util import XML
     >>> from galaxy.tools.parameters.basic import ToolParameter
     >>> p = ToolParameter.build(None, XML('''
     ... <param name="blah" type="integer" value="10">
@@ -152,7 +164,7 @@ class InRangeValidator(Validator):
             op1 = '>'
         if self.exclude_max:
             op2 = '<'
-        self.message = message or "Value must be %s %s and %s %s" % (op1, self_min_str, op2, self_max_str)
+        self.message = message or f"Value must be {op1} {self_min_str} and {op2} {self_max_str}"
 
     def validate(self, value, trans=None):
         if self.exclude_min:
@@ -173,7 +185,7 @@ class LengthValidator(Validator):
     """
     Validator that ensures the length of the provided string (value) is in a specific range
 
-    >>> from xml.etree.ElementTree import XML
+    >>> from galaxy.util import XML
     >>> from galaxy.tools.parameters.basic import ToolParameter
     >>> p = ToolParameter.build(None, XML('''
     ... <param name="blah" type="text" value="foobar">
@@ -362,13 +374,13 @@ class MetadataInFileColumnValidator(Validator):
     def from_element(cls, param, elem):
         filename = elem.get("filename", None)
         if filename:
-            filename = "%s/%s" % (param.tool.app.config.tool_data_path, filename.strip())
+            filename = f"{param.tool.app.config.tool_data_path}/{filename.strip()}"
         metadata_name = elem.get("metadata_name", None)
         if metadata_name:
             metadata_name = metadata_name.strip()
         metadata_column = int(elem.get("metadata_column", 0))
         split = elem.get("split", "\t")
-        message = elem.get("message", "Value for metadata %s was not found in %s." % (metadata_name, filename))
+        message = elem.get("message", f"Value for metadata {metadata_name} was not found in {filename}.")
         line_startswith = elem.get("line_startswith", None)
         if line_startswith:
             line_startswith = line_startswith.strip()
@@ -393,6 +405,75 @@ class MetadataInFileColumnValidator(Validator):
         raise ValueError(self.message)
 
 
+<<<<<<< HEAD
+=======
+class ValueInDataTableColumnValidator(Validator):
+    """
+    Validator that checks if a value is in a tool data table column.
+    """
+
+    @classmethod
+    def from_element(cls, param, elem):
+        table_name = elem.get("table_name", None)
+        assert table_name, 'You must specify a table_name.'
+        tool_data_table = param.tool.app.tool_data_tables[table_name]
+        column = elem.get("metadata_column", 0)
+        try:
+            column = int(column)
+        except ValueError:
+            pass
+        message = elem.get("message", "Value was not found in %s." % (table_name))
+        line_startswith = elem.get("line_startswith", None)
+        if line_startswith:
+            line_startswith = line_startswith.strip()
+        return cls(tool_data_table, column, message, line_startswith)
+
+    def __init__(self, tool_data_table, column, message="Value not found.", line_startswith=None):
+        self.message = message
+        self.valid_values = []
+        self._data_table_content_version = None
+        self._tool_data_table = tool_data_table
+        if isinstance(column, str):
+            column = tool_data_table.columns[column]
+        self._column = column
+        self._load_values()
+
+    def _load_values(self):
+        self._data_table_content_version, data_fields = self._tool_data_table.get_version_fields()
+        self.valid_values = []
+        for fields in data_fields:
+            if self._column < len(fields):
+                self.valid_values.append(fields[self._metadata_column])
+
+    def validate(self, value, trans=None):
+        if not value:
+            return
+        if not self._tool_data_table.is_current_version(self._data_table_content_version):
+            log.debug('MetadataInDataTableColumnValidator values are out of sync with data table (%s), updating validator.', self._tool_data_table.name)
+            self._load_values()
+        if value in self.valid_values:
+            return
+        raise ValueError(self.message)
+
+
+class ValueNotInDataTableColumnValidator(ValueInDataTableColumnValidator):
+    """
+    Validator that checks if a value is NOT in a tool data table column.
+    """
+
+    def __init__(self, tool_data_table, metadata_column, message="Value already present.", line_startswith=None):
+        super().__init__(tool_data_table, metadata_column, message, line_startswith)
+
+    def validate(self, value, trans=None):
+        try:
+            super(ValueInDataTableColumnValidator, self).validate(value, trans)
+        except ValueError:
+            return
+        else:
+            raise ValueError(self.message)
+
+
+>>>>>>> refs/heads/release_21.01
 class MetadataInDataTableColumnValidator(Validator):
     """
     Validator that checks if the value for a dataset's metadata item exists in a file.
@@ -412,7 +493,7 @@ class MetadataInDataTableColumnValidator(Validator):
             metadata_column = int(metadata_column)
         except ValueError:
             pass
-        message = elem.get("message", "Value for metadata %s was not found in %s." % (metadata_name, table_name))
+        message = elem.get("message", f"Value for metadata {metadata_name} was not found in {table_name}.")
         line_startswith = elem.get("line_startswith", None)
         if line_startswith:
             line_startswith = line_startswith.strip()
@@ -424,7 +505,7 @@ class MetadataInDataTableColumnValidator(Validator):
         self.valid_values = []
         self._data_table_content_version = None
         self._tool_data_table = tool_data_table
-        if isinstance(metadata_column, string_types):
+        if isinstance(metadata_column, str):
             metadata_column = tool_data_table.columns[metadata_column]
         self._metadata_column = metadata_column
         self._load_values()
@@ -448,6 +529,7 @@ class MetadataInDataTableColumnValidator(Validator):
         raise ValueError(self.message)
 
 
+<<<<<<< HEAD
 validator_types = dict(expression=ExpressionValidator,
                        regex=RegexValidator,
                        in_range=InRangeValidator,
@@ -461,6 +543,78 @@ validator_types = dict(expression=ExpressionValidator,
                        dataset_metadata_in_file=MetadataInFileColumnValidator,
                        dataset_metadata_in_data_table=MetadataInDataTableColumnValidator,
                        dataset_ok_validator=DatasetOkValidator,)
+=======
+class MetadataNotInDataTableColumnValidator(MetadataInDataTableColumnValidator):
+    """
+    Validator that checks if the value for a dataset's metadata item doesn't exists in a file.
+    """
+    requires_dataset_metadata = True
+
+    def __init__(self, tool_data_table, metadata_name, metadata_column, message="Value for metadata not found.", line_startswith=None):
+        super(MetadataInDataTableColumnValidator, self).__init__(tool_data_table, metadata_name, metadata_column, message, line_startswith)
+
+    def validate(self, value, trans=None):
+        try:
+            super(MetadataInDataTableColumnValidator, self).validate(value, trans)
+        except ValueError:
+            return
+        else:
+            raise ValueError(self.message)
+
+
+class MetadataInRangeValidator(InRangeValidator):
+    """
+    Validator that ensures metadata is in a specified range
+    """
+    requires_dataset_metadata = True
+
+    @classmethod
+    def from_element(cls, param, elem):
+        metadata_name = elem.get('metadata_name', None)
+        assert metadata_name, "dataset_metadata_in_range validator requires metadata_name attribute."
+        metadata_name = metadata_name.strip()
+        return cls(metadata_name,
+                   elem.get('message', None), elem.get('min'),
+                   elem.get('max'), elem.get('exclude_min', 'false'),
+                   elem.get('exclude_max', 'false'))
+
+    def __init__(self, metadata_name, message, range_min, range_max, exclude_min=False, exclude_max=False):
+        self.metadata_name = metadata_name
+        super().__init__(message, range_min, range_max, exclude_min, exclude_max)
+
+    def validate(self, value, trans=None):
+        if value:
+            if not isinstance(value, model.DatasetInstance):
+                raise ValueError('A non-dataset value was provided.')
+            try:
+                value_to_check = float(value.metadata.spec[self.metadata_name].param.to_string(value.metadata.get(self.metadata_name)))
+            except KeyError:
+                raise ValueError(f'{self.metadata_name} Metadata missing')
+            except ValueError:
+                raise ValueError(f'{self.metadata_name} must be a float or an integer')
+            super().validate(value_to_check, trans)
+
+
+validator_types = dict(
+    expression=ExpressionValidator,
+    regex=RegexValidator,
+    in_range=InRangeValidator,
+    length=LengthValidator,
+    metadata=MetadataValidator,
+    unspecified_build=UnspecifiedBuildValidator,
+    no_options=NoOptionsValidator,
+    empty_field=EmptyTextfieldValidator,
+    empty_dataset=DatasetEmptyValidator,
+    empty_extra_files_path=DatasetExtraFilesPathEmptyValidator,
+    dataset_metadata_in_file=MetadataInFileColumnValidator,
+    dataset_metadata_in_data_table=MetadataInDataTableColumnValidator,
+    dataset_metadata_not_in_data_table=MetadataNotInDataTableColumnValidator,
+    dataset_metadata_in_range=MetadataInRangeValidator,
+    value_in_data_table=ValueInDataTableColumnValidator,
+    value_not_in_data_table=ValueInDataTableColumnValidator,
+    dataset_ok_validator=DatasetOkValidator,
+)
+>>>>>>> refs/heads/release_21.01
 
 
 def get_suite():

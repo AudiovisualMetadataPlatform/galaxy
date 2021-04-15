@@ -1,4 +1,5 @@
-
+# When committing this file, make sure to run make config-rebuild to rebuild
+# all sample YAML and RST files, and add those to your commit.
 type: map
 desc: |
   Galaxy is configured by default to be usable in a single-user development
@@ -25,6 +26,7 @@ mapping:
     required: true
     mapping:
 
+<<<<<<< HEAD
       cookie_path:
         type: str
         default: ''
@@ -37,14 +39,43 @@ mapping:
           those from another.
 
       database_connection:
+=======
+      config_dir:
+>>>>>>> refs/heads/release_21.01
         type: str
-        default: sqlite:///./database/universe.sqlite?isolation_level=IMMEDIATE
         required: false
         desc: |
-          By default, Galaxy uses a SQLite database at 'database/universe.sqlite'.  You
+          The directory that will be prepended to relative paths in options specifying
+          other Galaxy config files (e.g. datatypes_config_file). Defaults to the
+          directory in which galaxy.yml is located.
+
+      managed_config_dir:
+        type: str
+        required: false
+        desc: |
+          The directory that will be prepended to relative paths in options specifying
+          config files controlled by Galaxy (such as shed_tool_config_file, etc.). Must be
+          writable by the user running Galaxy.  Defaults to `<config_dir>/` if running
+          Galaxy from source or `<data_dir>/config` otherwise.
+
+      data_dir:
+        type: str
+        required: false
+        desc: |
+          The directory that will be prepended to relative paths in options specifying
+          Galaxy data/cache directories and files (such as the default SQLite database,
+          file_path, etc.). Defaults to `database/` if running Galaxy from source or
+          `<config_dir>/data` otherwise.
+
+      database_connection:
+        type: str
+        required: false
+        desc: |
+          By default, Galaxy uses a SQLite database at '<data_dir>/universe.sqlite'.  You
           may use a SQLAlchemy connection string to specify an external database
-          instead.  This string takes many options which are explained in detail in the
-          config file documentation.
+          instead.
+
+          Sample default 'sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE'
 
       database_engine_option_pool_size:
         type: int
@@ -92,16 +123,27 @@ mapping:
 
       database_template:
         type: str
-        default: ''
         required: false
         desc: |
           If auto-creating a postgres database on startup - it can be based on an existing
           template database. This will set that. This is probably only useful for testing but
           documentation is included here for completeness.
 
+      database_log_query_counts:
+        type: bool
+        default: false
+        required: false
+        desc: |
+          Log number of SQL queries executed and total time spent dispatching SQL statements for
+          each web request. If statsd is also enabled this information will be logged there as well.
+          This should be considered somewhat experimental, we are unsure of the performance costs of
+          running this in production. This is useful information for optimizing database interaction
+          performance. Similar information can be obtained on a per-request basis by enabling the
+          sql_debug middleware and adding sql_debug=1 to a request string.
+
       slow_query_log_threshold:
-        type: int
-        default: 0
+        type: float
+        default: 0.0
         required: false
         desc: |
           Slow query logging.  Queries slower than the threshold indicated below will
@@ -120,7 +162,6 @@ mapping:
 
       install_database_connection:
         type: str
-        default: sqlite:///./database/universe.sqlite?isolation_level=IMMEDIATE
         required: false
         desc: |
           By default, Galaxy will use the same database to track user data and
@@ -128,7 +169,9 @@ mapping:
           valuable to separate these - for instance bootstrapping fresh Galaxy
           instances with pretested installs.  The following option can be used to
           separate the tool shed install database (all other options listed above
-          but prefixed with install_ are also available).
+          but prefixed with ``install_`` are also available).
+
+          Defaults to the value of the 'database_connection' option.
 
       database_auto_migrate:
         type: bool
@@ -141,29 +184,51 @@ mapping:
 
       file_path:
         type: str
-        default: database/files
+        default: objects
+        path_resolves_to: data_dir
         required: false
         desc: |
-          Where dataset files are stored. It must accessible at the same path on any cluster
-          nodes that will run Galaxy jobs, unless using Pulsar.
+          Where dataset files are stored. It must be accessible at the same path on any cluster
+          nodes that will run Galaxy jobs, unless using Pulsar. The default value has been changed
+          from 'files' to 'objects' as of 20.05; however, Galaxy will first check if the 'files'
+          directory exists before using 'objects' as the default.
 
       new_file_path:
         type: str
-        default: database/tmp
+        default: tmp
+        path_resolves_to: data_dir
         required: false
         desc: |
-          Where temporary files are stored. It must accessible at the same path on any cluster
+          Where temporary files are stored. It must be accessible at the same path on any cluster
           nodes that will run Galaxy jobs, unless using Pulsar.
 
       tool_config_file:
-        type: str
-        default: config/tool_conf.xml,config/shed_tool_conf.xml
+        type: any
+        default: tool_conf.xml
+        path_resolves_to: config_dir
         required: false
         desc: |
           Tool config files, defines what tools are available in Galaxy.
           Tools can be locally developed or installed from Galaxy tool sheds.
           (config/tool_conf.xml.sample will be used if left unset and
-          config/tool_conf.xml does not exist).
+          config/tool_conf.xml does not exist). Can be a single file, a list of
+          files, or (for backwards compatibility) a comma-separated list of files.
+
+      shed_tool_config_file:
+        type: str
+        default: shed_tool_conf.xml
+        path_resolves_to: managed_config_dir
+        required: false
+        desc: |
+          Tool config file for tools installed from the Galaxy Tool Shed. Must
+          be writable by Galaxy and generally should not be edited by hand. In
+          older Galaxy releases, this file was part of the tool_config_file
+          option. It is still possible to specify this file (and other
+          shed-enabled tool config files) in tool_config_file, but in the
+          standard case of a single shed-enabled tool config, this option is
+          preferable. This file will be created automatically upon tool
+          installation, whereas Galaxy will fail to start if any files in
+          tool_config_file cannot be read.
 
       check_migrate_tools:
         type: bool
@@ -174,11 +239,12 @@ mapping:
           tool_config_files (i.e., tool_conf.xml) have been migrated from the Galaxy
           code distribution to the Tool Shed. This functionality is largely untested
           in modern Galaxy releases and has serious issues such as #7273 and the possibility
-          of slowing down Galaxy startup, so the default and recommended value is False.
+          of slowing down Galaxy startup, so the default and recommended value is false.
 
       migrated_tools_config:
         type: str
-        default: config/migrated_tools_conf.xml
+        default: migrated_tools_conf.xml
+        path_resolves_to: managed_config_dir
         required: false
         desc: |
           Tool config maintained by tool migration scripts.  If you use the migration
@@ -195,6 +261,8 @@ mapping:
           file can be changed by the Galaxy administrator to alter the layout of the
           tool panel.  If not present, Galaxy will create it.
 
+          The value of this option will be resolved with respect to <managed_config_dir>.
+
       tool_path:
         type: str
         default: tools
@@ -206,20 +274,23 @@ mapping:
 
       tool_dependency_dir:
         type: str
-        default: database/dependencies
+        default: dependencies
         required: false
         desc: |
-          Path to the directory in which tool dependencies are placed.  This is used by
-          the Tool Shed to install dependencies and can also be used by administrators
-          to manually install or link to dependencies.  For details, see:
-            https://galaxyproject.org/admin/config/tool-dependencies
-          Set the string to None to explicitly disable tool dependency handling.
+          Various dependency resolver configuration parameters will have defaults set relative
+          to this path, such as the default conda prefix, default Galaxy packages path, legacy
+          tool shed dependencies path, and the dependency cache directory.
+
+          Set the string to null to explicitly disable tool dependency handling.
           If this option is set to none or an invalid path, installing tools with dependencies
-          from the Tool Shed will fail.
+          from the Tool Shed or in Conda will fail.
+
+          The value of this option will be resolved with respect to <data_dir>.
 
       dependency_resolvers_config_file:
         type: str
-        default: config/dependency_resolvers_conf.xml
+        default: dependency_resolvers_conf.xml
+        path_resolves_to: config_dir
         required: false
         desc: |
           The dependency resolvers config file specifies an ordering and options for how
@@ -231,12 +302,12 @@ mapping:
 
       conda_prefix:
         type: str
-        default: <tool_dependency_dir>/_conda
         required: false
         desc: |
-          conda_prefix is the location on the filesystem where Conda packages and environments are installed
-          IMPORTANT: Due to a current limitation in conda, the total length of the
-          conda_prefix and the job_working_directory path should be less than 50 characters!
+          conda_prefix is the location on the filesystem where Conda packages and environments are
+          installed.
+
+          Sample default '<tool_dependency_dir>/_conda'
 
       conda_exec:
         type: str
@@ -254,7 +325,7 @@ mapping:
 
       conda_ensure_channels:
         type: str
-        default: iuc,conda-forge,bioconda,defaults
+        default: conda-forge,bioconda,defaults
         required: false
         desc: |
           conda channels to enable by default
@@ -272,7 +343,7 @@ mapping:
         default: false
         required: false
         desc: |
-          Set to True to instruct Galaxy to look for and install missing tool
+          Set to true to instruct Galaxy to look for and install missing tool
           dependencies before each job runs.
 
       conda_auto_init:
@@ -280,7 +351,7 @@ mapping:
         default: true
         required: false
         desc: |
-          Set to True to instruct Galaxy to install Conda from the web automatically
+          Set to true to instruct Galaxy to install Conda from the web automatically
           if it cannot find a local copy and conda_exec is not configured.
 
       conda_copy_dependencies:
@@ -288,11 +359,29 @@ mapping:
         default: false
         required: false
         desc: |
-          You must set this to True if conda_prefix and job_working_directory are not on the same
+          You must set this to true if conda_prefix and job_working_directory are not on the same
           volume, or some conda dependencies will fail to execute at job runtime.
           Conda will copy packages content instead of creating hardlinks or symlinks.
           This will prevent problems with some specific packages (perl, R), at the cost
           of extra disk space usage and extra time spent copying packages.
+
+      local_conda_mapping_file:
+        type: str
+        default: 'local_conda_mapping.yml'
+        path_resolves_to: config_dir
+        required: false
+        desc: |
+          Path to a file that provides a mapping from abstract packages to concrete conda packages.
+          See `config/local_conda_mapping.yml.sample` for examples.
+
+      modules_mapping_files:
+        type: str
+        default: 'environment_modules_mapping.yml'
+        path_resolves_to: config_dir
+        required: false
+        desc: |
+          Path to a file that provides a mapping from abstract packages to locally installed modules.
+          See `config/environment_modules_mapping.yml.sample` for examples.
 
       use_cached_dependency_manager:
         type: bool
@@ -301,18 +390,23 @@ mapping:
         desc: |
           Certain dependency resolvers (namely Conda) take a considerable amount of
           time to build an isolated job environment in the job_working_directory if the
-          job working directory is on a network share.  Set the following option to True
+          job working directory is on a network share.  Set this option to true
           to cache the dependencies in a folder. This option is beta and should only be
           used if you experience long waiting times before a job is actually submitted
           to your cluster.
 
+          This only affects tools where some requirements can be resolved but not others,
+          most modern best practice tools can use prebuilt environments in the Conda
+          directory.
+
       tool_dependency_cache_dir:
         type: str
-        default: <tool_dependency_dir>/_cache
         required: false
         desc: |
           By default the tool_dependency_cache_dir is the _cache directory
-          of the tool dependency directory
+          of the tool dependency directory.
+
+          Sample default '<tool_dependency_dir>/_cache'
 
       precache_dependencies:
         type: bool
@@ -321,11 +415,12 @@ mapping:
         desc: |
           By default, when using a cached dependency manager, the dependencies are cached
           when installing new tools and when using tools for the first time.
-          Set this to False if you prefer dependencies to be cached only when installing new tools.
+          Set this to false if you prefer dependencies to be cached only when installing new tools.
 
       tool_sheds_config_file:
         type: str
-        default: config/tool_sheds_conf.xml
+        default: tool_sheds_conf.xml
+        path_resolves_to: config_dir
         required: false
         desc: |
           File containing the Galaxy Tool Sheds that should be made available to
@@ -336,72 +431,87 @@ mapping:
         default: 'false'
         required: false
         desc: |
-          Set to True to enable monitoring of tools and tool directories
-          listed in any tool config file specified in tool_config_file option.
-          If changes are found, tools are automatically reloaded.  Watchdog (
-          https://pypi.org/project/watchdog/ ) must be installed and
-          available to Galaxy to use this option. Other options include 'auto'
-          which will attempt to watch tools if the watchdog library is available
-          but won't fail to load Galaxy if it is not and 'polling' which will use
-          a less efficient monitoring scheme that may work in wider range of scenarios
-          than the watchdog default.
+          Monitor the tools and tool directories listed in any tool config file specified in
+          tool_config_file option.  If changes are found, tools are automatically reloaded.
+          Watchdog ( https://pypi.org/project/watchdog/ ) must be installed and available to Galaxy
+          to use this option. Other options include 'auto' which will attempt to watch tools if the
+          watchdog library is available but won't fail to load Galaxy if it is not and 'polling'
+          which will use a less efficient monitoring scheme that may work in wider range of
+          scenarios than the watchdog default.
 
       watch_job_rules:
         type: str
         default: 'false'
         required: false
         desc: |
-          Set to True to enable monitoring of dynamic job rules. If changes are
-          found, rules are automatically reloaded. Takes the same values as the
+          Monitor dynamic job rules. If changes are found, rules are automatically reloaded. Takes
+          the same values as the 'watch_tools' option.
+
+      watch_core_config:
+        type: str
+        default: 'false'
+        required: false
+        desc: |
+          Monitor a subset of options in the core configuration file (See RELOADABLE_CONFIG_OPTIONS
+          in lib/galaxy/config/__init__.py).  If changes are found, modified options are
+          automatically reloaded. Takes the same values as the 'watch_tools' option.
+
+      watch_tours:
+        type: str
+        default: 'false'
+        required: false
+        desc: |
+          Monitor the interactive tours directory specified in the 'tour_config_dir' option. If
+          changes are found, modified tours are automatically reloaded. Takes the same values as the
           'watch_tools' option.
 
-      legacy_eager_objectstore_initialization:
-        type: bool
-        default: false
+      file_sources_config_file:
+        type: str
+        default: file_sources_conf.yml
+        path_resolves_to: config_dir
         required: false
         desc: |
-          As of 18.09, Galaxy defaults to setting up the object store configuration
-          for output datasets during the job queue step in job handlers. This should generally
-          provide for more robust job submission, more configurability, and a better
-          user experience but may in some cases slightly slow down the job handler job
-          setup process. On the off chance that an admin would like to or need to optimize job
-          handlers at the expense of user experience and web handling this option will remain
-          for some time by setting this option to true. This behavior however should be
-          considered deprecated and this option will likely be removed in future versions of
-          Galaxy. For more information see https://github.com/galaxyproject/galaxy/issues/6513.
+          Configured FileSource plugins.
 
-      enable_beta_mulled_containers:
+      enable_mulled_containers:
         type: bool
-        default: false
+        default: true
         required: false
         desc: |
-          Enable Galaxy to fetch Docker containers registered with quay.io generated
-          from tool requirements resolved through conda. These containers (when
-          available) have been generated using mulled - https://github.com/mulled .
-          These containers are highly beta and availability will vary by tool.
-          This option will additionally only be used for job destinations with
-          Docker enabled.
+          Enable Galaxy to fetch containers registered with quay.io generated
+          from tool requirements resolved through Conda. These containers (when
+          available) have been generated using mulled - https://github.com/mulled.
+          Container availability will vary by tool, this option will only be used
+          for job destinations with Docker or Singularity enabled.
 
       containers_resolvers_config_file:
         type: str
-        default: ''
         required: false
         desc: |
+<<<<<<< HEAD
           Container resolvers configuration (beta). Setup a file describing container
           resolvers to use when discovering containers for Galaxy. If this is set to
           None, the default containers loaded is determined by
           enable_beta_mulled_containers.
+=======
+          Container resolvers configuration (beta). Set up a file describing
+          container resolvers to use when discovering containers for Galaxy. If
+          this is set to None, the default containers loaded is determined by
+          enable_mulled_containers.
+>>>>>>> refs/heads/release_21.01
 
       involucro_path:
         type: str
-        default: database/dependencies/involucro
+        default: involucro
         required: false
         desc: |
           involucro is a tool used to build Docker or Singularity containers for tools from Conda
-          dependencies referenced in tools as `requirement`s. The following path is
+          dependencies referenced in tools as `requirement` s. The following path is
           the location of involucro on the Galaxy host. This is ignored if the relevant
           container resolver isn't enabled, and will install on demand unless
-          involucro_auto_init is set to False.
+          involucro_auto_init is set to false.
+
+          The value of this option will be resolved with respect to <tool_dependency_dir>.
 
       involucro_auto_init:
         type: bool
@@ -438,18 +548,10 @@ mapping:
           server process should be able to check for repository updates.  The
           setting for hours_between_check should be an integer between 1 and 24.
 
-      manage_dependency_relationships:
-        type: bool
-        default: false
-        required: false
-        desc: |
-          Enable use of an in-memory registry with bi-directional relationships between
-          repositories (i.e., in addition to lists of dependencies for a repository,
-          keep an in-memory registry of dependent items for each repository.
-
       tool_data_table_config_path:
         type: str
-        default: config/tool_data_table_conf.xml
+        default: tool_data_table_conf.xml
+        path_resolves_to: config_dir
         required: false
         desc: |
           XML config file that contains data table entries for the
@@ -458,7 +560,8 @@ mapping:
 
       shed_tool_data_table_config:
         type: str
-        default: config/shed_tool_data_table_conf.xml
+        default: shed_tool_data_table_conf.xml
+        path_resolves_to: managed_config_dir
         required: false
         desc: |
           XML config file that contains additional data table entries for the
@@ -479,44 +582,61 @@ mapping:
 
       shed_tool_data_path:
         type: str
-        default: tool-data
         required: false
         desc: |
-          Directory where Tool Data Table related files will be placed
-          when installed from a ToolShed. Defaults to tool_data_path.
+          Directory where Tool Data Table related files will be placed when installed from a
+          ToolShed. Defaults to the value of the 'tool_data_path' option.
 
       watch_tool_data_dir:
         type: str
         default: 'false'
         required: false
         desc: |
-          Set to True to enable monitoring of the tool_data and shed_tool_data_path
-          directories. If changes in tool data table files are found, the tool data
-          tables for that data manager are automatically reloaded.
-          Watchdog ( https://pypi.org/project/watchdog/ ) must be installed and
-          available to Galaxy to use this option. Other options include 'auto'
-          which will attempt to use the watchdog library if it is available but won't
-          fail to load Galaxy if it is not and 'polling' which will use a less
-          efficient monitoring scheme that may work in wider range of scenarios
-          than the watchdog default.
+          Monitor the tool_data and shed_tool_data_path directories. If changes in tool data table
+          files are found, the tool data tables for that data manager are automatically reloaded.
+          Watchdog ( https://pypi.org/project/watchdog/ ) must be installed and available to Galaxy
+          to use this option. Other options include 'auto' which will attempt to use the watchdog
+          library if it is available but won't fail to load Galaxy if it is not and 'polling' which
+          will use a less efficient monitoring scheme that may work in wider range of scenarios than
+          the watchdog default.
+
+      refgenie_config_file:
+        type: str
+        required: false
+        desc: |
+          File containing refgenie configuration, e.g. /path/to/genome_config.yaml. Can be used by refgenie backed tool data tables.
+
+      build_sites_config_file:
+        type: str
+        default: build_sites.yml
+        path_resolves_to: config_dir
+        required: false
+        desc: |
+          File that defines the builds (dbkeys) available at sites used by display applications
+          and the URL to those sites.
 
       builds_file_path:
         type: str
-        default: tool-data/shared/ucsc/builds.txt
+        default: shared/ucsc/builds.txt
         required: false
         desc: |
-          File containing old-style genome builds
+          File containing old-style genome builds.
+
+          The value of this option will be resolved with respect to <tool_data_path>.
 
       len_file_path:
         type: str
-        default: tool-data/shared/ucsc/chrom
+        default: shared/ucsc/chrom
         required: false
         desc: |
-          Directory where chrom len files are kept, currently mainly used by trackster
+          Directory where chrom len files are kept, currently mainly used by trackster.
+
+          The value of this option will be resolved with respect to <tool_data_path>.
 
       datatypes_config_file:
         type: str
-        default: config/datatypes_conf.xml
+        default: datatypes_conf.xml
+        path_resolves_to: config_dir
         required: false
         desc: |
           Datatypes config file(s), defines what data (file) types are available in
@@ -531,9 +651,8 @@ mapping:
         desc: |
           Enable sniffing of compressed datatypes. This can be configured/overridden
           on a per-datatype basis in the datatypes_conf.xml file.
-          With this option set to False the compressed datatypes will be unpacked
+          With this option set to false the compressed datatypes will be unpacked
           before sniffing.
-
 
       datatypes_disable_auto:
         type: bool
@@ -549,8 +668,7 @@ mapping:
         desc: |
           Visualizations config directory: where to look for individual visualization
           plugins.  The path is relative to the Galaxy root dir.  To use an absolute
-          path begin the path with '/'.  This is a comma separated list.
-          Defaults to "config/plugins/visualizations".
+          path begin the path with '/'.  This is a comma-separated list.
 
       interactive_environment_plugins_directory:
         type: str
@@ -561,31 +679,7 @@ mapping:
           config/plugins/interactive_environments to load Galaxy's stock plugins.
           These will require Docker to be configured and have security considerations,
           so proceed with caution. The path is relative to the Galaxy root dir.  To use
-          an absolute path begin the path with '/'.  This is a comma
-          separated list.
-
-      interactive_environment_swarm_mode:
-        type: bool
-        default: false
-        required: false
-        desc: |
-          To run interactive environment containers in Docker Swarm mode (on an
-          existing swarm), set this option to True and set `docker_connect_port` in the
-          IE plugin config (ini) file(s) of any IE plugins you have enabled and ensure
-          that you are not using any `docker run`-specific options in your plugins'
-          `command_inject` options (swarm mode services run using `docker service
-          create`, which has a different and more limited set of options). This option
-          can be overridden on a per-plugin basis by using the `swarm_mode` option in
-          the plugin's ini config file.
-
-      swarm_manager_config_file:
-        type: str
-        default: config/swarm_manager_conf.yml
-        required: false
-        desc: |
-          Galaxy can run a "swarm manager" service that will monitor utilization of the
-          swarm and provision/deprovision worker nodes as necessary. The service has
-          its own configuration file.
+          an absolute path begin the path with '/'.  This is a comma-separated list.
 
       tour_config_dir:
         type: str
@@ -595,8 +689,8 @@ mapping:
           Interactive tour directory: where to store interactive tour definition files.
           Galaxy ships with several basic interface tours enabled, though a different
           directory with custom tours can be specified here. The path is relative to the
-          Galaxy root dir.  To use an absolute path begin the path with '/'.  This is a comma
-          separated list.
+          Galaxy root dir.  To use an absolute path begin the path with '/'.  This is a
+          comma-separated list.
 
       webhooks_dir:
         type: str
@@ -605,22 +699,25 @@ mapping:
         desc: |
           Webhooks directory: where to store webhooks - plugins to extend the Galaxy UI.
           By default none will be loaded.  Set to config/plugins/webhooks/demo to load Galaxy's
-          demo webhooks.  To use an absolute path begin the path with '/'.  This is a comma
-          separated list. Add test/functional/webhooks to this list to include the demo webhooks
-          used to test the webhook framework.
+          demo webhooks.  To use an absolute path begin the path with '/'.  This is a
+          comma-separated list. Add test/functional/webhooks to this list to include the demo
+          webhooks used to test the webhook framework.
 
       job_working_directory:
         type: str
-        default: database/jobs_directory
+        default: jobs_directory
         required: false
         desc: |
           Each job is given a unique empty directory as its current working directory.
           This option defines in what parent directory those directories will be
           created.
 
+          The value of this option will be resolved with respect to <data_dir>.
+
       cluster_files_directory:
         type: str
-        default: database/pbs
+        default: pbs
+        path_resolves_to: data_dir
         required: false
         desc: |
           If using a cluster, Galaxy will write job scripts and stdout/stderr to this
@@ -628,7 +725,8 @@ mapping:
 
       template_cache_path:
         type: str
-        default: database/compiled_templates
+        default: compiled_templates
+        path_resolves_to: data_dir
         required: false
         desc: |
           Mako templates are compiled as needed and cached for reuse, this directory is
@@ -668,6 +766,44 @@ mapping:
           should be disabled. Containerized jobs always use /bin/sh - so more maximum
           portability tool authors should assume generated commands run in sh.
 
+      enable_tool_document_cache:
+        type: bool
+        default: false
+        required: false
+        desc: |
+          Whether to enable the tool document cache. This cache stores
+          expanded XML strings. Enabling the tool cache results in slightly faster startup
+          times. The tool cache is backed by a SQLite database, which cannot
+          be stored on certain network disks. The cache location is configurable
+          using the ``tool_cache_data_dir`` setting, but can be disabled completely here.
+
+      tool_cache_data_dir:
+        type: str
+        default: tool_cache
+        path_resolves_to: data_dir
+        required: false
+        desc: |
+          Tool related caching. Fully expanded tools and metadata will be stored at this path.
+          Per tool_conf cache locations can be configured in (``shed_``)tool_conf.xml files using
+          the tool_cache_data_dir attribute.
+
+      tool_search_index_dir:
+        type: str
+        default: tool_search_index
+        path_resolves_to: data_dir
+        required: false
+        desc:
+          Directory in which the toolbox search index is stored.
+
+      delay_tool_initialization:
+        type: bool
+        default: false
+        required: false
+        desc: |
+          Set this to true to delay parsing of tool inputs and outputs until they are needed.
+          This results in faster startup times but uses more memory when using forked Galaxy
+          processes.
+
       citation_cache_type:
         type: str
         default: file
@@ -679,7 +815,8 @@ mapping:
 
       citation_cache_data_dir:
         type: str
-        default: database/citations/data
+        default: citations/data
+        path_resolves_to: data_dir
         required: false
         desc: |
           Citation related caching.  Tool citations information maybe fetched from
@@ -688,13 +825,15 @@ mapping:
 
       citation_cache_lock_dir:
         type: str
-        default: database/citations/lock
+        default: citations/locks
+        path_resolves_to: data_dir
         required: false
         desc: |
           Citation related caching.  Tool citations information maybe fetched from
           external sources such as https://doi.org/ by Galaxy - the following
           parameters can be used to control the caching used to store this information.
 
+<<<<<<< HEAD
       collect_outputs_from:
         type: str
         default: new_file_path,job_working_directory
@@ -706,18 +845,57 @@ mapping:
           can cause performance problems, so using job_working_directory ('.' or cwd
           when a job is run) is encouraged.  By default, both are checked to avoid
           breaking existing tools.
+=======
+      mulled_resolution_cache_type:
+        type: str
+        default: file
+        required: false
+        desc: |
+          Mulled resolution caching. Mulled resolution uses external APIs of quay.io, these
+          requests are caching using this and the following parameters
+
+      mulled_resolution_cache_data_dir:
+        type: str
+        default: mulled/data
+        path_resolves_to: data_dir
+        required: false
+        desc: |
+          Data directory used by beaker for caching mulled resolution requests.
+
+      mulled_resolution_cache_lock_dir:
+        type: str
+        default: mulled/locks
+        path_resolves_to: data_dir
+        required: false
+        desc: |
+          Lock directory used by beaker for caching mulled resolution requests.
+>>>>>>> refs/heads/release_21.01
 
       object_store_config_file:
         type: str
-        default: config/object_store_conf.xml
+        default: object_store_conf.xml
+        path_resolves_to: config_dir
         required: false
         desc: |
           Configuration file for the object store
           If this is set and exists, it overrides any other objectstore settings.
 
+<<<<<<< HEAD
+=======
+      object_store_store_by:
+        type: str
+        required: false
+        desc: |
+          What Dataset attribute is used to reference files in an ObjectStore implementation,
+          this can be 'uuid' or 'id'. The default will depend on how the object store is configured,
+          starting with 20.05 Galaxy will try to default to 'uuid' if it can be sure this
+          is a new Galaxy instance - but the default will be 'id' in many cases. In particular,
+          if the name of the directory set in <file_path> is `objects`, the default will be set
+          to 'uuid', otherwise it will be 'id'.
+
+>>>>>>> refs/heads/release_21.01
       smtp_server:
         type: str
-        default: ''
         required: false
         desc: |
           Galaxy sends mail for various things: subscribing users to the mailing list
@@ -728,7 +906,6 @@ mapping:
 
       smtp_username:
         type: str
-        default: ''
         required: false
         desc: |
           If your SMTP server requires a username and password, you can provide them
@@ -737,7 +914,6 @@ mapping:
 
       smtp_password:
         type: str
-        default: ''
         required: false
         desc: |
           If your SMTP server requires a username and password, you can provide them
@@ -753,16 +929,16 @@ mapping:
 
       mailing_join_addr:
         type: str
-        default: galaxy-announce-join@bx.psu.edu
         required: false
         desc: |
           On the user registration form, users may choose to join a mailing list. This
           is the address used to subscribe to the list. Uncomment and leave empty if you
           want to remove this option from the user registration form.
 
+          Example value 'galaxy-announce-join@bx.psu.edu'
+
       error_email_to:
         type: str
-        default: ''
         required: false
         desc: |
           Datasets in an error state include a link to report the error.  Those reports
@@ -772,35 +948,66 @@ mapping:
 
       email_from:
         type: str
-        default: ''
         required: false
         desc: |
           Email address to use in the 'From' field when sending emails for
-          account activations, workflow step notifications and password resets.
-          We recommend using string in the following format:
-          Galaxy Project <galaxy-no-reply@example.com>
+          account activations, workflow step notifications, password resets, and
+          tool error reports.  We recommend using a string in the following format:
+          Galaxy Project <galaxy-no-reply@example.com>.
           If not configured, '<galaxy-no-reply@HOSTNAME>' will be used.
+
+      custom_activation_email_message:
+        type: str
+        required: false
+        desc: |
+          This text will be inserted at the end of the activation email's message, before
+          the 'Your Galaxy Team' signature.
 
       instance_resource_url:
         type: str
-        default: https://galaxyproject.org/
         required: false
         desc: |
           URL of the support resource for the galaxy instance.  Used in activation
           emails.
 
-      blacklist_file:
+          Example value 'https://galaxyproject.org/'
+
+      email_domain_blocklist_file:
         type: str
-        default: config/disposable_email_blacklist.conf
         required: false
         desc: |
-          E-mail domains blacklist is used for filtering out users that are using
-          disposable email address during the registration.  If their address domain
-          matches any domain in the blacklist, they are refused the registration.
+          E-mail domains blocklist is used for filtering out users that are using
+          disposable email addresses at registration.  If their address's base domain
+          matches any domain on the list, they are refused registration. Address subdomains
+          are ignored (both 'name@spam.com' and 'name@foo.spam.com' will match 'spam.com').
+
+          Example value 'email_blocklist.conf'
+
+          The value of this option will be resolved with respect to <config_dir>.
+
+      email_domain_allowlist_file:
+        type: str
+        required: false
+        desc: |
+          E-mail domains allowlist is used to specify allowed email address domains.
+          If the list is non-empty and a user attempts registration using an email
+          address belonging to a domain that is not on the list, registration will be
+          denied. Unlike <email_domain_allowlist_file> which matches the address's
+          base domain, here email addresses are matched against the full domain (base + subdomain).
+          This is a more restrictive option than <email_domain_blocklist_file>, and
+          therefore, in case <email_domain_allowlist_file> is set and is not empty,
+          <email_domain_blocklist_file> will be ignored.
+
+          Example value 'email_allowlist.conf'
+
+          The value of this option will be resolved with respect to <config_dir>.
 
       registration_warning_message:
         type: str
-        default: Please register only one account - we provide this service free of charge and have limited computational resources. Multi-accounts are tracked and will be subjected to account termination and data deletion.
+        default: >-
+          Please register only one account - we provide this service free of charge and have limited
+          computational resources. Multi-accounts are tracked and will be subjected to account
+          termination and data deletion.
         required: false
         desc: |
           Registration warning message is used to discourage people from registering
@@ -812,7 +1019,7 @@ mapping:
         default: false
         required: false
         desc: |
-          User account activation feature global flag.  If set to "False", the rest of
+          User account activation feature global flag.  If set to false, the rest of
           the Account activation configuration is ignored and user activation is
           disabled (i.e. accounts are active since registration).
           The activation is also not working in case the SMTP server is not defined.
@@ -829,7 +1036,10 @@ mapping:
 
       inactivity_box_content:
         type: str
-        default: Your account has not been activated yet.  Feel free to browse around and see what's available, but you won't be able to upload data or run jobs until you have verified your email address.
+        default: >-
+          Your account has not been activated yet.  Feel free to browse around and see what's
+          available, but you won't be able to upload data or run jobs until you have verified your
+          email address.
         required: false
         desc: |
           Shown in warning box to users that were not activated yet.
@@ -856,7 +1066,6 @@ mapping:
 
       ga_code:
         type: str
-        default: ''
         required: false
         desc: |
           You can enter tracking code here to track visitor's behavior
@@ -871,7 +1080,7 @@ mapping:
           which browsers should be available.  URLs and builds available at these
           browsers are defined in the specifield files.
 
-          If use_remote_user = True, display application servers will be denied access
+          If use_remote_user is set to true, display application servers will be denied access
           to Galaxy and so displaying datasets in these sites will fail.
           display_servers contains a list of hostnames which should be allowed to
           bypass security to display datasets.  Please be aware that there are security
@@ -889,8 +1098,8 @@ mapping:
         default: true
         required: false
         desc: |
-          To disable the old-style display applications that are hardcoded into
-          datatype classes, set enable_old_display_applications = False.
+          Set this to false to disable the old-style display applications that
+          are hardcoded into datatype classes.
           This may be desirable due to using the new-style, XML-defined, display
           applications that have been defined for many of the datatypes that have the
           old-style.
@@ -899,17 +1108,65 @@ mapping:
           Galaxy server, but contains a redirect to a third-party server, tricking a
           Galaxy user to access said site.
 
+      aws_estimate:
+        type: bool
+        default: false
+        required: false
+        desc: |
+          This flag enables an AWS cost estimate for every job based on their runtime matrices.
+          CPU, RAM and runtime usage is mapped against AWS pricing table.
+          Please note, that those numbers are only estimates.
+
+      interactivetools_enable:
+        type: bool
+        default: false
+        required: false
+        desc: |
+          Enable InteractiveTools.
+
+      interactivetools_proxy_host:
+        type: str
+        desc: |
+          Proxy host - assumed to just be hosted on the same hostname and port as
+          Galaxy by default.
+
+      interactivetools_map:
+        type: str
+        default: interactivetools_map.sqlite
+        path_resolves_to: data_dir
+        desc: |
+          Map for interactivetool proxy.
+
+      retry_interactivetool_metadata_internally:
+        type: bool
+        default: true
+        required: false
+        desc: |
+          Galaxy Interactive Tools (GxITs) can be stopped from within the Galaxy
+          interface, killing the GxIT job without completing its metadata setting post-job
+          steps. In such a case it may be desirable to set metadata on job outputs
+          internally (in the Galaxy job handler process). The default is is the value of
+          `retry_metadata_internally`, which defaults to `true`.
+
+      visualizations_visible:
+        type: bool
+        default: true
+        required: false
+        desc: |
+          Show visualization tab and list in masthead.
+
       message_box_visible:
         type: bool
         default: false
         required: false
+        reloadable: true
         desc: |
           Show a message box under the masthead.
 
       message_box_content:
         type: str
-        default: ''
         required: false
+        reloadable: true
         desc: |
           Show a message box under the masthead.
 
@@ -917,16 +1174,23 @@ mapping:
         type: str
         default: info
         required: false
+        reloadable: true
         desc: |
           Class of the message box under the masthead. Possible values are:
           'info' (the default), 'warning', 'error', 'done'.
 
       brand:
         type: str
-        default: ''
         required: false
         desc: |
-          Append "/{brand}" to the "Galaxy" text in the masthead.
+          Append "{brand}" text to the masthead.
+
+      display_galaxy_brand:
+        type: bool
+        default: true
+        required: false
+        desc: |
+          Display the "Galaxy" text in the masthead.
 
       pretty_datetime_format:
         type: str
@@ -936,18 +1200,43 @@ mapping:
           Format string used when showing date and time information.
           The string may contain:
           - the directives used by Python time.strftime() function (see
-            https://docs.python.org/library/time.html#time.strftime ),
+            https://docs.python.org/library/time.html#time.strftime),
           - $locale (complete format string for the server locale),
           - $iso8601 (complete format string as specified by ISO 8601 international
             standard).
 
+<<<<<<< HEAD
+=======
+      trs_servers_config_file:
+        type: str
+        default: 'trs_servers_conf.yml'
+        path_resolves_to: config_dir
+        required: false
+        desc: |
+          Allow import of workflows from the TRS servers configured in
+          the specified YAML or JSON file. The file should be a list with
+          'id', 'label', and 'api_url' for each entry. Optionally,
+          'link_url' and 'doc' may be be specified as well for each entry.
+
+          If this is null (the default), a simple configuration containing
+          just Dockstore will be used.
+
+      user_preferences_extra_conf_path:
+        type: str
+        default: 'user_preferences_extra_conf.yml'
+        path_resolves_to: config_dir
+        required: false
+        desc: |
+          Location of the configuration file containing extra user preferences.
+
+>>>>>>> refs/heads/release_21.01
       default_locale:
         type: str
         default: auto
         required: false
         desc: |
           Default localization for Galaxy UI.
-          Allowed values are listed at the end of client/galaxy/scripts/nls/locale.js.
+          Allowed values are listed at the end of client/src/nls/locale.js.
           With the default value (auto), the locale will be automatically adjusted to
           the user's navigator language.
           Users can override this settings in their user preferences if the localization
@@ -984,6 +1273,7 @@ mapping:
         type: str
         default: /static/welcome.html
         required: false
+        reloadable: true
         desc: |
           The URL of the page to display in Galaxy's middle pane when loaded.  This can
           be an absolute or relative URL.
@@ -995,9 +1285,21 @@ mapping:
         desc: |
           The URL linked by the "Galaxy/brand" text.
 
+      logo_src:
+        type: str
+        default: /static/favicon.png
+        required: false
+        desc: |
+          The brand image source.
+
+      logo_src_secondary:
+        type: str
+        required: false
+        desc: |
+          The custom brand image source.
+
       helpsite_url:
         type: str
-        default: ''
         required: false
         desc: |
           The URL linked by the "Galaxy Help" link in the "Help" menu.
@@ -1008,6 +1310,13 @@ mapping:
         required: false
         desc: |
           The URL linked by the "Wiki" link in the "Help" menu.
+
+      quota_url:
+        type: str
+        default: https://galaxyproject.org/support/account-quotas/
+        required: false
+        desc: |
+          The URL linked for quota information in the UI.
 
       support_url:
         type: str
@@ -1058,6 +1367,13 @@ mapping:
         desc: |
           The URL linked by the "How to Cite Galaxy" link in the "Help" menu.
 
+      release_doc_base_url:
+        type: str
+        default: https://docs.galaxyproject.org/en/release_
+        required: false
+        desc: |
+          The URL linked by the "Galaxy Version" link in the "Help" menu.
+
       search_url:
         type: str
         default: https://galaxyproject.org/search/
@@ -1067,7 +1383,7 @@ mapping:
 
       mailing_lists_url:
         type: str
-        default: https://galaxyproject.org/mailing-lists
+        default: https://galaxyproject.org/mailing-lists/
         required: false
         desc: |
           The URL linked by the "Mailing Lists" link in the "Help" menu.
@@ -1079,17 +1395,8 @@ mapping:
         desc: |
           The URL linked by the "Videos" link in the "Help" menu.
 
-      genomespace_ui_url:
-        type: str
-        default: https://gsui.genomespace.org/jsui/
-        required: false
-        desc: |
-          Points to the GenomeSpace UI service which will be used by
-          the GenomeSpace importer and exporter tools
-
       terms_url:
         type: str
-        default: ''
         required: false
         desc: |
           The URL linked by the "Terms and Conditions" link in the "Help" menu, as well
@@ -1165,7 +1472,7 @@ mapping:
 
       static_style_dir:
         type: str
-        default: static/june_2007_style/blue
+        default: static/style
         required: false
         desc: |
           Serve static content, which must be enabled if you're not serving it via a
@@ -1199,11 +1506,10 @@ mapping:
           https://docs.galaxyproject.org/en/master/admin/production.html
 
           Apache can handle file downloads (Galaxy-to-user) via mod_xsendfile.  Set
-          this to True to inform Galaxy that mod_xsendfile is enabled upstream.
+          this to true to inform Galaxy that mod_xsendfile is enabled upstream.
 
       nginx_x_accel_redirect_base:
         type: str
-        default: ''
         required: false
         desc: |
           The same download handling can be done by nginx using X-Accel-Redirect.  This
@@ -1216,8 +1522,21 @@ mapping:
         required: false
         desc: |
           If using compression in the upstream proxy server, use this option to disable
-          gzipping of library .tar.gz and .zip archives, since the proxy server will do
-          it faster on the fly.
+          gzipping of dataset collection and library archives, since the upstream server
+          will do it faster on the fly. To enable compression add ``application/zip``
+          to the proxy's compressable mimetypes.
+
+      upstream_mod_zip:
+        type: bool
+        default: false
+        required: false
+        desc: |
+          If using the mod-zip module in nginx, use this option to assemble
+          zip archives in nginx. This is preferable over the upstream_gzip option
+          as Galaxy does not need to serve the archive.
+          Requires setting up internal nginx locations to all paths that can be archived.
+          See https://docs.galaxyproject.org/en/master/admin/nginx.html#creating-archives-with-mod-zip
+          for details.
 
       x_frame_options:
         type: str
@@ -1235,7 +1554,6 @@ mapping:
 
       nginx_upload_store:
         type: str
-        default: ''
         required: false
         desc: |
           nginx can also handle file uploads (user-to-Galaxy) via nginx_upload_module.
@@ -1245,7 +1563,6 @@ mapping:
 
       nginx_upload_path:
         type: str
-        default: ''
         required: false
         desc: |
           This value overrides the action set on the file upload form, e.g. the web
@@ -1254,7 +1571,6 @@ mapping:
 
       nginx_upload_job_files_store:
         type: str
-        default: ''
         required: false
         desc: |
           Galaxy can also use nginx_upload_module to receive files staged out upon job
@@ -1264,7 +1580,6 @@ mapping:
 
       nginx_upload_job_files_path:
         type: str
-        default: ''
         required: false
         desc: |
           Galaxy can also use nginx_upload_module to receive files staged out upon job
@@ -1290,7 +1605,7 @@ mapping:
           services based on Galaxy's session cookie.  It will attempt to do this by
           default though you do need to install node+npm and do an npm install from
           `lib/galaxy/web/proxy/js`.  It is generally more robust to configure this
-          externally, managing it however Galaxy is managed.  If True, Galaxy will only
+          externally, managing it in the same way Galaxy itself is managed.  If true, Galaxy will only
           launch the proxy if it is actually going to be used (e.g. for Jupyter).
 
       dynamic_proxy:
@@ -1304,7 +1619,8 @@ mapping:
 
       dynamic_proxy_session_map:
         type: str
-        default: database/session_map.sqlite
+        default: session_map.sqlite
+        path_resolves_to: data_dir
         required: false
         desc: |
           The NodeJS dynamic proxy can use an SQLite database or a JSON file for IPC,
@@ -1315,16 +1631,26 @@ mapping:
         default: 8800
         required: false
         desc: |
+<<<<<<< HEAD
           Set the port and IP for the the dynamic proxy to bind to, this must match
           the external configuration if dynamic_proxy_manage is False.
+=======
+          Set the port and IP for the dynamic proxy to bind to, this must match
+          the external configuration if dynamic_proxy_manage is set to false.
+>>>>>>> refs/heads/release_21.01
 
       dynamic_proxy_bind_ip:
         type: str
         default: 0.0.0.0
         required: false
         desc: |
+<<<<<<< HEAD
           Set the port and IP for the the dynamic proxy to bind to, this must match
           the external configuration if dynamic_proxy_manage is False.
+=======
+          Set the port and IP for the dynamic proxy to bind to, this must match
+          the external configuration if dynamic_proxy_manage is set to false.
+>>>>>>> refs/heads/release_21.01
 
       dynamic_proxy_debug:
         type: bool
@@ -1379,7 +1705,6 @@ mapping:
 
       dynamic_proxy_golang_api_key:
         type: str
-        default: ''
         required: false
         desc: |
           The golang proxy uses a RESTful HTTP API for communication with Galaxy
@@ -1392,7 +1717,7 @@ mapping:
         default: true
         required: false
         desc: |
-          If True, Galaxy will attempt to configure a simple root logger if a
+          If true, Galaxy will attempt to configure a simple root logger if a
           "loggers" section does not appear in this configuration file.
 
       log_level:
@@ -1406,7 +1731,7 @@ mapping:
 
       logging:
         type: map
-        allowempty: True
+        allowempty: true
         desc: |
           Controls where and how the server logs messages. If unset, the default is to log all messages to standard
           output at the level defined by the `log_level` configuration option. Configuration is described in the
@@ -1429,14 +1754,14 @@ mapping:
 
       log_events:
         type: bool
-        default: true
+        default: false
         required: false
         desc: |
           Turn on logging of application events and some user events to the database.
 
       log_actions:
         type: bool
-        default: true
+        default: false
         required: false
         desc: |
           Turn on logging of user actions to the database.  Actions currently logged
@@ -1477,15 +1802,16 @@ mapping:
           special tools that require unaltered output.  WARNING: disabling this does
           make the Galaxy instance susceptible to XSS attacks initiated by your users.
 
-      sanitize_whitelist_file:
+      sanitize_allowlist_file:
         type: str
-        default: config/sanitize_whitelist.txt
+        default: sanitize_allowlist.txt
         required: false
         desc: |
-          Whitelist sanitization file.
           Datasets created by tools listed in this file are trusted and will not have
           their HTML sanitized on display.  This can be manually edited or manipulated
-          through the Admin control panel -- see "Manage Display Whitelist"
+          through the Admin control panel -- see "Manage Allowlist"
+
+          The value of this option will be resolved with respect to <mutable_config_dir>.
 
       serve_xss_vulnerable_mimetypes:
         type: bool
@@ -1495,16 +1821,15 @@ mapping:
           By default Galaxy will serve non-HTML tool output that may potentially
           contain browser executable JavaScript content as plain text.  This will for
           instance cause SVG datasets to not render properly and so may be disabled
-          by setting the following option to True.
+          by setting this option to true.
 
       allowed_origin_hostnames:
         type: str
-        default: ''
         required: false
         desc: |
           Return a Access-Control-Allow-Origin response header that matches the Origin
           header of the request if that Origin hostname matches one of the strings or
-          regular expressions listed here. This is a comma separated list of hostname
+          regular expressions listed here. This is a comma-separated list of hostname
           strings or regular expressions beginning and ending with /.
           E.g. mysite.com,google.com,usegalaxy.org,/^[\w\.]*example\.com/
           See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
@@ -1514,7 +1839,7 @@ mapping:
         default: false
         required: false
         desc: |
-          Set the following to True to use Jupyter nbconvert to build HTML from Jupyter
+          Set to true to use Jupyter nbconvert to build HTML from Jupyter
           notebooks in Galaxy histories.  This process may allow users to execute
           arbitrary code or serve arbitrary HTML.  If enabled, Jupyter must be
           available and on Galaxy's PATH, to do this run
@@ -1525,10 +1850,16 @@ mapping:
         default: false
         required: false
         desc: |
-          Debug enables access to various config options useful for development and
-          debugging: use_lint, use_profile, use_printdebug and use_interactive.  It
-          also causes the files used by PBS/SGE (submission script, output, and error)
+          Debug enables access to various config options useful for development
+          and debugging: use_lint, use_profile, and use_printdebug.  It also
+          causes the files used by PBS/SGE (submission script, output, and error)
           to remain on disk after the job is complete.
+
+          In addition, this will set uWSGI's `honour-stdin` option to `true`;
+          thus, preventing uWSGI from remapping stdin to `/dev/null` and
+          enabling debugging with tools like pdb. To keep uWSGI's default
+          setting, set `honor-stdin` to `false` in the `uwsgi` section of this
+          configuration file.
 
       use_lint:
         type: bool
@@ -1551,6 +1882,7 @@ mapping:
         desc: |
           Intercept print statements and show them on the returned page.
 
+<<<<<<< HEAD
       use_interactive:
         type: bool
         default: true
@@ -1559,6 +1891,8 @@ mapping:
           Enable live debugging in your browser.  This should NEVER be enabled on a
           public site.  Enabled in the sample config for development.
 
+=======
+>>>>>>> refs/heads/release_21.01
       monitor_thread_join_timeout:
         type: int
         default: 30
@@ -1596,12 +1930,10 @@ mapping:
         default: heartbeat_{server_name}.log
         required: false
         desc: |
-          Heartbeat log filename. Can accept the template variables {server_name} and
-          {pid}
+          Heartbeat log filename. Can accept the template variables {server_name} and {pid}
 
       sentry_dsn:
         type: str
-        default: ''
         required: false
         desc: |
           Log to Sentry
@@ -1668,7 +2000,6 @@ mapping:
 
       library_import_dir:
         type: str
-        default: ''
         required: false
         desc: |
           Add an option to the library upload form which allows administrators to
@@ -1676,7 +2007,6 @@ mapping:
 
       user_library_import_dir:
         type: str
-        default: ''
         required: false
         desc: |
           Add an option to the library upload form which allows authorized
@@ -1693,9 +2023,8 @@ mapping:
           If user_library_import_dir is set, this option will auto create a library
           import directory for every user (based on their email) upon login.
 
-      user_library_import_symlink_whitelist:
+      user_library_import_symlink_allowlist:
         type: str
-        default: ''
         required: false
         desc: |
           For security reasons, users may not import any files that actually lie
@@ -1723,7 +2052,7 @@ mapping:
           adds an option to the admin library upload tool allowing admins to paste
           filesystem paths to files and directories in a box, and these paths will be
           added to a library.  For history uploads, this allows pasting in paths as URIs.
-          (i.e. prefixed with file://). Set to True to enable.  Please note the security
+          (i.e. prefixed with file://). Set to true to enable.  Please note the security
           implication that this will give Galaxy Admins access to anything your Galaxy
           user has access to.
 
@@ -1751,6 +2080,18 @@ mapping:
         type: float
         default: 9.0
         required: false
+        reloadable: true
+        desc: |
+          Boosts are used to customize this instance's toolbox search.
+          The higher the boost, the more importance the scoring algorithm gives to the
+          given field.  Section refers to the tool group in the tool panel.  Rest of
+          the fields are tool's attributes.
+
+      tool_id_boost:
+        type: float
+        default: 9.0
+        required: false
+        reloadable: true
         desc: |
           Boosts are used to customize this instance's toolbox search.
           The higher the boost, the more importance the scoring algorithm gives to the
@@ -1761,6 +2102,7 @@ mapping:
         type: float
         default: 3.0
         required: false
+        reloadable: true
         desc: |
           Boosts are used to customize this instance's toolbox search.
           The higher the boost, the more importance the scoring algorithm gives to the
@@ -1771,6 +2113,7 @@ mapping:
         type: float
         default: 2.0
         required: false
+        reloadable: true
         desc: |
           Boosts are used to customize this instance's toolbox search.
           The higher the boost, the more importance the scoring algorithm gives to the
@@ -1781,6 +2124,7 @@ mapping:
         type: float
         default: 1.0
         required: false
+        reloadable: true
         desc: |
           Boosts are used to customize this instance's toolbox search.
           The higher the boost, the more importance the scoring algorithm gives to the
@@ -1791,6 +2135,7 @@ mapping:
         type: float
         default: 5.0
         required: false
+        reloadable: true
         desc: |
           Boosts are used to customize this instance's toolbox search.
           The higher the boost, the more importance the scoring algorithm gives to the
@@ -1801,6 +2146,7 @@ mapping:
         type: float
         default: 0.5
         required: false
+        reloadable: true
         desc: |
           Boosts are used to customize this instance's toolbox search.
           The higher the boost, the more importance the scoring algorithm gives to the
@@ -1811,14 +2157,16 @@ mapping:
         type: int
         default: 20
         required: false
+        reloadable: true
         desc: |
           Limits the number of results in toolbox search.  Can be used to tweak how many
           results will appear.
 
       tool_enable_ngram_search:
         type: bool
-        default: false
+        default: true
         required: false
+        reloadable: true
         desc: |
           Enable/ disable Ngram-search for tools. It makes tool
           search results tolerant for spelling mistakes in the query
@@ -1829,6 +2177,7 @@ mapping:
         type: int
         default: 3
         required: false
+        reloadable: true
         desc: |
           Set minimum size of ngrams
 
@@ -1836,6 +2185,7 @@ mapping:
         type: int
         default: 4
         required: false
+        reloadable: true
         desc: |
           Set maximum size of ngrams
 
@@ -1875,7 +2225,6 @@ mapping:
 
       remote_user_maildomain:
         type: str
-        default: ''
         required: false
         desc: |
           If use_remote_user is enabled and your external authentication
@@ -1888,10 +2237,10 @@ mapping:
         required: false
         desc: |
           If use_remote_user is enabled, the header that the upstream proxy provides
-          the remote username in defaults to HTTP_REMOTE_USER (the 'HTTP_' is prepended
+          the remote username in defaults to HTTP_REMOTE_USER (the ``HTTP_`` is prepended
           by WSGI).  This option allows you to change the header.  Note, you still need
-          to prepend 'HTTP_' to the header in this option, but your proxy server should
-          *not* include 'HTTP_' at the beginning of the header name.
+          to prepend ``HTTP_`` to the header in this option, but your proxy server should
+          *not* include ``HTTP_`` at the beginning of the header name.
 
       remote_user_secret:
         type: str
@@ -1907,7 +2256,6 @@ mapping:
 
       remote_user_logout_href:
         type: str
-        default: ''
         required: false
         desc: |
           If use_remote_user is enabled, you can set this to a URL that will log your
@@ -1919,8 +2267,8 @@ mapping:
         required: false
         desc: |
           If your proxy and/or authentication source does not normalize e-mail
-          addresses or user names being passed to Galaxy - set the following option
-          to True to force these to lower case.
+          addresses or user names being passed to Galaxy - set this option
+          to true to force these to lower case.
 
       single_user:
         type: str
@@ -1934,8 +2282,8 @@ mapping:
 
       admin_users:
         type: str
-        default: ''
         required: false
+        reloadable: true
         desc: |
           Administrative users - set this to a comma-separated list of valid Galaxy
           users (email addresses).  These users will have access to the Admin section
@@ -1956,7 +2304,7 @@ mapping:
         required: false
         desc: |
           Show the site's welcome page (see welcome_url) alongside the login page
-          (even if require_login is True)
+          (even if require_login is true).
 
       allow_user_creation:
         type: bool
@@ -1978,7 +2326,7 @@ mapping:
         default: false
         required: false
         desc: |
-          Allow administrators to log in as other users (useful for debugging)
+          Allow administrators to log in as other users (useful for debugging).
 
       show_user_prepopulate_form:
         type: bool
@@ -1988,6 +2336,18 @@ mapping:
           When using LDAP for authentication, allow administrators to pre-populate users
           using an additional form on 'Create new user'
 
+      upload_from_form_button:
+        type: str
+        default: 'always-off'
+        required: false
+        enum: ['always-on', 'always-off']
+        desc: |
+          If 'always-on', add another button to tool form data inputs that allow uploading
+          data from the tool form in fewer clicks (at the expense of making the form more
+          complicated). This applies to workflows as well.
+
+          Avoiding making this a boolean because we may add options such as 'in-single-form-view'
+          or 'in-simplified-workflow-views'. https://github.com/galaxyproject/galaxy/pull/9809/files#r461889109
       allow_user_dataset_purge:
         type: bool
         default: true
@@ -2002,7 +2362,7 @@ mapping:
         default: false
         required: false
         desc: |
-          By default, users' data will be public, but setting this to True will cause
+          By default, users' data will be public, but setting this to true will cause
           it to be private.  Does not affect existing users and data, only ones created
           after this option is set.  Users may still change their default back to
           public.
@@ -2012,41 +2372,41 @@ mapping:
         default: false
         required: false
         desc: |
-          Expose user list.  Setting this to True will expose the user list to
+          Expose user list.  Setting this to true will expose the user list to
           authenticated users.  This makes sharing datasets in smaller galaxy instances
           much easier as they can type a name/email and have the correct user show up.
           This makes less sense on large public Galaxy instances where that data
           shouldn't be exposed.  For semi-public Galaxies, it may make sense to expose
           just the username and not email, or vice versa.
 
-          If enable_beta_gdpr is set to True, then this option will be
-          overridden and set to False.
+          If enable_beta_gdpr is set to true, then this option will be
+          overridden and set to false.
 
       expose_user_email:
         type: bool
         default: false
         required: false
         desc: |
-          Expose user list.  Setting this to True will expose the user list to
+          Expose user list.  Setting this to true will expose the user list to
           authenticated users.  This makes sharing datasets in smaller galaxy instances
           much easier as they can type a name/email and have the correct user show up.
           This makes less sense on large public Galaxy instances where that data
           shouldn't be exposed.  For semi-public Galaxies, it may make sense to expose
           just the username and not email, or vice versa.
 
-          If enable_beta_gdpr is set to True, then this option will be
-          overridden and set to False.
+          If enable_beta_gdpr is set to true, then this option will be
+          overridden and set to false.
 
-      fetch_url_whitelist:
+      fetch_url_allowlist:
         type: str
         required: false
         desc: |
-          Whitelist for local network addresses for "Upload from URL" dialog.
+          List of allowed local network addresses for "Upload from URL" dialog.
           By default, Galaxy will deny access to the local network address space, to
           prevent users making requests to services which the administrator did not
           intend to expose. Previously, you could request any network service that
           Galaxy might have had access to, even if the user could not normally access it.
-          It should be a comma separated list of IP addresses or IP address/mask, e.g.
+          It should be a comma-separated list of IP addresses or IP address/mask, e.g.
           10.10.10.10,10.0.1.0/24,fd00::/8
 
       enable_beta_gdpr:
@@ -2068,13 +2428,6 @@ mapping:
 
           Please read the GDPR section under the special topics area of the
           admin documentation.
-      enable_beta_ts_api_install:
-        type: bool
-        default: true
-        required: false
-        desc: |
-          Enable the new interface for installing tools from Tool Shed
-          via the API. Admin menu will list both if enabled.
 
       enable_beta_containers_interface:
         type: bool
@@ -2089,7 +2442,24 @@ mapping:
         required: false
         desc: |
           Enable beta workflow modules that should not yet be considered part of Galaxy's
-          stable API.
+          stable API. (The module state definitions may change and workflows built using
+          these modules may not function in the future.)
+
+      enable_beta_edam_toolbox:
+        type: bool
+        default: false
+        required: false
+        desc: |
+          Enable beta EDAM organised toolbox which ignores admin managed
+          sections in lieu of EDAM topics only.
+
+      beta_edam_toolbox_ontology_path:
+        type: str
+        default: EDAM.tsv
+        path_resolves_to: data_dir
+        required: false
+        desc: |
+          Sets the path to EDAM ontology file.
 
       enable_beta_workflow_format:
         type: bool
@@ -2154,7 +2524,7 @@ mapping:
 
       maximum_workflow_jobs_per_scheduling_iteration:
         type: int
-        default: -1
+        default: 1000
         required: false
         desc: |
           Specify a maximum number of jobs that any given workflow scheduling iteration can create.
@@ -2162,7 +2532,7 @@ mapping:
           preventing other jobs from executing. This may also mitigate memory issues associated with
           scheduling workflows at the expense of increased total DB traffic because model objects
           are expunged from the SQL alchemy session between workflow invocation scheduling iterations.
-          Set to -1 to disable any such maximum (the default).
+          Set to -1 to disable any such maximum.
 
       history_local_serial_workflow_scheduling:
         type: bool
@@ -2203,21 +2573,24 @@ mapping:
 
       oidc_config_file:
         type: str
-        default: config/oidc_config.xml
+        default: oidc_config.xml
+        path_resolves_to: config_dir
         required: false
         desc: |
           Sets the path to OIDC configuration file.
 
       oidc_backends_config_file:
         type: str
-        default: config/oidc_backends_config.xml
+        default: oidc_backends_config.xml
+        path_resolves_to: config_dir
         required: false
         desc: |
           Sets the path to OIDC backends configuration file.
 
       auth_config_file:
         type: str
-        default: config/auth_conf.xml
+        default: auth_conf.xml
+        path_resolves_to: config_dir
         required: false
         desc: |
           XML config file that allows the use of different authentication providers
@@ -2226,7 +2599,6 @@ mapping:
 
       api_allow_run_as:
         type: str
-        default: ''
         required: false
         desc: |
           Optional list of email addresses of API users who can make calls on behalf of
@@ -2234,14 +2606,32 @@ mapping:
 
       master_api_key:
         type: str
-        default: changethis
         required: false
         desc: |
-          Master key that allows many API admin actions to be used without actually
-          having a defined admin user in the database/config.  Only set this if you
-          need to bootstrap Galaxy, you probably do not want to set this on public
-          servers.
+          API key that allows performing some admin actions without actually
+          having a real admin user in the database and config.
+          Only set this if you need to bootstrap Galaxy, in particular to create
+          a real admin user account via API.
+          You should probably not set this on a production server.
 
+<<<<<<< HEAD
+=======
+      enable_openid:
+        type: bool
+        default: false
+        required: false
+        desc: |
+          Enable access to post-authentication options via OpenID.
+
+      openid_consumer_cache_path:
+        type: str
+        default: openid_consumer_cache
+        path_resolves_to: data_dir
+        required: false
+        desc: |
+          If OpenID is enabled, consumer cache directory to use.
+
+>>>>>>> refs/heads/release_21.01
       enable_tool_tags:
         type: bool
         default: false
@@ -2260,19 +2650,50 @@ mapping:
           are selected for "Set at Runtime" inputs from the history such that the
           same input will not be selected twice, unless there are more inputs than
           compatible datasets in the history.
-          When False, the most recently added compatible item in the history will
-          be used for each "Set at Runtime" input, independent of others in the Workflow
+          When false, the most recently added compatible item in the history will
+          be used for each "Set at Runtime" input, independent of others in the workflow.
 
-      myexperiment_url:
+      simplified_workflow_run_ui:
+        type: str
+        default: 'prefer'
+        enum: ['off', 'prefer']
+        required: false
+        desc: |
+          If set to 'off' by default, always use the traditional workflow form that renders
+          all steps in the GUI and serializes the tool state of all steps during
+          invocation. Set to 'prefer' to default to a simplified workflow UI that
+          only renders the inputs if possible (the workflow must have no disconnected
+          runtime inputs and not replacement parameters within tool steps). In the
+          future 'force' may be added an option for Galaskio-style servers that should
+          only render simplified workflows.
+
+      simplified_workflow_run_ui_target_history:
+        type: str
+        default: 'current'
+        enum: ['current', 'new']
+        required: false
+        desc: |
+          When the simplified workflow run form is rendered, should the invocation outputs
+          be sent to the 'current' history or a 'new' history.
+
+      simplified_workflow_run_ui_job_cache:
+        type: str
+        default: 'off'
+        enum: ['on', 'off']
+        required: false
+        desc: |
+          When the simplified workflow run form is rendered, should the invocation use job
+          caching. This isn't a boolean so an option for 'show-selection' can be added later.
+
+      myexperiment_target_url:
         type: str
         default: www.myexperiment.org:80
         required: false
         desc: |
-          The URL to the myExperiment instance being used (omit scheme but include port)
+          The URL to the myExperiment instance being used (omit scheme but include port).
 
       ftp_upload_dir:
         type: str
-        default: ''
         required: false
         desc: |
           Enable Galaxy's "Upload via FTP" interface.  You'll need to install and
@@ -2283,7 +2704,6 @@ mapping:
 
       ftp_upload_site:
         type: str
-        default: ''
         required: false
         desc: |
           This should be the hostname of your FTP server, which will be provided to
@@ -2301,18 +2721,19 @@ mapping:
 
       ftp_upload_dir_template:
         type: str
-        default: ${ftp_upload_dir}/${ftp_upload_dir_identifier}
         required: false
         desc: |
           Python string template used to determine an FTP upload directory for a
           particular user.
+
+          Defaults to '${ftp_upload_dir}/${ftp_upload_dir_identifier}'.
 
       ftp_upload_purge:
         type: bool
         default: true
         required: false
         desc: |
-          This should be set to False to prevent Galaxy from deleting uploaded FTP files
+          Set to false to prevent Galaxy from deleting uploaded FTP files
           as it imports them.
 
       enable_quotas:
@@ -2330,6 +2751,14 @@ mapping:
           This option allows users to see the full path of datasets via the "View
           Details" option in the history. This option also exposes the command line to
           non-administrative users. Administrators can always see dataset paths.
+
+      job_metrics_config_file:
+        type: str
+        default: job_metrics_conf.xml
+        path_resolves_to: config_dir
+        required: false
+        desc: |
+          XML config file that contains the job metric collection configuration.
 
       expose_potentially_sensitive_job_metrics:
         type: bool
@@ -2355,7 +2784,8 @@ mapping:
 
       data_manager_config_file:
         type: str
-        default: config/data_manager_conf.xml
+        default: data_manager_conf.xml
+        path_resolves_to: config_dir
         required: false
         desc: |
           File where Data Managers are configured (.sample used if default does not
@@ -2363,34 +2793,79 @@ mapping:
 
       shed_data_manager_config_file:
         type: str
-        default: config/shed_data_manager_conf.xml
+        default: shed_data_manager_conf.xml
+        path_resolves_to: managed_config_dir
         required: false
         desc: |
-          File where Tool Shed based Data Managers are configured.
+          File where Tool Shed based Data Managers are configured. This file will be created
+          automatically upon data manager installation.
 
       galaxy_data_manager_data_path:
         type: str
-        default: tool-data
         required: false
         desc: |
-          Directory to store Data Manager based tool-data; defaults to tool_data_path.
+          Directory to store Data Manager based tool-data. Defaults to the value of the
+          <tool_data_path> option.
 
       job_config_file:
         type: str
-        default: config/job_conf.xml
+        default: job_conf.xml
+        path_resolves_to: config_dir
         required: false
         desc: |
           To increase performance of job execution and the web interface, you can
           separate Galaxy into multiple processes.  There are more than one way to do
           this, and they are explained in detail in the documentation:
 
-            https://docs.galaxyproject.org/en/master/admin/scaling.html
+          https://docs.galaxyproject.org/en/master/admin/scaling.html
 
           By default, Galaxy manages and executes jobs from within a single process and
           notifies itself of new jobs via in-memory queues.  Jobs are run locally on
           the system on which Galaxy is started.  Advanced job running capabilities can
           be configured through the job configuration file.
 
+<<<<<<< HEAD
+=======
+      job_config:
+        !include job_config_schema.yml
+
+      dependency_resolvers:
+        type: seq
+        sequence:
+          - type: any
+        desc: |
+          Rather than specifying a dependency_resolvers_config_file, the definition of the
+          resolvers to enable can be embedded into Galaxy's config with this option.
+          This has no effect if a dependency_resolvers_config_file is used.
+
+      dependency_resolution:
+        type: map
+        desc: |
+          Alternative representation of various dependency resolution parameters. Takes the
+          dictified version of a DependencyManager object - so this is ideal for automating the
+          configuration of dependency resolution from one application that uses a DependencyManager
+          to another.
+        mapping:
+          cache:
+            type: bool
+            default: false
+            desc: See description of 'use_cached_dependency_manager'.
+          precache:
+            type: bool
+            default: true
+            desc: See description of 'precache_dependencies'.
+          cache_dir:
+            type: str
+            default: '<tool_dependency_cache_dir>/_cache'
+            desc: See description of 'tool_dependency_cache_dir'.
+          default_base_path:
+            type: str
+            default: database/dependencies
+            desc: See description of 'tool_dependency_dir'.
+          resolvers:
+            desc: See description of 'dependency_resolvers'.
+
+>>>>>>> refs/heads/release_21.01
       default_job_resubmission_condition:
         type: str
         required: false
@@ -2443,6 +2918,18 @@ mapping:
           it can "recover" them when it starts).  This is not safe to use if you are
           running more than one Galaxy server using the same database.
 
+      metadata_strategy:
+        type: str
+        required: false
+        default: directory
+        desc: |
+          Determines how metadata will be set. Valid values are `directory` and `extended`.
+          In extended mode jobs will decide if a tool run failed, the object stores
+          configuration is serialized and made available to the job and is used for
+          writing output datasets to the object store as part of the job and dynamic
+          output discovery (e.g. discovered datasets <discover_datasets>, unpopulated collections,
+          etc) happens as part of the job.
+
       retry_metadata_internally:
         type: bool
         default: true
@@ -2451,7 +2938,7 @@ mapping:
           Although it is fairly reliable, setting metadata can occasionally fail.  In
           these instances, you can choose to retry setting it internally or leave it in
           a failed state (since retrying internally may cause the Galaxy process to be
-          unresponsive).  If this option is set to False, the user will be given the
+          unresponsive).  If this option is set to false, the user will be given the
           option to retry externally, or set metadata manually (when possible).
 
       max_metadata_value_size:
@@ -2509,6 +2996,7 @@ mapping:
         type: str
         default: always
         required: false
+        reloadable: true
         desc: |
           Clean up various bits of jobs left on the filesystem after completion.  These
           bits include the job working directory, external metadata temporary files,
@@ -2517,16 +3005,16 @@ mapping:
 
       drmaa_external_runjob_script:
         type: str
-        default: sudo -E scripts/drmaa_external_runner.py --assign_all_groups
         required: false
         desc: |
           When running DRMAA jobs as the Galaxy user
           (https://docs.galaxyproject.org/en/master/admin/cluster.html#submitting-jobs-as-the-real-user)
           this script is used to run the job script Galaxy generates for a tool execution.
 
+          Example value 'sudo -E scripts/drmaa_external_runner.py --assign_all_groups'
+
       drmaa_external_killjob_script:
         type: str
-        default: sudo -E scripts/drmaa_external_killer.py
         required: false
         desc: |
           When running DRMAA jobs as the Galaxy user
@@ -2534,15 +3022,18 @@ mapping:
           this script is used to kill such jobs by Galaxy (e.g. if the user cancels
           the job).
 
+          Example value 'sudo -E scripts/drmaa_external_killer.py'
+
       external_chown_script:
         type: str
-        default: sudo -E scripts/external_chown_script.py
         required: false
         desc: |
           When running DRMAA jobs as the Galaxy user
           (https://docs.galaxyproject.org/en/master/admin/cluster.html#submitting-jobs-as-the-real-user)
           this script is used transfer permissions back and forth between the Galaxy user
           and the user that is running the job.
+
+          Example value 'sudo -E scripts/external_chown_script.py'
 
       real_system_username:
         type: str
@@ -2562,7 +3053,6 @@ mapping:
 
       environment_setup_file:
         type: str
-        default: ''
         required: false
         desc: |
           File to source to set up the environment when running jobs.  By default, the
@@ -2575,9 +3065,88 @@ mapping:
           the actual user, to remove the need to configure each user's environment
           individually.
 
+      enable_beta_markdown_export:
+        type: bool
+        default: false
+        required: false
+        desc: |
+          Enable export of Galaxy Markdown documents (pages and workflow reports)
+          to PDF. Requires manual installation and setup of weasyprint (latest version
+          available for Python 2.7 is 0.42).
+
+      markdown_export_css:
+        type: str
+        default: markdown_export.css
+        path_resolves_to: config_dir
+        required: false
+        desc: |
+          CSS file to apply to all Markdown exports to PDF - currently used by
+          WeasyPrint during rendering an HTML export of the document to PDF.
+
+      markdown_export_css_pages:
+        type: str
+        default: markdown_export_pages.css
+        path_resolves_to: config_dir
+        required: false
+        desc: |
+          CSS file to apply to "Galaxy Page" exports to PDF. Generally prefer
+          markdown_export_css, but this is here for deployments that
+          would like to tailor different kinds of exports.
+
+      markdown_export_css_invocation_reports:
+        type: str
+        default: markdown_export_invocation_reports.css
+        path_resolves_to: config_dir
+        required: false
+        desc: |
+          CSS file to apply to invocation report exports to PDF. Generally prefer
+          markdown_export_css, but this is here for deployments that
+          would like to tailor different kinds of exports.
+
+      markdown_export_prologue:
+        type: str
+        default: ''
+        desc: |
+          Prologue Markdown/HTML to apply to markdown exports to PDF. Allowing
+          branded headers.
+
+      markdown_export_epilogue:
+        type: str
+        default: ''
+        desc: |
+          Prologue Markdown/HTML to apply to markdown exports to PDF. Allowing
+          branded footers.
+
+      markdown_export_prologue_pages:
+        type: str
+        default: ''
+        desc: |
+          Alternative to markdown_export_prologue that applies just to page exports.
+
+      markdown_export_prologue_invocation_reports:
+        type: str
+        default: ''
+        desc: |
+          Alternative to markdown_export_prologue that applies just to invocation report
+          exports.
+
+      markdown_export_epilogue_pages:
+        type: str
+        default: ''
+        desc: |
+          Alternative to markdown_export_epilogue that applies just to page exports.
+
+      markdown_export_epilogue_invocation_reports:
+        type: str
+        default: ''
+        desc: |
+          Alternative to markdown_export_epilogue that applies just to invocation report
+          exports.
+
       job_resource_params_file:
         type: str
-        default: config/job_resource_params_conf.xml
+        default: job_resource_params_conf.xml
+        path_resolves_to: config_dir
         required: false
         desc: |
           Optional file containing job resource data entry fields definition.
@@ -2587,7 +3156,8 @@ mapping:
 
       workflow_resource_params_file:
         type: str
-        default: config/workflow_resource_params_conf.xml
+        default: workflow_resource_params_conf.xml
+        path_resolves_to: config_dir
         required: false
         desc: |
           Similar to the above parameter, workflows can describe parameters used to
@@ -2597,16 +3167,26 @@ mapping:
 
       workflow_resource_params_mapper:
         type: str
-        default: config/workflow_resource_mapper_conf.yml
         required: false
         desc: |
           This parameter describes how to map users and workflows to a set of workflow
           resource parameter to present (typically input IDs from workflow_resource_params_file).
           If this this is a function reference it will be passed various inputs (workflow model
           object and user) and it should produce a list of input IDs. If it is a path
-          it is expected to an XML or YAML file describing how to map group names to parameter
+          it is expected to be an XML or YAML file describing how to map group names to parameter
           descriptions (additional types of mappings via these files could be implemented but
           haven't yet - for instance using workflow tags to do the mapping).
+
+          Sample default path 'config/workflow_resource_mapper_conf.yml.sample'
+
+      workflow_schedulers_config_file:
+        type: str
+        default: workflow_schedulers_conf.xml
+        path_resolves_to: config_dir
+        required: false
+        desc: |
+          Optional configuration file similar to `job_config_file` to specify
+          which Galaxy processes should schedule workflows.
 
       cache_user_job_count:
         type: bool
@@ -2617,7 +3197,7 @@ mapping:
           extra database queries must be performed to determine the number of jobs a
           user has dispatched to a given destination.  By default, these queries will
           happen for every job that is waiting to run, but if cache_user_job_count is
-          set to True, it will only happen once per iteration of the handler queue.
+          set to true, it will only happen once per iteration of the handler queue.
           Although better for performance due to reduced queries, the trade-off is a
           greater possibility that jobs will be dispatched past the configured limits
           if running many handlers.
@@ -2669,7 +3249,7 @@ mapping:
 
       toolbox_filter_base_modules:
         type: str
-        default: galaxy.tools.toolbox.filters,galaxy.tools.filters
+        default: galaxy.tools.filters,galaxy.tools.toolbox.filters
         required: false
         desc: |
           The base module(s) that are searched for modules for toolbox filtering
@@ -2691,33 +3271,6 @@ mapping:
           will automatically create and use a separate sqlite database located in your
           <galaxy>/database folder (indicated in the commented out line below).
 
-      enable_communication_server:
-        type: bool
-        default: false
-        required: false
-        desc: |
-          Galaxy real time communication server settings
-
-      communication_server_host:
-        type: str
-        default: http://localhost
-        required: false
-        desc: |
-          Galaxy real time communication server settings
-
-      communication_server_port:
-        type: int
-        default: 7070
-        required: false
-        desc: |
-          Galaxy real time communication server settings
-
-      persistent_communication_rooms:
-        type: str
-        required: false
-        desc: |
-          persistent_communication_rooms is a comma-separated list of rooms that should be always available.
-
       use_pbkdf2:
         type: bool
         default: true
@@ -2726,3 +3279,91 @@ mapping:
           Allow disabling pbkdf2 hashing of passwords for legacy situations.
           This should normally be left enabled unless there is a specific
           reason to disable it.
+
+      cookie_domain:
+        type: str
+        required: false
+        desc: |
+          Tell Galaxy that multiple domains sharing the same root are associated
+          to this instance and wants to share the same session cookie.
+          This allow a user to stay logged in when passing from one subdomain
+          to the other.
+          This root domain will be written in the unique session cookie shared
+          by all subdomains.
+
+      select_type_workflow_threshold:
+        type: int
+        default: -1
+        required: false
+        desc: |
+          Due to performance considerations (select2 fields are pretty 'expensive' in terms of memory usage)
+          Galaxy uses the regular select fields for non-dataset selectors in the workflow run form.
+          use 0 in order to always use select2 fields,
+          use -1 (default) in order to always use the regular select fields,
+          use any other positive number as threshold (above threshold: regular select fields will be used)
+
+      enable_tool_recommendations:
+        type: bool
+        default: false
+        required: false
+        desc: |
+          Allow the display of tool recommendations in workflow editor and after tool execution.
+          If it is enabled and set to true, please enable 'tool_recommendation_model_path' as well
+
+      tool_recommendation_model_path:
+        type: str
+        default: 'https://github.com/galaxyproject/galaxy-test-data/raw/master/tool_recommendation_model.hdf5'
+        required: false
+        desc: |
+          Set remote path of the trained model (HDF5 file) for tool recommendation.
+
+      topk_recommendations:
+        type: int
+        default: 10
+        required: false
+        desc: |
+          Set the number of predictions/recommendations to be made by the model
+
+      admin_tool_recommendations_path:
+        type: str
+        required: false
+        default: 'tool_recommendations_overwrite.yml'
+        path_resolves_to: config_dir
+        desc: |
+          Set path to the additional tool preferences from Galaxy admins.
+          It has two blocks. One for listing deprecated tools which will be removed from the recommendations and
+          another is for adding additional tools to be recommended along side those from the deep learning model.
+
+      overwrite_model_recommendations:
+        type: bool
+        default: false
+        required: false
+        desc: |
+          Overwrite or append to the tool recommendations by the deep learning model. When set to true, all the recommendations by the deep learning model
+          are overwritten by the recommendations set by an admin in a config file 'tool_recommendations_overwrite.yml'. When set to false, the recommended tools
+          by admins and predicted by the deep learning model are shown.
+
+      error_report_file:
+        type: str
+        default: 'error_report.yml'
+        path_resolves_to: config_dir
+        required: false
+        desc: |
+          Path to error reports configuration file.
+
+      containers_config_file:
+        type: str
+        default: 'containers_conf.yml'
+        path_resolves_to: config_dir
+        required: false
+        desc: |
+          Path to container interface configuration file. The containers interface is only used if
+          `enable_beta_containers_interface` config option is set.
+
+      tool_destinations_config_file:
+        type: str
+        default: 'tool_destinations.yml'
+        path_resolves_to: config_dir
+        required: false
+        desc: |
+          Path to dynamic tool destinations configuration file.

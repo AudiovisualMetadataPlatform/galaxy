@@ -18,8 +18,13 @@ from galaxy.util import (
     umask_fix_perms,
 )
 from galaxy.util.sleeper import Sleeper
+<<<<<<< HEAD
 from .s3 import CloudConfigMixin, parse_config_xml
 from ..objectstore import convert_bytes, ObjectStore
+=======
+from .s3 import parse_config_xml
+from ..objectstore import ConcreteObjectStore, convert_bytes
+>>>>>>> refs/heads/release_21.01
 try:
     from cloudbridge.cloud.factory import CloudProviderFactory, ProviderList
     from cloudbridge.cloud.interfaces.exceptions import InvalidNameException
@@ -35,7 +40,35 @@ NO_CLOUDBRIDGE_ERROR_MESSAGE = (
 )
 
 
+<<<<<<< HEAD
 class Cloud(ObjectStore, CloudConfigMixin):
+=======
+class CloudConfigMixin:
+
+    def _config_to_dict(self):
+        return {
+            "provider": self.provider,
+            "auth": self.credentials,
+            "bucket": {
+                "name": self.bucket_name,
+                "use_reduced_redundancy": self.use_rr,
+            },
+            "connection": {
+                "host": self.host,
+                "port": self.port,
+                "multipart": self.multipart,
+                "is_secure": self.is_secure,
+                "conn_path": self.conn_path,
+            },
+            "cache": {
+                "size": self.cache_size,
+                "path": self.staging_path,
+            }
+        }
+
+
+class Cloud(ConcreteObjectStore, CloudConfigMixin):
+>>>>>>> refs/heads/release_21.01
     """
     Object store that stores objects as items in an cloud storage. A local
     cache exists that is used as an intermediate location for files between
@@ -44,7 +77,11 @@ class Cloud(ObjectStore, CloudConfigMixin):
     store_type = 'cloud'
 
     def __init__(self, config, config_dict):
+<<<<<<< HEAD
         super(Cloud, self).__init__(config)
+=======
+        super().__init__(config, config_dict)
+>>>>>>> refs/heads/release_21.01
         self.transfer_progress = 0
 
         auth_dict = config_dict['auth']
@@ -96,18 +133,143 @@ class Cloud(ObjectStore, CloudConfigMixin):
         except OSError:
             self.use_axel = False
 
+<<<<<<< HEAD
     def _configure_connection(self):
         log.debug("Configuring AWS-S3 Connection")
         aws_config = {'aws_access_key': self.access_key,
                       'aws_secret_key': self.secret_key}
         self.conn = CloudProviderFactory().create_provider(ProviderList.AWS, aws_config)
+=======
+    @staticmethod
+    def _get_connection(provider, credentials):
+        log.debug(f"Configuring `{provider}` Connection")
+        if provider == "aws":
+            config = {"aws_access_key": credentials["access_key"],
+                      "aws_secret_key": credentials["secret_key"]}
+            connection = CloudProviderFactory().create_provider(ProviderList.AWS, config)
+        elif provider == "azure":
+            config = {"azure_subscription_id": credentials["subscription_id"],
+                      "azure_client_id": credentials["client_id"],
+                      "azure_secret": credentials["secret"],
+                      "azure_tenant": credentials["tenant"]}
+            connection = CloudProviderFactory().create_provider(ProviderList.AZURE, config)
+        elif provider == "google":
+            config = {"gcp_service_creds_file": credentials["credentials_file"]}
+            connection = CloudProviderFactory().create_provider(ProviderList.GCP, config)
+        else:
+            raise Exception(f"Unsupported provider `{provider}`.")
+
+        # Ideally it would be better to assert if the connection is
+        # authorized to perform operations required by ObjectStore
+        # before returning it (and initializing ObjectStore); hence
+        # any related issues can be handled properly here, and ObjectStore
+        # can "trust" the connection is established.
+        #
+        # However, the mechanism implemented in Cloudbridge to assert if
+        # a user/service is authorized to perform an operation, assumes
+        # the user/service is granted with an elevated privileges, such
+        # as admin/owner-level access to all resources. For a detailed
+        # discussion see:
+        #
+        # https://github.com/CloudVE/cloudbridge/issues/135
+        #
+        # Hence, if a resource owner wants to only authorize Galaxy to r/w
+        # a bucket/container on the provider, but does not allow it to access
+        # other resources, Cloudbridge may fail asserting credentials.
+        # For instance, to r/w an Amazon S3 bucket, the resource owner
+        # also needs to authorize full access to Amazon EC2, because Cloudbridge
+        # leverages EC2-specific functions to assert the credentials.
+        #
+        # Therefore, to adhere with principle of least privilege, we do not
+        # assert credentials; instead, we handle exceptions raised as a
+        # result of signing API calls to cloud provider (e.g., GCP) using
+        # incorrect, invalid, or unauthorized credentials.
+
+        return connection
+>>>>>>> refs/heads/release_21.01
 
     @classmethod
     def parse_xml(clazz, config_xml):
+<<<<<<< HEAD
         return parse_config_xml(config_xml)
+=======
+        # The following reads common cloud-based storage configuration
+        # as implemented for the S3 backend. Hence, it also attempts to
+        # parse S3-specific configuration (e.g., credentials); however,
+        # such provider-specific configuration is overwritten in the
+        # following.
+        config = parse_config_xml(config_xml)
+
+        try:
+            provider = config_xml.attrib.get("provider")
+            if provider is None:
+                msg = "Missing `provider` attribute from the Cloud backend of the ObjectStore."
+                log.error(msg)
+                raise Exception(msg)
+            provider = provider.lower()
+            config["provider"] = provider
+
+            # Read any provider-specific configuration.
+            auth_element = config_xml.findall("auth")[0]
+            missing_config = []
+            if provider == "aws":
+                akey = auth_element.get("access_key")
+                if akey is None:
+                    missing_config.append("access_key")
+                skey = auth_element.get("secret_key")
+                if skey is None:
+                    missing_config.append("secret_key")
+
+                config["auth"] = {
+                    "access_key": akey,
+                    "secret_key": skey}
+            elif provider == "azure":
+                sid = auth_element.get("subscription_id")
+                if sid is None:
+                    missing_config.append("subscription_id")
+                cid = auth_element.get("client_id")
+                if cid is None:
+                    missing_config.append("client_id")
+                sec = auth_element.get("secret")
+                if sec is None:
+                    missing_config.append("secret")
+                ten = auth_element.get("tenant")
+                if ten is None:
+                    missing_config.append("tenant")
+                config["auth"] = {
+                    "subscription_id": sid,
+                    "client_id": cid,
+                    "secret": sec,
+                    "tenant": ten}
+            elif provider == "google":
+                cre = auth_element.get("credentials_file")
+                if not os.path.isfile(cre):
+                    msg = f"The following file specified for GCP credentials not found: {cre}"
+                    log.error(msg)
+                    raise OSError(msg)
+                if cre is None:
+                    missing_config.append("credentials_file")
+                config["auth"] = {
+                    "credentials_file": cre}
+            else:
+                msg = f"Unsupported provider `{provider}`."
+                log.error(msg)
+                raise Exception(msg)
+
+            if len(missing_config) > 0:
+                msg = "The following configuration required for {} cloud backend " \
+                      "are missing: {}".format(provider, missing_config)
+                log.error(msg)
+                raise Exception(msg)
+            else:
+                return config
+        except Exception:
+            log.exception("Malformed ObjectStore Configuration XML -- unable to continue")
+            raise
+>>>>>>> refs/heads/release_21.01
 
     def to_dict(self):
-        as_dict = super(Cloud, self).to_dict()
+        as_dict = super().to_dict()
         as_dict.update(self._config_to_dict())
         return as_dict
 
@@ -189,7 +351,7 @@ class Cloud(ObjectStore, CloudConfigMixin):
         except Exception:
             # These two generic exceptions will be replaced by specific exceptions
             # once proper exceptions are exposed by CloudBridge.
-            log.exception("Could not get bucket '{}'".format(bucket_name))
+            log.exception(f"Could not get bucket '{bucket_name}'")
         raise Exception
 
     def _fix_permissions(self, rel_path):
@@ -219,7 +381,7 @@ class Cloud(ObjectStore, CloudConfigMixin):
             # alt_name can contain parent directory references, but S3 will not
             # follow them, so if they are valid we normalize them out
             alt_name = os.path.normpath(alt_name)
-        rel_path = os.path.join(*directory_hash_id(obj.id))
+        rel_path = os.path.join(*directory_hash_id(self._get_object_id(obj)))
         if extra_dir is not None:
             if extra_dir_at_root:
                 rel_path = os.path.join(extra_dir, rel_path)
@@ -228,7 +390,7 @@ class Cloud(ObjectStore, CloudConfigMixin):
 
         # for JOB_WORK directory
         if obj_dir:
-            rel_path = os.path.join(rel_path, str(obj.id))
+            rel_path = os.path.join(rel_path, str(self._get_object_id(obj)))
         if base_dir:
             base = self.extra_dirs.get(base_dir)
             return os.path.join(base, rel_path)
@@ -237,7 +399,7 @@ class Cloud(ObjectStore, CloudConfigMixin):
         rel_path = '%s/' % rel_path
 
         if not dir_only:
-            rel_path = os.path.join(rel_path, alt_name if alt_name else "dataset_%s.dat" % obj.id)
+            rel_path = os.path.join(rel_path, alt_name if alt_name else "dataset_%s.dat" % self._get_object_id(obj))
         return rel_path
 
     def _get_cache_path(self, rel_path):
@@ -307,7 +469,7 @@ class Cloud(ObjectStore, CloudConfigMixin):
                 log.debug("Parallel pulled key '%s' into cache to %s", rel_path, self._get_cache_path(rel_path))
                 ncores = multiprocessing.cpu_count()
                 url = key.generate_url(7200)
-                ret_code = subprocess.call("axel -a -n %s '%s'" % (ncores, url))
+                ret_code = subprocess.call(f"axel -a -n {ncores} '{url}'")
                 if ret_code == 0:
                     return True
             else:
@@ -378,7 +540,7 @@ class Cloud(ObjectStore, CloudConfigMixin):
                       os.path.getsize(self._get_cache_path(rel_path)), self._get_size_in_cloud(rel_path))
         return False
 
-    def exists(self, obj, **kwargs):
+    def _exists(self, obj, **kwargs):
         in_cache = False
         rel_path = self._construct_path(obj, **kwargs)
 
@@ -411,8 +573,8 @@ class Cloud(ObjectStore, CloudConfigMixin):
         else:
             return False
 
-    def create(self, obj, **kwargs):
-        if not self.exists(obj, **kwargs):
+    def _create(self, obj, **kwargs):
+        if not self._exists(obj, **kwargs):
 
             # Pull out locally used fields
             extra_dir = kwargs.get('extra_dir', None)
@@ -421,7 +583,7 @@ class Cloud(ObjectStore, CloudConfigMixin):
             alt_name = kwargs.get('alt_name', None)
 
             # Construct hashed path
-            rel_path = os.path.join(*directory_hash_id(obj.id))
+            rel_path = os.path.join(*directory_hash_id(self._get_object_id(obj)))
 
             # Optionally append extra_dir
             if extra_dir is not None:
@@ -436,30 +598,30 @@ class Cloud(ObjectStore, CloudConfigMixin):
                 os.makedirs(cache_dir)
 
             if not dir_only:
-                rel_path = os.path.join(rel_path, alt_name if alt_name else "dataset_%s.dat" % obj.id)
+                rel_path = os.path.join(rel_path, alt_name if alt_name else "dataset_%s.dat" % self._get_object_id(obj))
                 open(os.path.join(self.staging_path, rel_path), 'w').close()
                 self._push_to_os(rel_path, from_string='')
 
-    def empty(self, obj, **kwargs):
-        if self.exists(obj, **kwargs):
-            return bool(self.size(obj, **kwargs) > 0)
+    def _empty(self, obj, **kwargs):
+        if self._exists(obj, **kwargs):
+            return bool(self._size(obj, **kwargs) > 0)
         else:
             raise ObjectNotFound('objectstore.empty, object does not exist: %s, kwargs: %s'
                                  % (str(obj), str(kwargs)))
 
-    def size(self, obj, **kwargs):
+    def _size(self, obj, **kwargs):
         rel_path = self._construct_path(obj, **kwargs)
         if self._in_cache(rel_path):
             try:
                 return os.path.getsize(self._get_cache_path(rel_path))
             except OSError as ex:
                 log.info("Could not get size of file '%s' in local cache, will try cloud. Error: %s", rel_path, ex)
-        elif self.exists(obj, **kwargs):
+        elif self._exists(obj, **kwargs):
             return self._get_size_in_cloud(rel_path)
         log.warning("Did not find dataset '%s', returning 0 for size", rel_path)
         return 0
 
-    def delete(self, obj, entire_dir=False, **kwargs):
+    def _delete(self, obj, entire_dir=False, **kwargs):
         rel_path = self._construct_path(obj, **kwargs)
         extra_dir = kwargs.get('extra_dir', None)
         base_dir = kwargs.get('base_dir', None)
@@ -494,22 +656,22 @@ class Cloud(ObjectStore, CloudConfigMixin):
         except Exception:
             log.exception("Could not delete key '%s' from cloud", rel_path)
         except OSError:
-            log.exception('%s delete error', self.get_filename(obj, **kwargs))
+            log.exception('%s delete error', self._get_filename(obj, **kwargs))
         return False
 
-    def get_data(self, obj, start=0, count=-1, **kwargs):
+    def _get_data(self, obj, start=0, count=-1, **kwargs):
         rel_path = self._construct_path(obj, **kwargs)
         # Check cache first and get file if not there
         if not self._in_cache(rel_path):
             self._pull_into_cache(rel_path)
         # Read the file content from cache
-        data_file = open(self._get_cache_path(rel_path), 'r')
+        data_file = open(self._get_cache_path(rel_path))
         data_file.seek(start)
         content = data_file.read(count)
         data_file.close()
         return content
 
-    def get_filename(self, obj, **kwargs):
+    def _get_filename(self, obj, **kwargs):
         base_dir = kwargs.get('base_dir', None)
         dir_only = kwargs.get('dir_only', False)
         obj_dir = kwargs.get('obj_dir', False)
@@ -532,7 +694,7 @@ class Cloud(ObjectStore, CloudConfigMixin):
         if self._in_cache(rel_path):
             return cache_path
         # Check if the file exists in persistent storage and, if it does, pull it into cache
-        elif self.exists(obj, **kwargs):
+        elif self._exists(obj, **kwargs):
             if dir_only:  # Directories do not get pulled into cache
                 return cache_path
             else:
@@ -546,10 +708,10 @@ class Cloud(ObjectStore, CloudConfigMixin):
                              % (str(obj), str(kwargs)))
         # return cache_path # Until the upload tool does not explicitly create the dataset, return expected path
 
-    def update_from_file(self, obj, file_name=None, create=False, **kwargs):
+    def _update_from_file(self, obj, file_name=None, create=False, **kwargs):
         if create:
-            self.create(obj, **kwargs)
-        if self.exists(obj, **kwargs):
+            self._create(obj, **kwargs)
+        if self._exists(obj, **kwargs):
             rel_path = self._construct_path(obj, **kwargs)
             # Chose whether to use the dataset file itself or an alternate file
             if file_name:
@@ -571,8 +733,8 @@ class Cloud(ObjectStore, CloudConfigMixin):
             raise ObjectNotFound('objectstore.update_from_file, object does not exist: %s, kwargs: %s'
                                  % (str(obj), str(kwargs)))
 
-    def get_object_url(self, obj, **kwargs):
-        if self.exists(obj, **kwargs):
+    def _get_object_url(self, obj, **kwargs):
+        if self._exists(obj, **kwargs):
             rel_path = self._construct_path(obj, **kwargs)
             try:
                 key = self.bucket.objects.get(rel_path)
@@ -581,5 +743,5 @@ class Cloud(ObjectStore, CloudConfigMixin):
                 log.exception("Trouble generating URL for dataset '%s'", rel_path)
         return None
 
-    def get_store_usage_percent(self):
+    def _get_store_usage_percent(self):
         return 0.0

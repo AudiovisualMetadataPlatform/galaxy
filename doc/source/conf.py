@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Galaxy documentation build configuration file, created by
 # sphinx-quickstart on Tue Mar  6 10:44:44 2012.
@@ -20,14 +19,23 @@ import sphinx_rtd_theme
 from recommonmark.parser import CommonMarkParser
 from recommonmark.transform import AutoStructify
 
+<<<<<<< HEAD
 source_parsers = {
     '.md': CommonMarkParser,
 }
 
 # Set GALAXY_DOCS_SKIP_SOURCE=1 to skip building source and release information and
+=======
+# Set GALAXY_DOCS_SKIP_VIEW_CODE=1 to skip embedding highlighted source
+# code into docs.
+SKIP_VIEW_CODE = os.environ.get("GALAXY_DOCS_SKIP_VIEW_CODE", False) == "1"
+
+# Set GALAXY_DOCS_SKIP_SOURCE=1 to skip building source information and
+>>>>>>> refs/heads/release_21.01
 # just build primary documentation. (Quicker to debug issues in most frequently updated
 # docs).
 SKIP_SOURCE = os.environ.get("GALAXY_DOCS_SKIP_SOURCE", False) == "1"
+SKIP_RELEASES = os.environ.get("GALAXY_DOCS_SKIP_RELEASES", False) == "1"
 
 # REQUIRED GALAXY INCLUDES
 
@@ -45,9 +53,16 @@ sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pa
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
+<<<<<<< HEAD
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx']
+=======
+extensions = ['recommonmark', 'sphinx.ext.intersphinx', 'sphinx_markdown_tables']
+>>>>>>> refs/heads/release_21.01
 if not SKIP_SOURCE:
-    extensions += ['sphinx.ext.doctest', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.viewcode']
+    # TODO: Add https://pypi.org/project/sphinx-autodoc-typehints
+    extensions += ['sphinx.ext.doctest', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.autodoc']
+    if not SKIP_VIEW_CODE:
+        extensions.append('sphinx.ext.viewcode')
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -66,7 +81,8 @@ def dont_skip_init(app, what, name, obj, skip, options):
 
 
 def setup(app):
-    app.connect("autodoc-skip-member", dont_skip_init)
+    if not SKIP_SOURCE:
+        app.connect("autodoc-skip-member", dont_skip_init)
     app.add_config_value('recommonmark_config', {
         'enable_auto_doc_ref': False,
     }, True)
@@ -83,8 +99,8 @@ source_suffix = ['.rst', '.md']
 master_doc = 'index'
 
 # General information about the project.
-project = u'Galaxy Project'
-copyright = str(datetime.datetime.now().year) + u', Galaxy Committers'
+project = 'Galaxy Project'
+copyright = str(datetime.datetime.now().year) + ', Galaxy Committers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -109,9 +125,15 @@ release = VERSION
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 if SKIP_SOURCE:
+<<<<<<< HEAD
     exclude_patterns = ['lib', 'releases']
 else:
     exclude_patterns = []
+=======
+    exclude_patterns.extend(['lib'])
+if SKIP_RELEASES:
+    exclude_patterns.extend(['releases'])
+>>>>>>> refs/heads/release_21.01
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -133,8 +155,11 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
-# Intersphinx mapping to Python 2.7 documentation
-intersphinx_mapping = {'python': ('https://docs.python.org/2.7', None)}
+# Intersphinx mapping to Python documentation
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'requests': ("https://requests.readthedocs.io/en/master/", None),
+}
 
 # -- Options for HTML output ---------------------------------------------------
 
@@ -237,8 +262,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'Galaxy.tex', u'Galaxy Code Documentation',
-     u'Galaxy Team', 'manual'),
+    ('index', 'Galaxy.tex', 'Galaxy Code Documentation',
+     'Galaxy Team', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -267,8 +292,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'galaxy', u'Galaxy Documentation',
-     [u'Galaxy Team'], 1)
+    ('index', 'galaxy', 'Galaxy Documentation',
+     ['Galaxy Team'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -281,8 +306,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'Galaxy', u'Galaxy Documentation',
-     u'Galaxy Team', 'Galaxy', 'Data intensive biology for everyone.',
+    ('index', 'Galaxy', 'Galaxy Documentation',
+     'Galaxy Team', 'Galaxy', 'Data intensive biology for everyone.',
      'Miscellaneous'),
 ]
 
@@ -297,7 +322,7 @@ texinfo_documents = [
 
 
 # -- ReadTheDocs.org Settings ------------------------------------------------
-class Mock(object):
+class Mock:
     def __init__(self, *args, **kwargs):
         pass
 

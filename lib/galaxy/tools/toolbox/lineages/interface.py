@@ -1,11 +1,13 @@
 import threading
+from typing import Dict
 
 import packaging.version
+from sortedcontainers import SortedSet
 
 from galaxy.util.tool_version import remove_version_from_guid
 
 
-class ToolLineageVersion(object):
+class ToolLineageVersion:
     """ Represents a single tool in a lineage. If lineage is based
     around GUIDs that somehow encode the version (either using GUID
     or a simple tool id and a version). """
@@ -30,26 +32,22 @@ class ToolLineageVersion(object):
         )
 
 
-class ToolLineage(object):
+class ToolLineage:
     """ Simple tool's loaded directly from file system with lineage
     determined solely by PEP 440 versioning scheme.
     """
-    lineages_by_id = {}
+    lineages_by_id: Dict[str, 'ToolLineage'] = {}
     lock = threading.Lock()
 
     def __init__(self, tool_id, **kwds):
         self.tool_id = tool_id
-        self._tool_versions = set()
-
-    @property
-    def tool_versions(self):
-        return sorted(self._tool_versions, key=packaging.version.parse)
+        self.tool_versions = SortedSet(key=packaging.version.parse)
 
     @property
     def tool_ids(self):
         versionless_tool_id = remove_version_from_guid(self.tool_id)
         tool_id = versionless_tool_id or self.tool_id
-        return ["%s/%s" % (tool_id, version) for version in self.tool_versions]
+        return [f"{tool_id}/{version}" for version in self.tool_versions]
 
     @staticmethod
     def from_tool(tool):
@@ -64,7 +62,7 @@ class ToolLineage(object):
 
     def register_version(self, tool_version):
         assert tool_version is not None
-        self._tool_versions.add(str(tool_version))
+        self.tool_versions.add(str(tool_version))
 
     def get_versions(self):
         """

@@ -9,20 +9,39 @@ scripts/scramble/archives
 .venv
 .venv3
 
+# Python build artifacts
+build
+dist
+lib/galaxy.egg-info
+.eggs
+
+# Generated static content
+lib/galaxy/web/framework/static/maps
+lib/galaxy/web/framework/static/scripts
+lib/galaxy/web/framework/static/style
+
 # Database stuff
+database/*.sqlite
 database/beaker_sessions
 database/citations
 database/community_files
 database/compiled_templates
+database/dependencies
 database/files
-database/jobs_directory
 database/job_working_directory
+database/jobs_directory
+database/mulled
+database/object_store_cache
+database/objects
+database/openid_consumer_cache
 database/pbs
+database/shed_tools
 database/test_errors
 database/tmp
-database/*.sqlite
-database/openid_consumer_cache
-database/dependencies
+database/tool_cache
+database/tool_search_index
+database/tool_recommendation_model.hdf5
+
 
 # Python bytecode
 *.pyc
@@ -74,6 +93,7 @@ job_metrics_conf.xml
 workflow_schedulers_conf.xml
 #config/*
 config/plugins/interactive_environments/**/*.ini
+config/plugins/**/.cache
 !config/plugins
 config/mgm.ini
 config/hmgm.ini
@@ -124,7 +144,7 @@ test/unit/**.log
 *.kpf
 .vscode
 client/**/jsconfig.json
-
+vetur.config.js
 
 # Chrom len files
 *.len
@@ -138,16 +158,22 @@ static/plugins
 static/scripts
 node_modules
 bower_components
-client/galaxy/scripts/libs/*
-client/galaxy/style/less/*
+client/src/libs/*
+# Old galaxy client location
+client/galaxy
 
 # Documentation build files.
 doc/build
 doc/schema.md
 doc/source/admin/config_logging_default_yaml.rst
+<<<<<<< HEAD
 doc/source/api/api.rst
 doc/source/api/ts_api.rst
 doc/source/dev/schema.rst
+=======
+doc/source/dev/schema.md
+client/styleguide
+>>>>>>> refs/heads/release_21.01
 
 # webpack stats
 client/webpack-stats.json
@@ -157,6 +183,7 @@ client/webpack-stats.json
 .DS_Store
 *.rej
 *~
+<<<<<<< HEAD
 .idea
 .vscode
 /.project
@@ -165,3 +192,11 @@ client/webpack-stats.json
 /.settings
 metrics/system_metrics.so
 metrics/system_metrics
+=======
+
+# standalone script + main, or build into dist.
+config/plugins/visualizations/**/static/dist
+config/plugins/visualizations/**/static/script.js
+config/plugins/visualizations/**/static/main.css
+config/plugins/visualizations/**/static/plugin_build_hash.txt
+>>>>>>> refs/heads/release_21.01

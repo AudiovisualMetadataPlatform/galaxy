@@ -9,30 +9,10 @@
 <%
     self.active_view="workflow"
     self.overlay_visible=True
-    self.editor_config = {
-        'id'      : trans.security.encode_id(stored.id),
-        'urls'    : {
-            'tool_search'         : h.url_for('/api/tools'),
-            'get_datatypes'       : h.url_for('/api/datatypes/mapping'),
-            'load_workflow'       : h.url_for(controller='workflow', action='load_workflow'),
-            'run_workflow'        : h.url_for(controller='root', action='index', workflow_id=trans.security.encode_id(stored.id)),
-            'rename_async'        : h.url_for(controller='workflow', action='rename_async', id=trans.security.encode_id(stored.id)),
-            'annotate_async'      : h.url_for(controller='workflow', action='annotate_async', id=trans.security.encode_id(stored.id)),
-            'get_new_module_info' : h.url_for(controller='workflow', action='get_new_module_info'),
-            'workflow_index'      : h.url_for('/workflows/list'),
-            'save_workflow'       : h.url_for(controller='workflow', action='save_workflow'),
-            'workflow_save_as'    : h.url_for(controller='workflow', action='save_workflow_as')
-        },
-        'workflows' : [{
-            'id'                  : trans.security.encode_id(workflow.id),
-            'latest_id'           : trans.security.encode_id(workflow.latest_workflow.id),
-            'step_count'          : len(workflow.latest_workflow.steps),
-            'name'                : h.to_unicode(workflow.name)
-        } for workflow in workflows]
-    }
 %>
 </%def>
 
+<<<<<<< HEAD
 <%def name="javascripts()">
 
     ${parent.javascripts()}
@@ -40,18 +20,26 @@
     <script type='text/javascript'>
         $( function() {
             window.bundleEntries.workflow(${h.dumps(self.editor_config)});
+=======
+<%def name="javascript_app()">
+    ${parent.javascript_app()}
+    <script type="text/javascript">
+        var editorConfig = ${ h.dumps( editor_config ) };
+        config.addInitialization(function(galaxy, config) {
+            console.log("workflow/editor.mako, editorConfig", editorConfig);
+            window.bundleEntries.mountWorkflowEditor(editorConfig);
+>>>>>>> refs/heads/release_21.01
         });
     </script>
-
 </%def>
 
 <%def name="stylesheets()">
-
     ## Include "base.css" for styling tool menu and forms (details)
     ${h.css( "base", "autocomplete_tagging", "jquery-ui/smoothness/jquery-ui" )}
 
     ## But make sure styles for the layout take precedence
     ${parent.stylesheets()}
+<<<<<<< HEAD
 
     <style type="text/css">
     canvas { position: absolute; z-index: 10; }
@@ -102,124 +90,20 @@
     <div class="toolPanelLabel" id="title_${label.id}">
         <span>${label.text}</span>
     </div>
+=======
+>>>>>>> refs/heads/release_21.01
 </%def>
 
 <%def name="overlay(visible=False)">
-    ${parent.overlay( "Loading workflow editor...",
+    ${parent.overlay( "Loading workflow...",
                       "<div class='progress progress-striped progress-info active'><div class='progress-bar' style='width: 100%;'></div></div>", self.overlay_visible )}
 </%def>
 
-
-<%def name="render_module_section(module_section)">
-    <div class="toolSectionTitle" id="title___workflow__${module_section['name']}__">
-        <span>${module_section["title"]}</span>
-    </div>
-    <div id="__workflow__${module_section['name']}__" class="toolSectionBody">
-        <div class="toolSectionBg">
-            %for module in module_section["modules"]:
-                <div class="toolTitle">
-                    <a href="#" id="tool-menu-${module_section['name']}-${module['name']}" onclick="workflow_globals.app.add_node_for_module( '${module['name']}', '${module['title']}' )">
-                        ${module['description']}
-                    </a>
-                </div>
-            %endfor
-        </div>
-    </div>
-</%def>
-
 <%def name="left_panel()">
-    <%
-       from galaxy.tools import Tool
-       from galaxy.tools.toolbox import ToolSection, ToolSectionLabel
-    %>
-
-    <div class="unified-panel-header" unselectable="on">
-        <div class='unified-panel-header-inner'>
-            ${n_('Tools')}
-        </div>
-    </div>
-
-    <div class="unified-panel-controls">
-        <div id="tool-search" class="bar">
-            <input id="tool-search-query" class="search-query parent-width" name="query" placeholder="search tools" autocomplete="off" type="text">
-             <a id="search-clear-btn" title="" data-original-title="clear search (esc)"> </a>
-             <span id="search-spinner" class="search-spinner fa fa-spinner fa-spin"></span>
-        </div>
-    </div>
-
-    <div class="unified-panel-body" style="overflow: auto;">
-        <div class="toolMenuContainer">
-            <div class="toolMenu" id="workflow-tool-menu">
-                <%
-                    from galaxy.workflow.modules import load_module_sections
-                    module_sections = load_module_sections( trans )
-                %>
-                <div class="toolSectionWrapper">
-                    ${render_module_section(module_sections['inputs'])}
-                </div>
-
-                <div class="toolSectionList">
-                    %for val in app.toolbox.tool_panel_contents( trans ):
-                        <div class="toolSectionWrapper">
-                        %if isinstance( val, Tool ):
-                            ${render_tool( val, False )}
-                        %elif isinstance( val, ToolSection ) and val.elems:
-                        <% section = val %>
-                            <div class="toolSectionTitle" id="title_${section.id}">
-                                <span>${section.name}</span>
-                            </div>
-                            <div id="${section.id}" class="toolSectionBody">
-                                <div class="toolSectionBg">
-                                    %for section_key, section_val in section.elems.items():
-                                        %if isinstance( section_val, Tool ):
-                                            ${render_tool( section_val, True )}
-                                        %elif isinstance( section_val, ToolSectionLabel ):
-                                            ${render_label( section_val )}
-                                        %endif
-                                    %endfor
-                                </div>
-                            </div>
-                        %elif isinstance( val, ToolSectionLabel ):
-                            ${render_label( val )}
-                        %endif
-                        </div>
-                    %endfor
-                    ## Data Manager Tools
-                    %if trans.user_is_admin and trans.app.data_managers.data_managers:
-                       <div>&nbsp;</div>
-                       <div class="toolSectionWrapper">
-                           <div class="toolSectionTitle" id="title___DATA_MANAGER_TOOLS__">
-                               <span>Data Manager Tools</span>
-                           </div>
-                           <div id="__DATA_MANAGER_TOOLS__" class="toolSectionBody">
-                               <div class="toolSectionBg">
-                                   %for data_manager_id, data_manager_val in trans.app.data_managers.data_managers.items():
-                                       ${ render_tool( data_manager_val.tool, True ) }
-                                   %endfor
-                               </div>
-                           </div>
-                       </div>
-                    %endif
-                    ## End Data Manager Tools
-                </div>
-                <div>&nbsp;</div>
-                %for section_name, module_section in module_sections.items():
-                    %if section_name != "inputs":
-                        ${render_module_section(module_section)}
-                    %endif
-                %endfor
-
-                ## Feedback when search returns no results.
-                <div id="search-no-results" style="display: none; padding-top: 5px">
-                    <em><strong>Search did not match any tools.</strong></em>
-                </div>
-
-            </div>
-        </div>
-    </div>
 </%def>
 
 <%def name="center_panel()">
+<<<<<<< HEAD
 
     <div class="unified-panel-header" unselectable="on">
         <div class="panel-header-buttons">
@@ -250,9 +134,12 @@
         </div>
     </div>
 
+=======
+>>>>>>> refs/heads/release_21.01
 </%def>
 
 <%def name="right_panel()">
+<<<<<<< HEAD
     <div class="unified-panel-header" unselectable="on">
         <div class="unified-panel-header-inner">
             Details
@@ -317,4 +204,6 @@
         </div>
 
     </div>
+=======
+>>>>>>> refs/heads/release_21.01
 </%def>

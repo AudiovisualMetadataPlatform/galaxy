@@ -1,18 +1,16 @@
 """
 Provides mapping between extensions and datatypes, mime-types, etc.
 """
-from __future__ import absolute_import
 
 import imp
 import logging
 import os
-from collections import OrderedDict as odict
 from string import Template
-from xml.etree.ElementTree import Element
 
 import yaml
 
 import galaxy.util
+from galaxy.util import RW_R__R__
 from galaxy.util.bunch import Bunch
 from . import (
     binary,
@@ -34,7 +32,7 @@ class ConfigurationError(Exception):
     pass
 
 
-class Registry(object):
+class Registry:
 
     def __init__(self, config=None):
         self.log = logging.getLogger(__name__)
@@ -42,9 +40,10 @@ class Registry(object):
         self.config = config
         self.datatypes_by_extension = {}
         self.mimetypes_by_extension = {}
-        self.datatype_converters = odict()
+        self.datatype_converters = {}
         # Converters defined in local datatypes_conf.xml
         self.converters = []
+        self.converter_tools = set()
         # Converters defined in datatypes_conf.xml included in installed tool shed repositories.
         self.proprietary_converters = []
         self.converter_deps = {}
@@ -58,7 +57,7 @@ class Registry(object):
         # tool shed repositories that contain display applications.
         self.proprietary_display_app_containers = []
         # Map a display application id to a display application
-        self.display_applications = odict()
+        self.display_applications = {}
         # The following 2 attributes are used in the to_xml_file()
         # method to persist the current state into an xml file.
         self.display_path_attr = None
@@ -82,7 +81,7 @@ class Registry(object):
         self.display_sites = {}
         self.legacy_build_sites = {}
 
-    def load_datatypes(self, root_dir=None, config=None, deactivate=False, override=True):
+    def load_datatypes(self, root_dir=None, config=None, deactivate=False, override=True, use_converters=True, use_display_applications=True, use_build_sites=True):
         """
         Parse a datatypes XML file located at root_dir/config (if processing the Galaxy distributed config) or contained within
         an installed Tool Shed repository.  If deactivate is True, an installed Tool Shed repository that includes custom datatypes
@@ -106,7 +105,7 @@ class Registry(object):
             #           type="galaxy.datatypes.blast:BlastXml" />
             compressed_sniffers = {}
             handling_proprietary_datatypes = False
-            if not isinstance(config, Element):
+            if isinstance(config, str):
                 # Parse datatypes_conf.xml
                 tree = galaxy.util.parse_xml(config)
                 root = tree.getroot()
@@ -119,14 +118,28 @@ class Registry(object):
                 root = config
             registration = root.find('registration')
             # Set default paths defined in local datatypes_conf.xml.
-            if not self.converters_path:
-                self.converters_path_attr = registration.get('converters_path', 'lib/galaxy/datatypes/converters')
-                self.converters_path = os.path.join(root_dir, self.converters_path_attr)
-                if not os.path.isdir(self.converters_path):
-                    raise ConfigurationError("Directory does not exist: %s" % self.converters_path)
-            if not self.display_applications_path:
-                self.display_path_attr = registration.get('display_path', 'display_applications')
-                self.display_applications_path = os.path.join(root_dir, self.display_path_attr)
+            if use_converters:
+                if not self.converters_path:
+                    self.converters_path_attr = registration.get('converters_path', 'lib/galaxy/datatypes/converters')
+                    self.converters_path = os.path.join(root_dir, self.converters_path_attr)
+                    if self.converters_path_attr == 'lib/galaxy/datatypes/converters' \
+                            and not os.path.isdir(self.converters_path):
+                        # Deal with the old default of this path being set in
+                        # datatypes_conf.xml.sample (this path is not useful in an
+                        # "installed Galaxy" world)
+                        self.converters_path_attr = os.path.abspath(os.path.join(os.path.dirname(__file__), 'converters'))
+                        self.converters_path = self.converters_path_attr
+                    if not os.path.isdir(self.converters_path):
+                        raise ConfigurationError("Directory does not exist: %s" % self.converters_path)
+            if use_display_applications:
+                if not self.display_applications_path:
+                    self.display_path_attr = registration.get('display_path', 'display_applications')
+                    self.display_applications_path = os.path.join(root_dir, self.display_path_attr)
+                    if self.display_path_attr == 'display_applications' \
+                            and not os.path.isdir('display_applications'):
+                        # Ditto as with converters_path
+                        self.display_path_attr = os.path.abspath(os.path.join(os.path.dirname(__file__), 'display_applications', 'configs'))
+                        self.display_applications_path = self.display_path_attr
             # Proprietary datatype's <registration> tag may have special attributes, proprietary_converter_path and proprietary_display_path.
             proprietary_converter_path = registration.get('proprietary_converter_path', None)
             proprietary_display_path = registration.get('proprietary_display_path', None)
@@ -210,7 +223,7 @@ class Registry(object):
                             if ok:
                                 datatype_class = None
                                 if proprietary_path and proprietary_datatype_module and datatype_class_name:
-                                    # TODO: previously comments suggested this needs to be locked because it modifys
+                                    # TODO: previously comments suggested this needs to be locked because it modifies
                                     # the sys.path, probably true but the previous lock wasn't doing that.
                                     try:
                                         imported_module = __import_module(proprietary_path,
@@ -222,7 +235,7 @@ class Registry(object):
                                             datatype_class = getattr(imported_module, datatype_class_name)
                                     except Exception as e:
                                         full_path = os.path.join(proprietary_path, proprietary_datatype_module)
-                                        self.log.debug("Exception importing proprietary code file %s: %s" % (str(full_path), str(e)))
+                                        self.log.debug("Exception importing proprietary code file %s: %s", full_path, galaxy.util.unicodify(e))
                                 # Either the above exception was thrown because the proprietary_datatype_module is not derived from a class
                                 # in the repository, or we are loading Galaxy's datatypes. In either case we'll look in the registry.
                                 if datatype_class is None:
@@ -233,13 +246,14 @@ class Registry(object):
                                         for mod in fields:
                                             module = getattr(module, mod)
                                         datatype_class = getattr(module, datatype_class_name)
-                                        self.log.debug('Retrieved datatype module %s:%s from the datatype registry.' % (str(datatype_module), datatype_class_name))
+                                        self.log.debug('Retrieved datatype module {}:{} from the datatype registry for extension {}.'.format(str(datatype_module), datatype_class_name, extension))
                                     except Exception:
                                         self.log.exception('Error importing datatype module %s', str(datatype_module))
                                         ok = False
                         elif type_extension is not None:
                             try:
                                 datatype_class = self.datatypes_by_extension[type_extension].__class__
+                                self.log.debug('Retrieved datatype module {} from type_extension {} for extension {}.'.format(str(datatype_class.__name__), type_extension, extension))
                             except Exception:
                                 self.log.exception('Error determining datatype_class for type_extension %s', str(type_extension))
                                 ok = False
@@ -296,7 +310,7 @@ class Registry(object):
                                     optional = composite_file.get('optional', False)
                                     mimetype = composite_file.get('mimetype', None)
                                     self.datatypes_by_extension[extension].add_composite_file(name, optional=optional, mimetype=mimetype)
-                                for display_app in elem.findall('display'):
+                                for _display_app in elem.findall('display'):
                                     if proprietary_display_path:
                                         if elem not in self.proprietary_display_app_containers:
                                             self.proprietary_display_app_containers.append(elem)
@@ -315,7 +329,7 @@ class Registry(object):
                                 self.datatype_info_dicts.append(datatype_info_dict)
 
                                 for auto_compressed_type in auto_compressed_types:
-                                    compressed_extension = "%s.%s" % (extension, auto_compressed_type)
+                                    compressed_extension = f"{extension}.{auto_compressed_type}"
                                     upper_compressed_type = auto_compressed_type[0].upper() + auto_compressed_type[1:]
                                     auto_compressed_type_name = datatype_class_name + upper_compressed_type
                                     attributes = {}
@@ -357,7 +371,7 @@ class Registry(object):
                                     if not override:
                                         # Do not load the datatype since it conflicts with an existing datatype which we are not supposed
                                         # to override.
-                                        self.log.debug("Ignoring conflicting datatype with extension '%s' from %s." % (extension, config))
+                                        self.log.debug(f"Ignoring conflicting datatype with extension '{extension}' from {config}.")
             # Load datatype sniffers from the config - we'll do this even if one or more datatypes were not properly processed in the config
             # since sniffers are not tightly coupled with datatypes.
             self.load_datatype_sniffers(root,
@@ -367,11 +381,12 @@ class Registry(object):
                                         compressed_sniffers=compressed_sniffers)
             self.upload_file_formats.sort()
             # Load build sites
-            self._load_build_sites(root)
+            if use_build_sites:
+                self._load_build_sites(root)
         self.set_default_values()
 
         def append_to_sniff_order():
-            sniff_order_classes = set(type(_) for _ in self.sniff_order)
+            sniff_order_classes = {type(_) for _ in self.sniff_order}
             for datatype in self.datatypes_by_extension.values():
                 # Add a datatype only if it is not already in sniff_order, it
                 # has a sniff() method and was not defined with subclass="true".
@@ -397,7 +412,7 @@ class Registry(object):
             if not os.path.exists(path):
                 sample_path = "%s.sample" % path
                 if os.path.exists(sample_path):
-                    self.log.debug("Build site file [%s] not found using sample [%s]." % (path, sample_path))
+                    self.log.debug(f"Build site file [{path}] not found using sample [{sample_path}].")
                     path = sample_path
 
             self.build_sites[site_type] = path
@@ -418,7 +433,7 @@ class Registry(object):
         else:
             build_sites_config_file = getattr(self.config, "build_sites_config_file", None)
             if build_sites_config_file and os.path.exists(build_sites_config_file):
-                with open(build_sites_config_file, "r") as f:
+                with open(build_sites_config_file) as f:
                     build_sites_config = yaml.safe_load(f)
                 if not isinstance(build_sites_config, list):
                     self.log.exception("Build sites configuration YAML file does not declare list of sites.")
@@ -540,7 +555,7 @@ class Registry(object):
             return images.Image
 
         # TODO: too inefficient - would be better to generate this once as a map and store in this object
-        for ext, datatype_obj in self.datatypes_by_extension.items():
+        for datatype_obj in self.datatypes_by_extension.values():
             datatype_obj_class = datatype_obj.__class__
             datatype_obj_class_str = str(datatype_obj_class)
             if name in datatype_obj_class_str:
@@ -597,6 +612,7 @@ class Registry(object):
             try:
                 config_path = os.path.join(converter_path, tool_config)
                 converter = toolbox.load_tool(config_path, use_cached=use_cached)
+                self.converter_tools.add(converter)
                 if installed_repository_dict:
                     # If the converter is included in an installed tool shed repository, set the tool
                     # shed related tool attributes.
@@ -621,7 +637,7 @@ class Registry(object):
                 else:
                     toolbox.register_tool(converter)
                     if source_datatype not in self.datatype_converters:
-                        self.datatype_converters[source_datatype] = odict()
+                        self.datatype_converters[source_datatype] = {}
                     self.datatype_converters[source_datatype][target_datatype] = converter
                     if not hasattr(toolbox.app, 'tool_cache') or converter.id in toolbox.app.tool_cache._new_tool_ids:
                         self.log.debug("Loaded converter: %s", converter.id)
@@ -686,13 +702,13 @@ class Registry(object):
                                     del self.datatypes_by_extension[extension].display_applications[display_app.id]
                             if inherit and (self.datatypes_by_extension[extension], display_app) in self.inherit_display_application_by_class:
                                 self.inherit_display_application_by_class.remove((self.datatypes_by_extension[extension], display_app))
-                            self.log.debug("Deactivated display application '%s' for datatype '%s'." % (display_app.id, extension))
+                            self.log.debug(f"Deactivated display application '{display_app.id}' for datatype '{extension}'.")
                         else:
                             self.display_applications[display_app.id] = display_app
                             self.datatypes_by_extension[extension].add_display_application(display_app)
                             if inherit and (self.datatypes_by_extension[extension], display_app) not in self.inherit_display_application_by_class:
                                 self.inherit_display_application_by_class.append((self.datatypes_by_extension[extension], display_app))
-                            self.log.debug("Loaded display application '%s' for datatype '%s', inherit=%s." % (display_app.id, extension, inherit))
+                            self.log.debug(f"Loaded display application '{display_app.id}' for datatype '{extension}', inherit={inherit}.")
                 except Exception:
                     if deactivate:
                         self.log.exception("Error deactivating display application (%s)" % config_path)
@@ -703,7 +719,7 @@ class Registry(object):
             for d_type2, display_app in self.inherit_display_application_by_class:
                 current_app = d_type1.get_display_application(display_app.id, None)
                 if current_app is None and isinstance(d_type1, type(d_type2)):
-                    self.log.debug("Adding inherited display application '%s' to datatype '%s'" % (display_app.id, extension))
+                    self.log.debug(f"Adding inherited display application '{display_app.id}' to datatype '{extension}'")
                     d_type1.add_display_application(display_app)
 
     def reload_display_applications(self, display_application_ids=None):
@@ -731,7 +747,7 @@ class Registry(object):
         # We need to be able to add a job to the queue to set metadata. The queue will currently only accept jobs with an associated
         # tool.  We'll load a special tool to be used for Auto-Detecting metadata; this is less than ideal, but effective
         # Properly building a tool without relying on parsing an XML file is near difficult...so we bundle with Galaxy.
-        set_meta_tool = toolbox.load_hidden_lib_tool("galaxy/datatypes/set_metadata_tool.xml")
+        set_meta_tool = toolbox.load_hidden_lib_tool(os.path.abspath(os.path.join(os.path.dirname(__file__), "set_metadata_tool.xml")))
         self.set_external_metadata_tool = set_meta_tool
         self.log.debug("Loaded external metadata tool: %s", self.set_external_metadata_tool.id)
 
@@ -746,23 +762,19 @@ class Registry(object):
                 'coverage'      : coverage.LastzCoverage(),
                 'customtrack'   : interval.CustomTrack(),
                 'csfasta'       : sequence.csFasta(),
-                'db3'           : binary.SQlite(),
                 'fasta'         : sequence.Fasta(),
                 'eland'         : tabular.Eland(),
                 'fastq'         : sequence.Fastq(),
                 'fastqsanger'   : sequence.FastqSanger(),
-                'gemini.sqlite' : binary.GeminiSQLite(),
                 'gtf'           : interval.Gtf(),
                 'gff'           : interval.Gff(),
                 'gff3'          : interval.Gff3(),
                 'genetrack'     : tracks.GeneTrack(),
                 'h5'            : binary.H5(),
-                'idpdb'         : binary.IdpDB(),
                 'interval'      : interval.Interval(),
                 'laj'           : images.Laj(),
                 'lav'           : sequence.Lav(),
                 'maf'           : sequence.Maf(),
-                'mz.sqlite'     : binary.MzSQlite(),
                 'pileup'        : tabular.Pileup(),
                 'qualsolid'     : qualityscore.QualityScoreSOLiD(),
                 'qualsolexa'    : qualityscore.QualityScoreSolexa(),
@@ -782,26 +794,21 @@ class Registry(object):
                 'axt'           : 'text/plain',
                 'bam'           : 'application/octet-stream',
                 'bed'           : 'text/plain',
-                'blib'          : 'application/octet-stream',
                 'customtrack'   : 'text/plain',
                 'csfasta'       : 'text/plain',
-                'db3'           : 'application/octet-stream',
                 'eland'         : 'application/octet-stream',
                 'fasta'         : 'text/plain',
                 'fastq'         : 'text/plain',
                 'fastqsanger'   : 'text/plain',
-                'gemini.sqlite' : 'application/octet-stream',
                 'gtf'           : 'text/plain',
                 'gff'           : 'text/plain',
                 'gff3'          : 'text/plain',
                 'h5'            : 'application/octet-stream',
-                'idpdb'         : 'application/octet-stream',
                 'interval'      : 'text/plain',
                 'laj'           : 'text/plain',
                 'lav'           : 'text/plain',
                 'maf'           : 'text/plain',
                 'memexml'       : 'application/xml',
-                'mz.sqlite'     : 'application/octet-stream',
                 'pileup'        : 'text/plain',
                 'qualsolid'     : 'text/plain',
                 'qualsolexa'    : 'text/plain',
@@ -827,10 +834,6 @@ class Registry(object):
                 binary.Bam(),
                 binary.Sff(),
                 binary.H5(),
-                binary.GeminiSQLite(),
-                binary.MzSQlite(),
-                binary.IdpDB(),
-                binary.SQlite(),
                 xml.GenericXml(),
                 sequence.Maf(),
                 sequence.Lav(),
@@ -859,7 +862,7 @@ class Registry(object):
     def get_converters_by_datatype(self, ext):
         """Returns available converters by source type"""
         if ext not in self._converters_by_datatype:
-            converters = odict()
+            converters = {}
             source_datatype = type(self.get_datatype_by_extension(ext))
             for ext2, converters_dict in self.datatype_converters.items():
                 converter_datatype = type(self.get_datatype_by_extension(ext2))
@@ -879,7 +882,11 @@ class Registry(object):
         return None
 
     def find_conversion_destination_for_dataset_by_extensions(self, dataset_or_ext, accepted_formats, converter_safe=True):
-        """Returns ( target_ext, existing converted dataset )"""
+        """
+        returns (direct_match, converted_ext, converted_dataset)
+        - direct match is True iff no the data set already has an accepted format
+        - target_ext becomes None if conversion is not possible (or necesary)
+        """
         if hasattr(dataset_or_ext, "ext"):
             ext = dataset_or_ext.ext
             dataset = dataset_or_ext
@@ -887,10 +894,13 @@ class Registry(object):
             ext = dataset_or_ext
             dataset = None
 
+        if self.get_datatype_by_extension(ext) is not None and self.get_datatype_by_extension(ext).matches_any(accepted_formats):
+            return True, None, None
+
         for convert_ext in self.get_converters_by_datatype(ext):
             convert_ext_datatype = self.get_datatype_by_extension(convert_ext)
             if convert_ext_datatype is None:
-                self.log.warning("Datatype class not found for extension '%s', which is used as target for conversion from datatype '%s'" % (convert_ext, dataset.ext))
+                self.log.warning(f"Datatype class not found for extension '{convert_ext}', which is used as target for conversion from datatype '{dataset.ext}'")
             elif convert_ext_datatype.matches_any(accepted_formats):
                 converted_dataset = dataset and dataset.get_converted_files_by_type(convert_ext)
                 if converted_dataset:
@@ -899,8 +909,8 @@ class Registry(object):
                     continue
                 else:
                     ret_data = None
-                return (convert_ext, ret_data)
-        return (None, None)
+                return False, convert_ext, ret_data
+        return False, None, None
 
     def get_composite_extensions(self):
         return [ext for (ext, d_type) in self.datatypes_by_extension.items() if d_type.composite_type is not None]
@@ -915,7 +925,7 @@ class Registry(object):
                     help_txt = meta_spec.desc
                     if not help_txt or help_txt == meta_name:
                         help_txt = ""
-                    inputs.append('<param type="text" name="%s" label="Set metadata value for &quot;%s&quot;" value="%s" help="%s"/>' % (meta_name, meta_name, meta_spec.default, help_txt))
+                    inputs.append(f'<param type="text" name="{meta_name}" label="Set metadata value for &quot;{meta_name}&quot;" value="{meta_spec.default}" help="{help_txt}"/>')
             rval[ext] = "\n".join(inputs)
         if 'auto' not in rval and 'txt' in rval:  # need to manually add 'auto' datatype
             rval['auto'] = rval['txt']
@@ -926,7 +936,7 @@ class Registry(object):
         """
         """
         if not self._edam_formats_mapping:
-            self._edam_formats_mapping = dict((k, v.edam_format) for k, v in self.datatypes_by_extension.items())
+            self._edam_formats_mapping = {k: v.edam_format for k, v in self.datatypes_by_extension.items()}
         return self._edam_formats_mapping
 
     @property
@@ -934,7 +944,7 @@ class Registry(object):
         """
         """
         if not self._edam_data_mapping:
-            self._edam_data_mapping = dict((k, v.edam_data) for k, v in self.datatypes_by_extension.items())
+            self._edam_data_mapping = {k: v.edam_data for k, v in self.datatypes_by_extension.items()}
         return self._edam_data_mapping
 
     def to_xml_file(self, path):
@@ -951,14 +961,14 @@ class Registry(object):
             """)
             converters_path = self.converters_path_attr or ''
             display_path = self.display_path_attr or ''
-            datatype_elems = "".join((galaxy.util.xml_to_string(elem) for elem in self.datatype_elems))
-            sniffer_elems = "".join((galaxy.util.xml_to_string(elem) for elem in self.sniffer_elems))
+            datatype_elems = "".join(galaxy.util.xml_to_string(elem) for elem in self.datatype_elems)
+            sniffer_elems = "".join(galaxy.util.xml_to_string(elem) for elem in self.sniffer_elems)
             self._registry_xml_string = registry_string_template.substitute(converters_path=converters_path,
                                                                             display_path=display_path,
                                                                             datatype_elems=datatype_elems,
                                                                             sniffer_elems=sniffer_elems)
         with open(os.path.abspath(path), 'w') as registry_xml:
-            os.chmod(path, 0o644)
+            os.chmod(path, RW_R__R__)
             registry_xml.write(self._registry_xml_string)
 
     def get_extension(self, elem):
@@ -978,7 +988,7 @@ class Registry(object):
 
 def example_datatype_registry_for_sample(sniff_compressed_dynamic_datatypes_default=True):
     galaxy_dir = galaxy.util.galaxy_directory()
-    sample_conf = os.path.join(galaxy_dir, "config", "datatypes_conf.xml.sample")
+    sample_conf = os.path.join(galaxy_dir, "lib", "galaxy", "config", "sample", "datatypes_conf.xml.sample")
     config = Bunch(sniff_compressed_dynamic_datatypes_default=sniff_compressed_dynamic_datatypes_default)
     datatypes_registry = Registry(config)
     datatypes_registry.load_datatypes(root_dir=galaxy_dir, config=sample_conf)

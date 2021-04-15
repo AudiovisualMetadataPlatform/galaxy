@@ -2,17 +2,18 @@
 Upload class
 """
 
-from __future__ import absolute_import
-
 import logging
+from urllib.parse import urlencode
 
 import requests
-from six.moves.urllib.parse import urlencode
 
-from galaxy import jobs, web
-from galaxy.util import Params
+from galaxy import web
+from galaxy.util import (
+    Params,
+    unicodify,
+)
 from galaxy.util.hash_util import hmac_new
-from galaxy.web.base.controller import BaseUIController
+from galaxy.webapps.base.controller import BaseUIController
 
 log = logging.getLogger(__name__)
 
@@ -69,7 +70,7 @@ class ASync(BaseUIController):
                 data.state = data.blurb = data.states.RUNNING
                 log.debug('executing tool %s' % tool.id)
                 trans.log_event('Async executing tool %s' % tool.id, tool_id=tool.id)
-                galaxy_url = trans.request.base + '/async/%s/%s/%s' % (tool_id, data.id, key)
+                galaxy_url = trans.request.base + f'/async/{tool_id}/{data.id}/{key}'
                 galaxy_url = params.get("GALAXY_URL", galaxy_url)
                 params = dict(URL=URL, GALAXY_URL=galaxy_url, name=data.name, info=data.info, dbkey=data.dbkey, data_type=data.ext)
 
@@ -91,12 +92,12 @@ class ASync(BaseUIController):
             else:
                 log.debug('async error -> %s' % STATUS)
                 trans.log_event('Async error -> %s' % STATUS)
-                data.state = data.blurb = jobs.JOB_ERROR
+                data.state = data.blurb = "error"
                 data.info = "Error -> %s" % STATUS
 
             trans.sa_session.flush()
 
-            return "Data %s with status %s received. OK" % (data_id, STATUS)
+            return f"Data {data_id} with status {STATUS} received. OK"
         else:
             #
             # no data_id must be parameter submission
@@ -144,15 +145,16 @@ class ASync(BaseUIController):
             data.info = GALAXY_INFO
             trans.sa_session.add(data)  # Need to add data to session before setting state (setting state requires that the data object is in the session, but this may change)
             data.state = data.states.NEW
-            open(data.file_name, 'wb').close()  # create the file
             trans.history.add_dataset(data, genome_build=GALAXY_BUILD)
             trans.sa_session.add(trans.history)
             trans.sa_session.flush()
+            # Need to explicitly create the file
+            data.dataset.object_store.create(data)
             trans.log_event("Added dataset %d to history %d" % (data.id, trans.history.id), tool_id=tool_id)
 
             try:
                 key = hmac_new(trans.app.config.tool_secret, "%d:%d" % (data.id, data.history_id))
-                galaxy_url = trans.request.base + '/async/%s/%s/%s' % (tool_id, data.id, key)
+                galaxy_url = trans.request.base + f'/async/{tool_id}/{data.id}/{key}'
                 params.update({'GALAXY_URL': galaxy_url})
                 params.update({'data_id': data.id})
 
@@ -163,7 +165,7 @@ class ASync(BaseUIController):
                     url_join_char = '&'
                 else:
                     url_join_char = '?'
-                url = "%s%s%s" % (url, url_join_char, urlencode(params.flatten()))
+                url = "{}{}{}".format(url, url_join_char, urlencode(params.flatten()))
                 log.debug("connecting to -> %s" % url)
                 trans.log_event("Async connecting to -> %s" % url)
                 text = requests.get(url).text.strip()
@@ -171,7 +173,7 @@ class ASync(BaseUIController):
                     raise Exception(text)
                 data.state = data.blurb = data.states.RUNNING
             except Exception as e:
-                data.info = str(e)
+                data.info = unicodify(e)
                 data.state = data.blurb = data.states.ERROR
 
             trans.sa_session.flush()

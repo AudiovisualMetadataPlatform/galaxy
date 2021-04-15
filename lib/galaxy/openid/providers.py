@@ -4,10 +4,8 @@ Contains OpenID provider functionality
 import logging
 import os
 
-import six
 
 from galaxy.util import parse_xml, string_as_bool
-from galaxy.util.odict import odict
 
 
 log = logging.getLogger(__name__)
@@ -16,7 +14,7 @@ NO_PROVIDER_ID = 'None'
 RESERVED_PROVIDER_IDS = [NO_PROVIDER_ID]
 
 
-class OpenIDProvider(object):
+class OpenIDProvider:
     '''An OpenID Provider object.'''
     @classmethod
     def from_file(cls, filename):
@@ -101,7 +99,7 @@ class OpenIDProvider(object):
         return bool(self.store_user_preference)
 
 
-class OpenIDProviders(object):
+class OpenIDProviders:
     '''Collection of OpenID Providers'''
     NO_PROVIDER_ID = NO_PROVIDER_ID
 
@@ -116,12 +114,12 @@ class OpenIDProviders(object):
     @classmethod
     def from_elem(cls, xml_root):
         oid_elem = xml_root
-        providers = odict()
+        providers = {}
         for elem in oid_elem.findall('provider'):
             try:
                 provider = OpenIDProvider.from_file(os.path.join('openid', elem.get('file')))
                 providers[provider.id] = provider
-                log.debug('Loaded OpenID provider: %s (%s)' % (provider.name, provider.id))
+                log.debug(f'Loaded OpenID provider: {provider.name} ({provider.id})')
             except Exception as e:
                 log.error('Failed to add OpenID provider: %s' % (e))
         return cls(providers)
@@ -130,12 +128,11 @@ class OpenIDProviders(object):
         if providers:
             self.providers = providers
         else:
-            self.providers = odict()
+            self.providers = {}
         self._banned_identifiers = [provider.op_endpoint_url for provider in self.providers.values() if provider.never_associate_with_user]
 
     def __iter__(self):
-        for provider in six.itervalues(self.providers):
-            yield provider
+        yield from self.providers.values()
 
     def get(self, name, default=None):
         if name in self.providers:

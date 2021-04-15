@@ -1,7 +1,8 @@
 """Utility functions for galaxyops"""
-from __future__ import print_function
 
 import sys
+
+from galaxy.util import unicodify
 
 
 def warn(msg):
@@ -35,7 +36,7 @@ def parse_cols_arg(cols):
 
 def default_printer(stream, exc, obj):
     print("%d: %s" % (obj.linenum, obj.current_line), file=stream)
-    print("\tError: %s" % (str(exc)), file=stream)
+    print("\tError: %s" % unicodify(exc), file=stream)
 
 
 def skipped(reader, filedesc=""):

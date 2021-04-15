@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 FROM ubuntu:16.04
 MAINTAINER John Chilton <jmchilton@gmail.com>
+=======
+FROM ubuntu:18.04
+LABEL maintainer="John Chilton <jmchilton@gmail.com>"
+>>>>>>> refs/heads/release_21.01
 
 ARG CHROME_VERSION="google-chrome-beta"
 ARG CHROME_DRIVER_VERSION="2.38"
@@ -11,8 +16,6 @@ ENV DEBIAN_FRONTEND=noninteractive \
     POSTGRES_MAJOR=9.5 \
     GALAXY_ROOT=/galaxy \
     GALAXY_VIRTUAL_ENV=/galaxy_venv \
-    GALAXY_VIRTUAL_ENV_2=/galaxy_venv \
-    GALAXY_VIRTUAL_ENV_3=/galaxy_venv3 \
     LC_ALL=C.UTF-8
 
 # Pre-install a bunch of packages to speed up ansible steps.
@@ -23,6 +26,7 @@ RUN apt-get update -y && apt-get install -y software-properties-common apt-trans
     curl -sL https://deb.nodesource.com/setup_8.x | bash -  && \
     echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
     apt-get update -y && \
+<<<<<<< HEAD
     apt-get install -y libpq-dev postgresql postgresql-client ansible wget \
             slurm-llnl libmunge-dev slurm-drmaa-dev ant cmake curl \
             g++ gcc gfortran git-core libffi-dev liblapack-dev \
@@ -33,6 +37,14 @@ RUN apt-get update -y && apt-get install -y software-properties-common apt-trans
             rsync slurm-drmaa-dev swig sysstat unzip \
             autoconf automake build-essential libatlas-base-dev libblas-dev openssl \
             bzip2 uuid-dev libssl-dev libgpgme11-dev squashfs-tools libseccomp-dev pkg-config \
+=======
+    apt-get install -y --no-install-recommends postgresql postgresql-client ansible wget \
+            python3-dev \
+            git-core \
+            rsync swig sysstat unzip \
+            openssl \
+            bzip2 \
+>>>>>>> refs/heads/release_21.01
             ca-certificates \
             openjdk-8-jre-headless \
             tzdata \
@@ -40,7 +52,10 @@ RUN apt-get update -y && apt-get install -y software-properties-common apt-trans
             locales \
             xvfb \
             ${CHROME_VERSION:-google-chrome-stable} \
+<<<<<<< HEAD
             wget zlib1g-dev nodejs \
+=======
+>>>>>>> refs/heads/release_21.01
             libnss3 libgconf-2-4 && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -73,6 +88,7 @@ RUN mkdir /etc/galaxy && cd /tmp/ansible && mkdir roles && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN cd $GALAXY_ROOT && \
+<<<<<<< HEAD
     virtualenv -p /usr/bin/python3 $GALAXY_VIRTUAL_ENV_3 && \
     for VENV in $GALAXY_VIRTUAL_ENV_2 $GALAXY_VIRTUAL_ENV_3; do \
         export GALAXY_VIRTUAL_ENV=$VENV && \
@@ -95,6 +111,12 @@ RUN for VENV in $GALAXY_VIRTUAL_ENV_3 $GALAXY_VIRTUAL_ENV_2; do \
     TOOL_SHED_CONFIG_DATABASE_CONNECTION="postgresql://root@localhost:5930/toolshed" bash create_db.sh tool_shed && \
     echo "Prepopulating toolshed sqlite database" && \
     TOOL_SHED_CONFIG_DATABASE_CONNECTION="sqlite:////opt/galaxy/toolshed.sqlite" bash create_db.sh tool_shed
+=======
+    virtualenv -p /usr/bin/python3 $GALAXY_VIRTUAL_ENV && \
+        ./scripts/common_startup.sh --dev-wheels && \
+        $GALAXY_VIRTUAL_ENV/bin/pip install psycopg2-binary && \
+    rm -rf ~/.cache/pip
+>>>>>>> refs/heads/release_21.01
 
 # bcftools for Galaxy.
 RUN mkdir -p /tmp/install && \

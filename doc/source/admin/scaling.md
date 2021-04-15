@@ -355,7 +355,6 @@ uWSGI can be configured to serve HTTP and/or HTTPS directly:
   # listening options
   http: :8080
   https: :8443,server.crt,server.key
-  static-map: /static/style=static/style/blue
   static-map: /static=static
 ```
 
@@ -370,7 +369,6 @@ user and drop privileges to the Galaxy user with a configuration such as:
   https: =1
   uid: galaxy
   gid: galaxy
-  static-map: /static/style=static/style/blue
   static-map: /static=static
 ```
 
@@ -440,8 +438,13 @@ separated,  to the `job-handlers` farm. For example, 3 handlers are defined like
 
 By default, a job will be handled by whatever mule currently has the lock on the mule message queue. After receiving a
 message, it will release the lock, giving other mules a chance to handle future jobs.  Jobs can be explicitly mapped to
+<<<<<<< HEAD
 specific mules as described in the [Job configuration documentation](jobs.html) by using the handler IDs
 `main.job-handlers.N`, where `N` is the mule's position in the farm, starting at 1 and incrementing for each mule in the
+=======
+specific mules as described in the [Galaxy Job Configuration](./jobs.md) documentation
+by using the handler IDs `main.job-handlers.N`, where `N` is the mule's position in the farm, starting at 1 and incrementing for each mule in the
+>>>>>>> refs/heads/release_21.01
 farm (this is not necessarily the mule ID, but it will be if you only define one farm and you add mules to that farm in
 sequential order).  Each worker that you wish to explicitly map jobs to should be defined in the `<handlers>` section
 of `job_conf.xml`. *Do not* define a default handler.

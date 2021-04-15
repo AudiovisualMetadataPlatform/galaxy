@@ -9,6 +9,7 @@ import sys
 from collections import OrderedDict
 
 from bx.align import maf
+from bx.align.core import src_split
 
 
 def __main__():
@@ -26,9 +27,9 @@ def __main__():
     if "None" in species:
         species = OrderedDict()
         try:
-            for i, m in enumerate(maf.Reader(open(input_filename, 'r'))):
+            for i, m in enumerate(maf.Reader(open(input_filename))):
                 for c in m.components:
-                    spec, chrom = maf.src_split(c.src)
+                    spec, chrom = src_split(c.src)
                     if not spec or not chrom:
                         spec = c.src
                     species[spec] = None
@@ -51,7 +52,7 @@ def __main__():
 
     print("Restricted to species:", ",".join(species))
 
-    with open(input_filename, 'r') as file_in:
+    with open(input_filename) as file_in:
         maf_reader = maf.Reader(file_in)
 
         block_num = -1
@@ -64,7 +65,7 @@ def __main__():
             if len(l) < num_species and partial == "partial_disallowed":
                 continue
             for c in l:
-                spec, chrom = maf.src_split(c.src)
+                spec, chrom = src_split(c.src)
                 if not spec or not chrom:
                         spec = chrom = c.src
                 if spec not in out_files.keys():

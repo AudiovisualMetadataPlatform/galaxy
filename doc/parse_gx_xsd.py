@@ -1,20 +1,22 @@
-# coding: utf-8
 # TODO: Add examples, tables and best practice links to command
 # TODO: Examples of truevalue, falsevalue
 # TODO: Test param extra_file
 # Things dropped from schema_template.md (still documented inside schema).
 #  - request_parameter_translation
-from __future__ import print_function
 
 import sys
+from io import StringIO
 
 from lxml import etree
-from six import StringIO
 
+<<<<<<< HEAD
 with open(sys.argv[1], "r") as f:
     MARKDOWN_TEMPLATE = f.read()
 
 with open(sys.argv[2], "r") as f:
+=======
+with open(sys.argv[2]) as f:
+>>>>>>> refs/heads/release_21.01
     xmlschema_doc = etree.parse(f)
 
 markdown_buffer = StringIO()
@@ -22,14 +24,37 @@ markdown_buffer = StringIO()
 
 def main():
     """Entry point for the function that builds Markdown help for the Galaxy XSD."""
+<<<<<<< HEAD
     for line in MARKDOWN_TEMPLATE.splitlines():
         if line.startswith("$tag:"):
             print(Tag(line).build_help())
         else:
             print(line)
+=======
+    toc_list = []
+    content_list = []
+    found_tag = False
+    with open(sys.argv[1]) as markdown_template:
+        for line in markdown_template:
+            if line.startswith("$tag:"):
+                found_tag = True
+                tag = Tag(line.rstrip())
+                toc_list.append(tag.build_toc_entry())
+                content_list.append(tag.build_help())
+            elif not found_tag:
+                print(line, end='')
+            else:
+                raise Exception("No normal text allowed after the first $tag")
+    print("## Contents\n")
+    for el in toc_list:
+        print(el)
+    print("\n")
+    for el in content_list:
+        print(el, end='')
+>>>>>>> refs/heads/release_21.01
 
 
-class Tag(object):
+class Tag:
 
     def __init__(self, line):
         assert line.startswith("$tag:")
@@ -47,6 +72,23 @@ class Tag(object):
         self.hide_attributes = hide_attributes
         self.title = title
 
+<<<<<<< HEAD
+=======
+    @property
+    def _anchor(self):
+        anchor = self.title
+        for _ in ['|', '_']:
+            anchor = anchor.replace(_, '-')
+        return '#' + anchor
+
+    @property
+    def _pretty_title(self):
+        return " > ".join("``%s``" % p for p in self.title.split("|"))
+
+    def build_toc_entry(self):
+        return f"* [{self._pretty_title}]({self._anchor})"
+
+>>>>>>> refs/heads/release_21.01
     def build_help(self):
         tag = xmlschema_doc.find(self.xpath)
         if tag is None:
@@ -88,7 +130,7 @@ def _build_tag(tag, hide_attributes):
                     doc = _doc_or_none(_type_el(element))
                 assert doc is not None, "Documentation for %s is empty" % element.attrib["name"]
                 doc = doc.strip()
-                assertions_buffer.write("``%s`` | %s\n" % (element.attrib["name"], doc))
+                assertions_buffer.write("``{}`` | {}\n".format(element.attrib["name"], doc))
             text = text.replace(line, assertions_buffer.getvalue())
     tag_help.write(text)
     best_practices = _get_bp_link(annotation_el)
@@ -140,7 +182,7 @@ def _build_attributes_table(tag, attributes, hide_attributes=False, attribute_na
             if best_practices:
                 details += """ Find the Intergalactic Utilities Commision suggested best practices for this element [here](%s).""" % best_practices
 
-            attribute_table.write("``%s`` | %s | %s\n" % (name, details, use))
+            attribute_table.write(f"``{name}`` | {details} | {use}\n")
     return attribute_table.getvalue()
 
 

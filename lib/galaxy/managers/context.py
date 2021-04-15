@@ -4,13 +4,12 @@ Mixins for transaction-like objects.
 import string
 from json import dumps
 
-from six import text_type
 
 from galaxy.exceptions import UserActivationRequiredException
 from galaxy.util import bunch
 
 
-class ProvidesAppContext(object):
+class ProvidesAppContext:
     """ For transaction-like objects to provide Galaxy convience layer for
     database and event handling.
 
@@ -22,7 +21,7 @@ class ProvidesAppContext(object):
         Application-level logging of user actions.
         """
         if self.app.config.log_actions:
-            action = self.app.model.UserAction(action=action, context=context, params=text_type(dumps(params)))
+            action = self.app.model.UserAction(action=action, context=context, params=str(dumps(params)))
             try:
                 if user:
                     action.user = user
@@ -100,17 +99,17 @@ class ProvidesAppContext(object):
         return self.app.install_model
 
 
-class ProvidesUserContext(object):
+class ProvidesUserContext:
     """ For transaction-like objects to provide Galaxy convience layer for
     reasoning about users.
 
-    Mixed in class must provide `user`, `api_inherit_admin`, and `app`
+    Mixed in class must provide `user` and `app`
     properties.
     """
 
     @property
     def anonymous(self):
-        return self.user is None and not self.api_inherit_admin
+        return self.user is None
 
     def get_current_user_roles(self):
         user = self.user
@@ -122,9 +121,7 @@ class ProvidesUserContext(object):
 
     @property
     def user_is_admin(self):
-        if self.api_inherit_admin:
-            return True
-        return self.user and self.user.email in self.app.config.admin_users_list
+        return self.app.config.is_admin_user(self.user)
 
     @property
     def user_can_do_run_as(self):
@@ -133,7 +130,7 @@ class ProvidesUserContext(object):
             return False
         user_in_run_as_users = self.user and self.user.email in run_as_users
         # Can do if explicitly in list or master_api_key supplied.
-        can_do_run_as = user_in_run_as_users or self.api_inherit_admin
+        can_do_run_as = user_in_run_as_users or self.user.bootstrap_admin_user
         return can_do_run_as
 
     @property
@@ -148,7 +145,7 @@ class ProvidesUserContext(object):
     @property
     def user_ftp_dir(self):
         base_dir = self.app.config.ftp_upload_dir
-        if base_dir is None:
+        if base_dir is None or self.user is None:
             return None
         else:
             # e.g. 'email' or 'username'
@@ -162,7 +159,7 @@ class ProvidesUserContext(object):
             return path
 
 
-class ProvidesHistoryContext(object):
+class ProvidesHistoryContext:
     """ For transaction-like objects to provide Galaxy convience layer for
     reasoning about histories.
 
@@ -182,12 +179,24 @@ class ProvidesHistoryContext(object):
             # The API presents a Bunch for a history.  Until the API is
             # more fully featured for handling this, also return None.
             return None
-        datasets = self.sa_session.query(self.app.model.HistoryDatasetAssociation) \
-                                  .filter_by(deleted=False, history_id=self.history.id, extension="len")
+        non_ready_or_ok = set(self.app.model.Dataset.non_ready_states)
+        non_ready_or_ok.add(self.app.model.HistoryDatasetAssociation.states.OK)
+        datasets = self.sa_session.query(
+            self.app.model.HistoryDatasetAssociation
+        ).filter_by(
+            deleted=False,
+            history_id=self.history.id,
+            extension="len"
+        ).filter(
+            self.app.model.HistoryDatasetAssociation._state.in_(non_ready_or_ok),
+        )
+        valid_ds = None
         for ds in datasets:
-            if dbkey == ds.dbkey:
-                return ds
-        return None
+            if ds.dbkey == dbkey:
+                if ds.state == self.app.model.HistoryDatasetAssociation.states.OK:
+                    return ds
+                valid_ds = ds
+        return valid_ds
 
     @property
     def db_builds(self):

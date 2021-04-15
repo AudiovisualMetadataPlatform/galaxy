@@ -15,19 +15,23 @@ from galaxy import (
 )
 from galaxy.actions.admin import AdminActions
 from galaxy.exceptions import ActionInputError
-from galaxy.web.base.controller import (
+from galaxy.web.params import QuotaParamParser
+from galaxy.webapps.base.controller import (
     BaseAPIController,
     url_for,
     UsesQuotaMixin
 )
-from galaxy.web.params import QuotaParamParser
 
 log = logging.getLogger(__name__)
 
 
 class QuotaAPIController(BaseAPIController, AdminActions, UsesQuotaMixin, QuotaParamParser):
+<<<<<<< HEAD
     @web.expose_api
+=======
+>>>>>>> refs/heads/release_21.01
     @web.require_admin
+    @web.legacy_expose_api
     def index(self, trans, deleted='False', **kwd):
         """
         GET /api/quotas
@@ -50,8 +54,12 @@ class QuotaAPIController(BaseAPIController, AdminActions, UsesQuotaMixin, QuotaP
             rval.append(item)
         return rval
 
+<<<<<<< HEAD
     @web.expose_api
+=======
+>>>>>>> refs/heads/release_21.01
     @web.require_admin
+    @web.legacy_expose_api
     def show(self, trans, id, deleted='False', **kwd):
         """
         GET /api/quotas/{encoded_quota_id}
@@ -61,8 +69,12 @@ class QuotaAPIController(BaseAPIController, AdminActions, UsesQuotaMixin, QuotaP
         quota = self.get_quota(trans, id, deleted=util.string_as_bool(deleted))
         return quota.to_dict(view='element', value_mapper={'id': trans.security.encode_id, 'total_disk_usage': float})
 
+<<<<<<< HEAD
     @web.expose_api
+=======
+>>>>>>> refs/heads/release_21.01
     @web.require_admin
+    @web.legacy_expose_api
     def create(self, trans, payload, **kwd):
         """
         POST /api/quotas
@@ -71,19 +83,23 @@ class QuotaAPIController(BaseAPIController, AdminActions, UsesQuotaMixin, QuotaP
         try:
             self.validate_in_users_and_groups(trans, payload)
         except Exception as e:
-            raise HTTPBadRequest(detail=str(e))
+            raise HTTPBadRequest(detail=util.unicodify(e))
         params = self.get_quota_params(payload)
         try:
             quota, message = self._create_quota(params)
         except ActionInputError as e:
-            raise HTTPBadRequest(detail=str(e))
+            raise HTTPBadRequest(detail=util.unicodify(e))
         item = quota.to_dict(value_mapper={'id': trans.security.encode_id})
         item['url'] = url_for('quota', id=trans.security.encode_id(quota.id))
         item['message'] = message
         return item
 
+<<<<<<< HEAD
     @web.expose_api
+=======
+>>>>>>> refs/heads/release_21.01
     @web.require_admin
+    @web.legacy_expose_api
     def update(self, trans, id, payload, **kwd):
         """
         PUT /api/quotas/{encoded_quota_id}
@@ -92,7 +108,7 @@ class QuotaAPIController(BaseAPIController, AdminActions, UsesQuotaMixin, QuotaP
         try:
             self.validate_in_users_and_groups(trans, payload)
         except Exception as e:
-            raise HTTPBadRequest(detail=str(e))
+            raise HTTPBadRequest(detail=util.unicodify(e))
 
         quota = self.get_quota(trans, id, deleted=False)
 
@@ -116,12 +132,16 @@ class QuotaAPIController(BaseAPIController, AdminActions, UsesQuotaMixin, QuotaP
             try:
                 message = method(quota, params)
             except ActionInputError as e:
-                raise HTTPBadRequest(detail=str(e))
+                raise HTTPBadRequest(detail=util.unicodify(e))
             messages.append(message)
         return '; '.join(messages)
 
+<<<<<<< HEAD
     @web.expose_api
+=======
+>>>>>>> refs/heads/release_21.01
     @web.require_admin
+    @web.legacy_expose_api
     def delete(self, trans, id, **kwd):
         """
         DELETE /api/quotas/{encoded_quota_id}
@@ -139,11 +159,15 @@ class QuotaAPIController(BaseAPIController, AdminActions, UsesQuotaMixin, QuotaP
             if util.string_as_bool(payload.get('purge', False)):
                 message += self._purge_quota(quota, params)
         except ActionInputError as e:
-            raise HTTPBadRequest(detail=str(e))
+            raise HTTPBadRequest(detail=util.unicodify(e))
         return message
 
+<<<<<<< HEAD
     @web.expose_api
+=======
+>>>>>>> refs/heads/release_21.01
     @web.require_admin
+    @web.legacy_expose_api
     def undelete(self, trans, id, **kwd):
         """
         POST /api/quotas/deleted/{encoded_quota_id}/undelete
@@ -153,4 +177,4 @@ class QuotaAPIController(BaseAPIController, AdminActions, UsesQuotaMixin, QuotaP
         try:
             return self._undelete_quota(quota)
         except ActionInputError as e:
-            raise HTTPBadRequest(detail=str(e))
+            raise HTTPBadRequest(detail=util.unicodify(e))

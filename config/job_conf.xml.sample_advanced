@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version="1.0"?>
 <job_conf>
     <plugins workers="4">
@@ -1079,3 +1080,6 @@
         </xml>
     </macros>
 </job_conf>
+=======
+../lib/galaxy/config/sample/job_conf.xml.sample_advanced
+>>>>>>> refs/heads/release_21.01

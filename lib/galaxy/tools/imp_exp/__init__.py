@@ -1,23 +1,40 @@
+<<<<<<< HEAD
 import datetime
 import json
+=======
+import getpass
+>>>>>>> refs/heads/release_21.01
 import logging
 import os
 import shutil
+<<<<<<< HEAD
 import tempfile
 from json import dumps, load
 
 from sqlalchemy.orm import eagerload_all
 from sqlalchemy.sql import expression
+=======
+>>>>>>> refs/heads/release_21.01
 
 from galaxy import model
+<<<<<<< HEAD
 from galaxy.exceptions import MalformedContents
 from galaxy.model.item_attrs import UsesAnnotations
 from galaxy.web.framework.helpers import to_unicode
+=======
+from galaxy.model import store
+from galaxy.util.path import external_chown
+from galaxy.version import VERSION_MAJOR
+>>>>>>> refs/heads/release_21.01
 
 log = logging.getLogger(__name__)
 
 
+<<<<<<< HEAD
 class JobImportHistoryArchiveWrapper(UsesAnnotations):
+=======
+class JobImportHistoryArchiveWrapper:
+>>>>>>> refs/heads/release_21.01
     """
         Class provides support for performing jobs that import a history from
         an archive.
@@ -27,6 +44,13 @@ class JobImportHistoryArchiveWrapper(UsesAnnotations):
         self.app = app
         self.job_id = job_id
         self.sa_session = self.app.model.context
+
+    def setup_job(self, jiha, archive_source, archive_type):
+        if archive_type != "url":
+            external_chown(archive_source, jiha.job.user.system_user_pwent(self.app.config.real_system_username),
+                           self.app.config.external_chown_script, "history import archive")
+        external_chown(jiha.archive_dir, jiha.job.user.system_user_pwent(self.app.config.real_system_username),
+                       self.app.config.external_chown_script, "history import archive directory")
 
     def cleanup_after_job(self):
         """ Set history, datasets, and jobs' attributes and clean up archive directory. """
@@ -58,12 +82,23 @@ class JobImportHistoryArchiveWrapper(UsesAnnotations):
                 archive_dir = os.path.realpath(archive_dir)
                 user = jiha.job.user
 
+<<<<<<< HEAD
                 # Bioblend previous to 17.01 exported histories with an extra subdir.
                 if not os.path.exists(os.path.join(archive_dir, 'history_attrs.txt')):
                     for d in os.listdir(archive_dir):
                         if os.path.isdir(os.path.join(archive_dir, d)):
                             archive_dir = os.path.join(archive_dir, d)
                             break
+=======
+        new_history = None
+        try:
+            archive_dir = jiha.archive_dir
+            external_chown(archive_dir, jiha.job.user.system_user_pwent(getpass.getuser()),
+                           self.app.config.external_chown_script, "history import archive directory")
+            model_store = store.get_import_model_store_for_directory(archive_dir, app=self.app, user=user)
+            job = jiha.job
+            with model_store.target_history(default_history=job.history) as new_history:
+>>>>>>> refs/heads/release_21.01
 
                 #
                 # Create history.
@@ -80,6 +115,7 @@ class JobImportHistoryArchiveWrapper(UsesAnnotations):
                 self.sa_session.add(new_history)
                 jiha.history = new_history
                 self.sa_session.flush()
+<<<<<<< HEAD
 
                 # Add annotation, tags.
                 if user:
@@ -276,6 +312,9 @@ class JobImportHistoryArchiveWrapper(UsesAnnotations):
                 new_history.importing = False
                 self.sa_session.flush()
 
+=======
+                model_store.perform_import(new_history, job=job, new_history=True)
+>>>>>>> refs/heads/release_21.01
                 # Cleanup.
                 if os.path.exists(archive_dir):
                     shutil.rmtree(archive_dir)
@@ -294,6 +333,7 @@ class JobExportHistoryArchiveWrapper(UsesAnnotations):
     def __init__(self, job_id):
         self.job_id = job_id
 
+<<<<<<< HEAD
     def get_history_datasets(self, trans, history):
         """
         Returns history's datasets.
@@ -314,7 +354,12 @@ class JobExportHistoryArchiveWrapper(UsesAnnotations):
             object, and returns a command line for running the job. The command line
             includes the command, inputs, and options; it does not include the output
             file because it must be set at runtime. """
+=======
+    def setup_job(self, history, store_directory, include_hidden=False, include_deleted=False, compressed=True):
+        """Perform setup for job to export a history into an archive.
+>>>>>>> refs/heads/release_21.01
 
+<<<<<<< HEAD
         #
         # Helper methods/classes.
         #
@@ -372,7 +417,16 @@ class JobExportHistoryArchiveWrapper(UsesAnnotations):
                         rval['exported'] = True
                     return rval
                 return json.JSONEncoder.default(self, obj)
+=======
+        Method generates attribute files for export, sets the corresponding attributes
+        in the jeha object, and returns a command line for running the job. The command
+        line includes the command, inputs, and options; it does not include the output
+        file because it must be set at runtime.
+        """
+        app = self.app
+>>>>>>> refs/heads/release_21.01
 
+<<<<<<< HEAD
         #
         # Create attributes/metadata files for export.
         #
@@ -495,10 +549,16 @@ class JobExportHistoryArchiveWrapper(UsesAnnotations):
         jobs_attrs_out.write(dumps(jobs_attrs, cls=HistoryDatasetAssociationEncoder))
         jobs_attrs_out.close()
         jeha.jobs_attrs_filename = jobs_attrs_filename
+=======
+        # symlink files on export, on worker files will tarred up in a dereferenced manner.
+        with store.DirectoryModelExportStore(store_directory, app=app, export_files="symlink") as export_store:
+            export_store.export_history(history, include_hidden=include_hidden, include_deleted=include_deleted)
+>>>>>>> refs/heads/release_21.01
 
         #
         # Create and return command line for running tool.
         #
+<<<<<<< HEAD
         options = ""
         if jeha.compressed:
             options = "-G"
@@ -521,3 +581,9 @@ class JobExportHistoryArchiveWrapper(UsesAnnotations):
                 shutil.rmtree(temp_dir)
             except Exception as e:
                 log.debug('Error deleting directory containing attribute files (%s): %s' % (temp_dir, e))
+=======
+        options = f"--galaxy-version '{VERSION_MAJOR}'"
+        if compressed:
+            options += " -G"
+        return f"{options} {store_directory}"
+>>>>>>> refs/heads/release_21.01

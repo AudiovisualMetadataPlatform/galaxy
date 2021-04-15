@@ -1,7 +1,6 @@
 """
 Migration script to add 'ldda_id' column to the implicitly_converted_dataset_association table.
 """
-from __future__ import print_function
 
 import logging
 
@@ -15,6 +14,7 @@ def upgrade(migrate_engine):
     metadata.bind = migrate_engine
     print(__doc__)
     metadata.reflect()
+<<<<<<< HEAD
     try:
         Implicitly_converted_table = Table("implicitly_converted_dataset_association", metadata, autoload=True)
         if migrate_engine.name != 'sqlite':
@@ -25,6 +25,11 @@ def upgrade(migrate_engine):
         assert c is Implicitly_converted_table.c.ldda_id
     except Exception:
         log.exception("Adding ldda_id column to implicitly_converted_dataset_association table failed.")
+=======
+
+    c = Column("ldda_id", Integer, ForeignKey("library_dataset_dataset_association.id"), index=True, nullable=True)
+    add_column(c, 'implicitly_converted_dataset_association', metadata, index_name='ix_implicitly_converted_ds_assoc_ldda_id')
+>>>>>>> refs/heads/release_21.01
 
 
 def downgrade(migrate_engine):

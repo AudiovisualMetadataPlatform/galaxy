@@ -1,6 +1,5 @@
 from abc import abstractmethod
 
-from six import iteritems
 
 from galaxy.util import bunch
 from galaxy.util.dictifiable import Dictifiable
@@ -16,7 +15,7 @@ panel_item_types = bunch.Bunch(
 )
 
 
-class HasPanelItems(object):
+class HasPanelItems:
     """
     """
 
@@ -30,7 +29,7 @@ class HasPanelItems(object):
         """ Iterate through panel items each represented as a tuple of
         (panel_key, panel_type, panel_content).
         """
-        for panel_key, panel_value in iteritems(self.panel_items()):
+        for panel_key, panel_value in self.panel_items().items():
             if panel_value is None:
                 continue
             panel_type = panel_item_types.SECTION
@@ -69,18 +68,19 @@ class ToolSection(Dictifiable, HasPanelItems):
         copy.elems = self.elems.copy()
         return copy
 
-    def to_dict(self, trans, link_details=False, toolbox=None):
+    def to_dict(self, trans, link_details=False, tool_help=False, toolbox=None):
         """ Return a dict that includes section's attributes. """
 
-        section_dict = super(ToolSection, self).to_dict()
+        section_dict = super().to_dict()
         section_elts = []
         kwargs = dict(
             trans=trans,
-            link_details=link_details
+            link_details=link_details,
+            tool_help=tool_help
         )
         for elt in self.elems.values():
             if hasattr(elt, "tool_type") and toolbox:
-                section_elts.append(toolbox.get_tool_to_dict(trans, elt))
+                section_elts.append(toolbox.get_tool_to_dict(trans, elt, tool_help=tool_help))
             else:
                 section_elts.append(elt.to_dict(**kwargs))
         section_dict['elems'] = section_elts
@@ -96,7 +96,6 @@ class ToolSectionLabel(Dictifiable):
     A label for a set of tools that can be displayed above groups of tools
     and sections in the user interface
     """
-
     dict_collection_visible_keys = ['id', 'text', 'version']
 
     def __init__(self, item):
@@ -109,7 +108,7 @@ class ToolSectionLabel(Dictifiable):
         self.version = item.get("version") or ''
 
     def to_dict(self, **kwds):
-        return super(ToolSectionLabel, self).to_dict()
+        return super().to_dict()
 
 
 class ToolPanelElements(odict, HasPanelItems):
@@ -122,6 +121,11 @@ class ToolPanelElements(odict, HasPanelItems):
             self[key] = value
         else:
             self.insert(index, key, value)
+
+    def get_label(self, label):
+        for element in self.values():
+            if isinstance(element, ToolSection) and element.name == label:
+                return element
 
     def has_tool_with_id(self, tool_id):
         key = 'tool_%s' % tool_id

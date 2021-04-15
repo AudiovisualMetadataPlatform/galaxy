@@ -8,11 +8,15 @@ import galaxy
 log = logging.getLogger(__name__)
 
 
+<<<<<<< HEAD
 class RuntimeException(Exception):
     pass
 
 
 class UsesItemRatings(object):
+=======
+class UsesItemRatings:
+>>>>>>> refs/heads/release_21.01
     """
         Mixin for getting and setting item ratings.
 
@@ -78,8 +82,9 @@ class UsesItemRatings(object):
         item_rating_assoc_class = '%sRatingAssociation' % item.__class__.__name__
         return getattr(webapp_model, item_rating_assoc_class, None)
 
-    def _get_item_id_filter_str(self, item, item_rating_assoc_class, webapp_model=None):
+    def _get_item_id_filter_str(self, item, item_rating_assoc_class):
         # Get foreign key in item-rating association table that references item table.
+<<<<<<< HEAD
         if webapp_model is None:
             webapp_model = galaxy.model
         item_fk = None
@@ -93,9 +98,13 @@ class UsesItemRatings(object):
 
         # TODO: can we provide a better filter than a raw string?
         return "%s=%i" % (item_fk.parent.name, item.id)
+=======
+        item_fk = get_foreign_key(item_rating_assoc_class, item)
+        return item_fk.parent == item.id
+>>>>>>> refs/heads/release_21.01
 
 
-class UsesAnnotations(object):
+class UsesAnnotations:
     """ Mixin for getting and setting item annotations. """
 
     def get_item_annotation_str(self, db_session, user, item):
@@ -170,10 +179,90 @@ class UsesAnnotations(object):
                 return annotation
         return None
 
+<<<<<<< HEAD
     def _get_annotation_assoc_class(self, item):
         """ Returns an item's item-annotation association class. """
         class_name = '%sAnnotationAssociation' % item.__class__.__name__
         return getattr(galaxy.model, class_name, None)
+=======
+
+def get_item_annotation_obj(db_session, user, item):
+    """Returns a user's annotation object for an item."""
+
+    # Get annotation association class.
+    annotation_assoc_class = _get_annotation_assoc_class(item)
+    if not annotation_assoc_class or item.id is None:
+        return None
+
+    # Get annotation association object.
+    annotation_assoc = db_session.query(annotation_assoc_class).filter_by(user=user)
+
+    if item.__class__ == galaxy.model.History:
+        annotation_assoc = annotation_assoc.filter_by(history=item)
+    elif item.__class__ == galaxy.model.HistoryDatasetAssociation:
+        annotation_assoc = annotation_assoc.filter_by(hda=item)
+    elif item.__class__ == galaxy.model.HistoryDatasetCollectionAssociation:
+        annotation_assoc = annotation_assoc.filter_by(history_dataset_collection=item)
+    elif item.__class__ == galaxy.model.StoredWorkflow:
+        annotation_assoc = annotation_assoc.filter_by(stored_workflow=item)
+    elif item.__class__ == galaxy.model.WorkflowStep:
+        annotation_assoc = annotation_assoc.filter_by(workflow_step=item)
+    elif item.__class__ == galaxy.model.Page:
+        annotation_assoc = annotation_assoc.filter_by(page=item)
+    elif item.__class__ == galaxy.model.Visualization:
+        annotation_assoc = annotation_assoc.filter_by(visualization=item)
+    return annotation_assoc.first()
+
+
+def get_item_annotation_str(db_session, user, item):
+    """ Returns a user's annotation string for an item. """
+    if hasattr(item, 'annotations'):
+        # If we already have an annotations object we use it.
+        annotation_obj = None
+        for annotation in item.annotations:
+            if annotation.user == user:
+                annotation_obj = annotation
+                break
+    else:
+        annotation_obj = get_item_annotation_obj(db_session, user, item)
+    if annotation_obj:
+        return galaxy.util.unicodify(annotation_obj.annotation)
+    return None
+
+
+def add_item_annotation(db_session, user, item, annotation):
+    """ Add or update an item's annotation; a user can only have a single annotation for an item. """
+    # Get/create annotation association object.
+    annotation_assoc = get_item_annotation_obj(db_session, user, item)
+    if not annotation_assoc:
+        annotation_assoc_class = _get_annotation_assoc_class(item)
+        if not annotation_assoc_class:
+            return None
+        annotation_assoc = annotation_assoc_class()
+        item.annotations.append(annotation_assoc)
+        annotation_assoc.user = user
+    # Set annotation.
+    annotation_assoc.annotation = annotation
+    return annotation_assoc
+
+
+def _get_annotation_assoc_class(item):
+    """ Returns an item's item-annotation association class. """
+    class_name = '%sAnnotationAssociation' % item.__class__.__name__
+    return getattr(galaxy.model, class_name, None)
+
+
+def get_foreign_key(source_class, target_class):
+    """ Returns foreign key in source class that references target class. """
+    target_fk = None
+    for fk in source_class.table.foreign_keys:
+        if fk.references(target_class.table):
+            target_fk = fk
+            break
+    if not target_fk:
+        raise Exception("No foreign key found between objects: %s, %s" % source_class.table, target_class.table)
+    return target_fk
+>>>>>>> refs/heads/release_21.01
 
 
 __all__ = (

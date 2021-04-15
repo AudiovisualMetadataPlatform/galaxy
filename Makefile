@@ -6,11 +6,15 @@ RELEASE_NEXT:=16.04
 RELEASE_NEXT_BRANCH:=dev
 RELEASE_UPSTREAM:=upstream
 MY_UPSTREAM:=origin
+<<<<<<< HEAD
 # Location of virtualenv used for development.
 VENV?=.venv
 # Source virtualenv to execute command (flake8, sphinx, twine, etc...)
 IN_VENV=if [ -f $(VENV)/bin/activate ]; then . $(VENV)/bin/activate; fi;
 CONFIG_MANAGE=$(IN_VENV) python lib/galaxy/webapps/config_manage.py
+=======
+CONFIG_MANAGE=$(IN_VENV) python lib/galaxy/config/config_manage.py
+>>>>>>> refs/heads/release_21.01
 PROJECT_URL?=https://github.com/galaxyproject/galaxy
 DOCS_DIR=doc
 DOC_SOURCE_DIR=$(DOCS_DIR)/source
@@ -30,6 +34,9 @@ docs: ## Generate HTML documentation.
 # You also need to install pandoc separately.
 	$(IN_VENV) $(MAKE) -C doc clean
 	$(IN_VENV) $(MAKE) -C doc html
+
+docs-develop: ## Fast doc generation and more warnings (for development)
+	$(IN_VENV) GALAXY_DOCS_SKIP_VIEW_CODE=1 SPHINXOPTS='-j 4' $(MAKE) -C doc html
 
 setup-venv:
 	if [ ! -f $(VENV)/bin/activate ]; then bash scripts/common_startup.sh --dev-wheels; fi
@@ -157,19 +164,37 @@ client-production-maps: node-deps ## Rebuild client-side artifacts for a product
 client-format: node-deps ## Reformat client code
 	cd client && yarn run prettier
 
-client-watch: node-deps ## A useful target for parallel development building.
+client-watch: node-deps ## A useful target for parallel development building.  See also client-dev-server.
 	cd client && yarn run watch
 
+<<<<<<< HEAD
 _client-test-mocha:  ## Run mocha tests via karma
 	cd client && yarn run test-mocha
+=======
+client-dev-server: node-deps ## Starts a webpack dev server for client development (HMR enabled)
+	cd client && yarn run webpack-dev-server
 
+client-test: node-deps  ## Run JS unit tests
+	cd client && yarn run test
+>>>>>>> refs/heads/release_21.01
+
+<<<<<<< HEAD
 _client-test-qunit:  ## Run qunit tests via karma
 	cd client && yarn run test-qunit
 
 client-test: client _client-test-mocha _client-test-qunit ## Run JS unit tests via Karma
+=======
+client-eslint: node-deps # Run client linting
+	cd client && yarn run eslint
+>>>>>>> refs/heads/release_21.01
 
-client-test-watch: client ## Watch and run qunit tests on changes via Karma
-	cd client && yarn run test-watch
+client-format-check: node-deps # Run client formatting check
+	cd client && yarn run prettier-check
+
+client-lint: client-eslint client-format-check ## ES lint and check format of client
+
+client-test-watch: client ## Watch and run all client unit tests on changes
+	cd client && yarn run jest-watch
 
 # Release Targets
 release-create-rc: release-ensure-upstream ## Create a release-candidate branch

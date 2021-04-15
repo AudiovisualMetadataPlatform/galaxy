@@ -22,7 +22,7 @@ datatypes_registry.load_datatypes()
 galaxy.model.set_datatypes_registry(datatypes_registry)
 
 
-class UsesApp(object):
+class UsesApp:
 
     def setup_app(self):
         self.test_directory = tempfile.mkdtemp()
@@ -63,7 +63,7 @@ SIMPLE_CAT_TOOL_CONTENTS = '''<tool id="${tool_id}" name="Test Tool" version="$v
 '''
 
 
-class UsesTools(object):
+class UsesTools:
 
     def _init_tool(
         self,
@@ -94,6 +94,7 @@ class UsesTools(object):
         tool_source = get_tool_source(self.tool_file)
         try:
             self.tool = create_tool_from_source(self.app, tool_source, config_file=self.tool_file)
+            self.tool.assert_finalized()
         except Exception:
             self.tool = None
         if getattr(self, "tool_action", None and self.tool):
@@ -105,7 +106,7 @@ class UsesTools(object):
         open(path, "w").write(contents)
 
 
-class MockContext(object):
+class MockContext:
 
     def __init__(self, model_objects=None):
         self.expunged_all = False
@@ -127,7 +128,7 @@ class MockContext(object):
         self.created_objects.append(object)
 
 
-class MockQuery(object):
+class MockQuery:
 
     def __init__(self, class_objects):
         self.class_objects = class_objects

@@ -1,15 +1,12 @@
-# -*- coding: utf-8 -*-
 #
 # Galaxy sphinxcontrib-simpleversioning documentation build configuration file
+# This file is appended to conf.py by the Build docs github workflow.
 #
-# This file is written to the end of conf.py by Jenkins
-#
-
 from distutils.version import LooseVersion
 from subprocess import check_output
 
 # This is set in the Jenkins matrix config
-TARGET_GIT_BRANCH = os.environ.get('TARGET_GIT_BRANCH', 'dev')  # noqa: F821
+TARGET_GIT_BRANCH = os.environ.get('TARGET_BRANCH', 'dev')  # noqa: F821
 
 # Version message templates
 OLD_BANNER = """This document is for an old release of Galaxy."""
@@ -43,7 +40,8 @@ if TARGET_GIT_BRANCH.startswith('release_'):
     _target_ver = TARGET_GIT_BRANCH[len('release_'):]
 
 # Use tags to determine versions - a stable version will have a branch before it's released, but not a tag.
-for _tag in reversed(check_output(('git', 'tag')).splitlines()):
+tags = check_output(('git', 'tag')).decode().splitlines()
+for _tag in reversed(tags):
     if _tag.startswith('v') and _tag.count('.') == 1:
         # this version is released
         _ver = _tag[1:]

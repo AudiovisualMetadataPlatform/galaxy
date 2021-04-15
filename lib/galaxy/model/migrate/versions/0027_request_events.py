@@ -2,26 +2,34 @@
 This migration script adds the request_event table and
 removes the state field in the request table
 """
-from __future__ import print_function
 
 import datetime
 import logging
-import sys
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, MetaData, Table, TEXT
-from sqlalchemy.exc import NoSuchTableError
+from sqlalchemy import (
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    MetaData,
+    Table,
+    TEXT
+)
 
 # Need our custom types, but don't import anything else from model
 from galaxy.model.custom_types import TrimmedString
+<<<<<<< HEAD
+=======
+from galaxy.model.migrate.versions.util import (
+    create_table,
+    drop_column,
+    localtimestamp,
+    nextval
+)
+>>>>>>> refs/heads/release_21.01
 
-now = datetime.datetime.utcnow
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-handler = logging.StreamHandler(sys.stdout)
-format = "%(name)s %(levelname)s %(asctime)s %(message)s"
-formatter = logging.Formatter(format)
-handler.setFormatter(formatter)
-log.addHandler(handler)
+now = datetime.datetime.utcnow
 metadata = MetaData()
 
 RequestEvent_table = Table('request_event', metadata,
@@ -37,6 +45,7 @@ def upgrade(migrate_engine):
     metadata.bind = migrate_engine
     print(__doc__)
 
+<<<<<<< HEAD
     def localtimestamp():
         if migrate_engine.name in ['mysql', 'postgres', 'postgresql']:
             return "LOCALTIMESTAMP"
@@ -59,8 +68,10 @@ def upgrade(migrate_engine):
         RequestEvent_table.create()
     except Exception:
         log.exception("Creating request_event table failed.")
+=======
+    create_table(RequestEvent_table)
+>>>>>>> refs/heads/release_21.01
     # move the current state of all existing requests to the request_event table
-
     cmd = \
         "INSERT INTO request_event " + \
         "SELECT %s AS id," + \
@@ -73,18 +84,7 @@ def upgrade(migrate_engine):
     cmd = cmd % (nextval('request_event'), localtimestamp(), localtimestamp(), 'Imported from request table')
     migrate_engine.execute(cmd)
 
-    if migrate_engine.name != 'sqlite':
-        # Delete the state column
-        try:
-            Request_table = Table("request", metadata, autoload=True)
-        except NoSuchTableError:
-            Request_table = None
-            log.debug("Failed loading table request")
-        if Request_table is not None:
-            try:
-                Request_table.c.state.drop()
-            except Exception:
-                log.exception("Deleting column 'state' to request table failed.")
+    drop_column('state', 'request', metadata)
 
 
 def downgrade(migrate_engine):

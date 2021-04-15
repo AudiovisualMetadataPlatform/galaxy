@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import logging
 import signal
 import sys
@@ -7,18 +5,49 @@ import time
 
 import galaxy.model
 import galaxy.queues
-import galaxy.quota
 import galaxy.security
 from galaxy import config, jobs
+<<<<<<< HEAD
+=======
+from galaxy.config_watchers import ConfigWatchers
+>>>>>>> refs/heads/release_21.01
 from galaxy.containers import build_container_interfaces
+<<<<<<< HEAD
 from galaxy.jobs import metrics as job_metrics
+=======
+from galaxy.files import ConfiguredFileSources
+from galaxy.job_metrics import JobMetrics
+>>>>>>> refs/heads/release_21.01
 from galaxy.managers.collections import DatasetCollectionManager
 from galaxy.managers.folders import FolderManager
+from galaxy.managers.hdas import HDAManager
 from galaxy.managers.histories import HistoryManager
+from galaxy.managers.interactivetool import InteractiveToolManager
 from galaxy.managers.libraries import LibraryManager
+<<<<<<< HEAD
 from galaxy.managers.tags import GalaxyTagManager
 from galaxy.openid.providers import OpenIDProviders
 from galaxy.queue_worker import GalaxyQueueWorker
+=======
+from galaxy.managers.roles import RoleManager
+from galaxy.managers.tools import DynamicToolManager
+from galaxy.managers.users import UserManager
+from galaxy.managers.workflows import (
+    WorkflowContentsManager,
+    WorkflowsManager,
+)
+from galaxy.model.database_heartbeat import DatabaseHeartbeat
+from galaxy.model.tags import GalaxyTagHandler
+from galaxy.queue_worker import (
+    GalaxyQueueWorker,
+    send_local_control_task,
+)
+from galaxy.quota import get_quota_agent
+from galaxy.tool_shed.galaxy_install.installed_repository_manager import InstalledRepositoryManager
+from galaxy.tool_shed.galaxy_install.update_repository_manager import UpdateRepositoryManager
+from galaxy.tool_util.deps.views import DependencyResolversView
+from galaxy.tool_util.verify import test_data
+>>>>>>> refs/heads/release_21.01
 from galaxy.tools.cache import (
     ToolCache,
     ToolShedRepositoryCache
@@ -27,23 +56,24 @@ from galaxy.tools.data_manager.manager import DataManagers
 from galaxy.tools.deps.views import DependencyResolversView
 from galaxy.tools.error_reports import ErrorReports
 from galaxy.tools.special_tools import load_lib_tools
-from galaxy.tools.verify import test_data
-from galaxy.tours import ToursRegistry
+from galaxy.tours import build_tours_registry
 from galaxy.util import (
     ExecutionTimer,
-    heartbeat
+    heartbeat,
+    StructuredExecutionTimer,
 )
 from galaxy.visualization.data_providers.registry import DataProviderRegistry
 from galaxy.visualization.genomes import Genomes
 from galaxy.visualization.plugins.registry import VisualizationsRegistry
 from galaxy.web.proxy import ProxyManager
+<<<<<<< HEAD
 from galaxy.web.stack import application_stack_instance
 from galaxy.webapps.galaxy.config_watchers import ConfigWatchers
+=======
+from galaxy.web_stack import application_stack_instance
+>>>>>>> refs/heads/release_21.01
 from galaxy.webhooks import WebhooksRegistry
-from tool_shed.galaxy_install import (
-    installed_repository_manager,
-    update_repository_manager
-)
+from galaxy.workflow.trs_proxy import TrsProxy
 
 log = logging.getLogger(__name__)
 app = None
@@ -60,21 +90,24 @@ class UniverseApplication(config.ConfiguresGalaxyMixin):
             logging.basicConfig(level=logging.DEBUG)
         log.debug("python path is: %s", ", ".join(sys.path))
         self.name = 'galaxy'
+        # is_webapp will be set to true when building WSGI app
+        self.is_webapp = False
         self.startup_timer = ExecutionTimer()
         self.new_installation = False
         # Read config file and check for errors
         self.config = config.Configuration(**kwargs)
         self.config.check()
         config.configure_logging(self.config)
+        self.execution_timer_factory = ExecutionTimerFactory(self.config)
         self.configure_fluent_log()
         # A lot of postfork initialization depends on the server name, ensure it is set immediately after forking before other postfork functions
         self.application_stack = application_stack_instance(app=self)
         self.application_stack.register_postfork_function(self.application_stack.set_postfork_server_name, self)
-        self.config.reload_sanitize_whitelist(explicit='sanitize_whitelist_file' in kwargs)
+        self.config.reload_sanitize_allowlist(explicit='sanitize_allowlist_file' in kwargs)
         self.amqp_internal_connection_obj = galaxy.queues.connection_from_config(self.config)
-        # control_worker *can* be initialized with a queue, but here we don't
+        # queue_worker *can* be initialized with a queue, but here we don't
         # want to and we'll allow postfork to bind and start it.
-        self.control_worker = GalaxyQueueWorker(self)
+        self.queue_worker = GalaxyQueueWorker(self)
 
         self._configure_tool_shed_registry()
         self._configure_object_store(fsmon=True)
@@ -85,22 +118,27 @@ class UniverseApplication(config.ConfiguresGalaxyMixin):
         check_migrate_tools = self.config.check_migrate_tools
         self._configure_models(check_migrate_databases=True, check_migrate_tools=check_migrate_tools, config_file=config_file)
 
-        # Manage installed tool shed repositories.
-        self.installed_repository_manager = installed_repository_manager.InstalledRepositoryManager(self)
-
-        self._configure_datatypes_registry(self.installed_repository_manager)
-        galaxy.model.set_datatypes_registry(self.datatypes_registry)
-
         # Security helper
         self._configure_security()
         # Tag handler
         self.tag_handler = GalaxyTagManager(self.model.context)
         self.dataset_collections_service = DatasetCollectionManager(self)
         self.history_manager = HistoryManager(self)
+        self.hda_manager = HDAManager(self)
+        self.workflow_manager = WorkflowsManager(self)
+        self.workflow_contents_manager = WorkflowContentsManager(self)
         self.dependency_resolvers_view = DependencyResolversView(self)
         self.test_data_resolver = test_data.TestDataResolver(file_dirs=self.config.tool_test_data_directories)
         self.library_folder_manager = FolderManager()
         self.library_manager = LibraryManager()
+<<<<<<< HEAD
+=======
+        self.role_manager = RoleManager(self)
+        self.dynamic_tool_manager = DynamicToolManager(self)
+>>>>>>> refs/heads/release_21.01
+
+        # ConfiguredFileSources
+        self.file_sources = ConfiguredFileSources.from_app_config(self.config)
 
         # Tool Data Tables
         self._configure_tool_data_tables(from_shed_config=False)
@@ -114,7 +152,7 @@ class UniverseApplication(config.ConfiguresGalaxyMixin):
 
         # Initialize job metrics manager, needs to be in place before
         # config so per-destination modifications can be made.
-        self.job_metrics = job_metrics.JobMetrics(self.config.job_metrics_config_file, app=self)
+        self.job_metrics = JobMetrics(self.config.job_metrics_config_file, app=self)
 
         # Initialize error report plugins.
         self.error_reports = ErrorReports(self.config.error_report_file, app=self)
@@ -127,12 +165,17 @@ class UniverseApplication(config.ConfiguresGalaxyMixin):
         self.tool_shed_repository_cache = ToolShedRepositoryCache(self)
         # Watch various config files for immediate reload
         self.watchers = ConfigWatchers(self)
+        self._configure_tool_config_files()
+        self.installed_repository_manager = InstalledRepositoryManager(self)
+        self._configure_datatypes_registry(self.installed_repository_manager)
+        galaxy.model.set_datatypes_registry(self.datatypes_registry)
+
         self._configure_toolbox()
 
         # Load Data Manager
         self.data_managers = DataManagers(self)
         # Load the update repository manager.
-        self.update_repository_manager = update_repository_manager.UpdateRepositoryManager(self)
+        self.update_repository_manager = UpdateRepositoryManager(self)
         # Load proprietary datatype converters and display applications.
         self.installed_repository_manager.load_proprietary_converters_and_display_applications()
         # Load datatype display applications defined in local datatypes_conf.xml
@@ -143,25 +186,23 @@ class UniverseApplication(config.ConfiguresGalaxyMixin):
         self.datatypes_registry.load_external_metadata_tool(self.toolbox)
         # Load history import/export tools.
         load_lib_tools(self.toolbox)
+        self.toolbox.persist_cache(register_postfork=True)
         # visualizations registry: associates resources with visualizations, controls how to render
         self.visualizations_registry = VisualizationsRegistry(
             self,
             directories_setting=self.config.visualization_plugins_directory,
-            template_cache_dir=self.config.template_cache)
+            template_cache_dir=self.config.template_cache_path)
         # Tours registry
-        self.tour_registry = ToursRegistry(self.config.tour_config_dir)
+        self.tour_registry = build_tours_registry(self.config.tour_config_dir)
         # Webhooks registry
-        self.webhooks_registry = WebhooksRegistry(self.config.webhooks_dirs)
+        self.webhooks_registry = WebhooksRegistry(self.config.webhooks_dir)
         # Load security policy.
         self.security_agent = self.model.security_agent
         self.host_security_agent = galaxy.security.HostAgent(
             model=self.security_agent.model,
             permitted_actions=self.security_agent.permitted_actions)
         # Load quota management.
-        if self.config.enable_quotas:
-            self.quota_agent = galaxy.quota.QuotaAgent(self.model)
-        else:
-            self.quota_agent = galaxy.quota.NoQuotaAgent(self.model)
+        self.quota_agent = get_quota_agent(self.config, self.model)
         # Heartbeat for thread profiling
         self.heartbeat = None
         # Container for OpenID authentication routines
@@ -173,6 +214,7 @@ class UniverseApplication(config.ConfiguresGalaxyMixin):
             self.openid_providers = OpenIDProviders()
         from galaxy import auth
         self.auth_manager = auth.AuthManager(self)
+        self.user_manager = UserManager(self)
         # Start the heartbeat process if configured and available (wait until
         # postfork if using uWSGI)
         if self.config.use_heartbeat:
@@ -185,9 +227,12 @@ class UniverseApplication(config.ConfiguresGalaxyMixin):
                 self.heartbeat.daemon = True
                 self.application_stack.register_postfork_function(self.heartbeat.start)
 
+        self.authnz_manager = None
         if self.config.enable_oidc:
             from galaxy.authnz import managers
-            self.authnz_manager = managers.AuthnzManager(self, self.config.oidc_config, self.config.oidc_backends_config)
+            self.authnz_manager = managers.AuthnzManager(self,
+                                                         self.config.oidc_config_file,
+                                                         self.config.oidc_backends_config_file)
 
         self.sentry_client = None
         if self.config.sentry_dsn:
@@ -212,6 +257,7 @@ class UniverseApplication(config.ConfiguresGalaxyMixin):
         # Must be initialized after job_config.
         self.workflow_scheduling_manager = scheduling_manager.WorkflowSchedulingManager(self)
 
+        self.trs_proxy = TrsProxy(self.config)
         # Must be initialized after any component that might make use of stack messaging is configured. Alternatively if
         # it becomes more commonly needed we could create a prefork function registration method like we do with
         # postfork functions.
@@ -224,14 +270,28 @@ class UniverseApplication(config.ConfiguresGalaxyMixin):
                 containers_conf=self.config.containers_conf
             )
 
+        self.interactivetool_manager = InteractiveToolManager(self)
+
         # Configure handling of signals
         handlers = {}
         if self.heartbeat:
             handlers[signal.SIGUSR1] = self.heartbeat.dump_signal_handler
         self._configure_signal_handlers(handlers)
 
+<<<<<<< HEAD
+=======
+        self.database_heartbeat = DatabaseHeartbeat(
+            application_stack=self.application_stack
+        )
+        self.database_heartbeat.add_change_callback(self.watchers.change_state)
+        self.application_stack.register_postfork_function(self.database_heartbeat.start)
+
+>>>>>>> refs/heads/release_21.01
         # Start web stack message handling
         self.application_stack.register_postfork_function(self.application_stack.start)
+        self.application_stack.register_postfork_function(self.queue_worker.bind_and_start)
+        # Delay toolbox index until after startup
+        self.application_stack.register_postfork_function(lambda: send_local_control_task(self, 'rebuild_toolbox_search_index'))
 
         self.model.engine.dispose()
         self.server_starttime = int(time.time())  # used for cachebusting
@@ -240,6 +300,11 @@ class UniverseApplication(config.ConfiguresGalaxyMixin):
     def shutdown(self):
         log.debug('Shutting down')
         exception = None
+        try:
+            self.queue_worker.shutdown()
+        except Exception as e:
+            exception = exception or e
+            log.exception("Failed to shutdown control worker cleanly")
         try:
             self.watchers.shutdown()
         except Exception as e:
@@ -273,12 +338,6 @@ class UniverseApplication(config.ConfiguresGalaxyMixin):
             log.exception("Failed to shutdown update repository manager cleanly")
 
         try:
-            self.control_worker.shutdown()
-        except Exception as e:
-            exception = exception or e
-            log.exception("Failed to shutdown control worker cleanly")
-
-        try:
             self.model.engine.dispose()
         except Exception as e:
             exception = exception or e
@@ -297,7 +356,7 @@ class UniverseApplication(config.ConfiguresGalaxyMixin):
 
     def configure_fluent_log(self):
         if self.config.fluent_log:
-            from galaxy.util.logging.fluent_log import FluentTraceLogger
+            from galaxy.util.custom_logging.fluent_log import FluentTraceLogger
             self.trace_logger = FluentTraceLogger('galaxy', self.config.fluent_host, self.config.fluent_port)
         else:
             self.trace_logger = None
@@ -305,3 +364,36 @@ class UniverseApplication(config.ConfiguresGalaxyMixin):
     @property
     def is_job_handler(self):
         return (self.config.track_jobs_in_database and self.job_config.is_handler) or not self.config.track_jobs_in_database
+
+
+class StatsdStructuredExecutionTimer(StructuredExecutionTimer):
+
+    def __init__(self, galaxy_statsd_client, *args, **kwds):
+        self.galaxy_statsd_client = galaxy_statsd_client
+        super().__init__(*args, **kwds)
+
+    def to_str(self, **kwd):
+        self.galaxy_statsd_client.timing(self.timer_id, self.elapsed * 1000., kwd)
+        return super().to_str(**kwd)
+
+
+class ExecutionTimerFactory:
+
+    def __init__(self, config):
+        statsd_host = getattr(config, "statsd_host", None)
+        if statsd_host:
+            from galaxy.web.framework.middleware.statsd import GalaxyStatsdClient
+            self.galaxy_statsd_client = GalaxyStatsdClient(
+                statsd_host,
+                getattr(config, 'statsd_port', 8125),
+                getattr(config, 'statsd_prefix', 'galaxy'),
+                getattr(config, 'statsd_influxdb', False),
+            )
+        else:
+            self.galaxy_statsd_client = None
+
+    def get_timer(self, *args, **kwd):
+        if self.galaxy_statsd_client:
+            return StatsdStructuredExecutionTimer(self.galaxy_statsd_client, *args, **kwd)
+        else:
+            return StructuredExecutionTimer(*args, **kwd)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #!/usr/bin/env python
 """ Entry point for starting Galaxy without starting as part of a web server.
 
@@ -288,3 +289,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+=======
+galaxy_main.py
+>>>>>>> refs/heads/release_21.01

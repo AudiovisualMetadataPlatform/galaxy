@@ -36,6 +36,7 @@ default"
 export PIPENV_IGNORE_VIRTUALENVS=1
 for env in $ENVS; do
     cd "$THIS_DIRECTORY/$env"
+<<<<<<< HEAD
     pipenv lock -v
     # Strip out hashes and trailing whitespace for unhashed version
     # of this requirements file, needed for pipenv < 11.1.2
@@ -54,6 +55,17 @@ for env in $ENVS; do
                 -e "s/^python-dateutil==\([^ ;]\{1,\}\).*$/python-dateutil==\1/" \
                 -e "s/^subprocess32==\([^ ;]\{1,\}\).*$/subprocess32==\1 ; python_version < '3.0'/" \
                 pinned-requirements.txt pinned-dev-requirements.txt
+=======
+    if [ "$docker" -eq 1 ]; then
+        docker run -v "$(pwd):/working" -t 'galaxy/update-python-dependencies'
+    else
+        sh ../docker/docker_script.sh
+    fi
+
+    if ! grep '==' pinned-dev-requirements.txt ; then
+        rm -f pinned-dev-requirements.txt
+    fi
+>>>>>>> refs/heads/release_21.01
 done
 
 if [ "$commit" -eq "1" ];

@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import argparse
 import collections
 import copy
@@ -9,10 +7,12 @@ import os
 import re
 import sys
 from functools import reduce
-from xml.etree import ElementTree as ET
+from typing import Set
 
 import numpy as np
 from yaml import load
+
+from galaxy.util import parse_xml
 
 __version__ = '1.1.0'
 
@@ -26,7 +26,7 @@ verbose = True
 list of all valid priorities, inferred from the global
 default_desinations section of the config
 """
-priority_list = set()
+priority_list: Set[str] = set()
 
 """
 Instantiated to a list of all valid destinations in the job configuration file
@@ -34,7 +34,7 @@ if run directly to validate configs. Otherwise, remains None. We often check
 to see if app is None, because if it is then we'll try using the
 destination_list instead.
 -"""
-destination_list = set()
+destination_list: Set[str] = set()
 
 """
 The largest the edit distance can be for a word to be considered
@@ -67,13 +67,15 @@ def get_keys_from_dict(dl, keys_list):
     This function builds a list using the keys from nest dictionaries
     """
     if isinstance(dl, dict):
-        keys_list += dl.keys()
-        map(lambda x: get_keys_from_dict(x, keys_list), dl.values())
+        keys_list.extend(dl.keys())
+        for x in dl.values():
+            get_keys_from_dict(x, keys_list)
     elif isinstance(dl, list):
-        map(lambda x: get_keys_from_dict(x, keys_list), dl)
+        for x in dl:
+            get_keys_from_dict(x, keys_list)
 
 
-class RuleValidator(object):
+class RuleValidator:
     """
     This class is the primary facility for validating configs. It's always
     called in map_tool_to_destination and it's called for validating config
@@ -81,21 +83,17 @@ class RuleValidator(object):
     """
 
     @classmethod
-    def validate_rule(cls, rule_type, app, return_bool=False, *args, **kwargs):
+    def validate_rule(cls, rule_type: str, app, return_bool: bool = False, *args, **kwargs):
         """
         This function is responsible for passing each rule to its relevant
         function.
 
-        @type rule_type: str
-        @param rule_type: the current rule's type
-
-        @type return_bool: bool
-        @param return_bool: True when we are only interested in the result of
+        :param rule_type: the current rule's type
+        :param return_bool: True when we are only interested in the result of
                             the validation, and not the validated rule itself.
-
-        @rtype: bool, dict (depending on return_bool)
-        @return: validated rule or result of validation (depending on
-                 return_bool)
+        :rtype: bool, dict (depending on return_bool)
+        :returns: validated rule or result of validation (depending on
+                  return_bool)
         """
         if rule_type == 'file_size':
             return cls.__validate_file_size_rule(app, return_bool, *args, **kwargs)
@@ -378,30 +376,20 @@ class RuleValidator(object):
         return valid_rule, rule
 
     @classmethod
-    def __validate_destination(cls, valid_rule, app, return_bool, rule, tool, counter):
+    def __validate_destination(cls, valid_rule: bool, app, return_bool: bool, rule: dict, tool: str, counter: int):
         """
         This function is responsible for validating destination.
 
-        @type valid_rule: bool
-        @param valid_rule: returns True if everything is valid. False if it
+        :param valid_rule: returns True if everything is valid. False if it
                            encounters any abnormalities in the config.
-
-        @type return_bool: bool
-        @param return_bool: True when we are only interested in the result of
+        :param return_bool: True when we are only interested in the result of
                             the validation, and not the validated rule itself.
-
-        @type rule: dict
-        @param rule: contains the original received rule
-
-        @type tool: str
-        @param tool: the name of the current tool. Necessary for log output.
-
-        @type counter: int
-        @param counter: this counter is used to identify what rule # is
+        :param rule: contains the original received rule
+        :param tool: the name of the current tool. Necessary for log output.
+        :param counter: this counter is used to identify what rule # is
                         currently being validated. Necessary for log output.
-
-        @rtype: bool, dict (tuple)
-        @return: validated rule and result of validation
+        :rtype: bool, dict (tuple)
+        :returns: validated rule and result of validation
         """
 
         if "fail_message" in rule:
@@ -696,27 +684,20 @@ class RuleValidator(object):
         return valid_rule, rule
 
 
-def parse_yaml(path="/config/tool_destinations.yml",
-               job_conf_path="/config/job_conf.xml", app=None, test=False,
-               return_bool=False):
+def parse_yaml(path: str = "/config/tool_destinations.yml",
+               job_conf_path: str = "/config/job_conf.xml", app=None, test: bool = False,
+               return_bool: bool = False):
     """
     Get a yaml file from path and send it to validate_config for validation.
 
-    @type path: str
-    @param path: the path to the tool destinations config file
-
-    @type job_conf_path: str
-    @param job_conf_path: the path to the job config file
-
-    @type test: bool
-    @param test: indicates whether to run in test mode or production mode
-
-    @type return_bool: bool
-    @param return_bool: True when we are only interested in the result of the
+    :param path: the path to the tool destinations config file
+    :param job_conf_path: the path to the job config file
+    :param test: indicates whether to run in test mode or production mode
+    :type return_bool: bool
+    :param return_bool: True when we are only interested in the result of the
                           validation, and not the validated rule itself.
-
-    @rtype: bool, dict (depending on return_bool)
-    @return: validated rule or result of validation (depending on return_bool)
+    :rtype: bool, dict (depending on return_bool)
+    :returns: validated rule or result of validation (depending on return_bool)
 
     """
 
@@ -733,15 +714,21 @@ def parse_yaml(path="/config/tool_destinations.yml",
                 # os.path.realpath gets the path of DynamicToolDestination.py
                 # and then os.path.join is used to go back four directories
                 config_directory = os.path.join(
-                    os.path.dirname(os.path.realpath(__file__)), '../../../..')
+                    os.path.dirname(os.path.realpath(__file__)), os.pardir,
+                    os.pardir, os.pardir, os.pardir)
 
                 opt_file = config_directory + path
 
             else:
                 opt_file = path
 
+<<<<<<< HEAD
             with open(opt_file, 'r') as stream:
                 config = load(stream)
+=======
+            with open(opt_file) as stream:
+                config = yaml.safe_load(stream)
+>>>>>>> refs/heads/release_21.01
 
         # Test imported file
         try:
@@ -751,7 +738,7 @@ def parse_yaml(path="/config/tool_destinations.yml",
                 config = validate_config(config, app)
         except MalformedYMLException:
             if verbose:
-                log.error(str(sys.exc_value))
+                log.exception("Failed to parse YAML for dynamic job destination")
             raise
     except ScannerError:
         if verbose:
@@ -765,34 +752,26 @@ def parse_yaml(path="/config/tool_destinations.yml",
         return config
 
 
-def validate_destination(app, destination, err_message, err_message_contents,
-                         return_bool=True):
+def validate_destination(app, destination: str, err_message: str, err_message_contents,
+                         return_bool: bool = True):
     """
     Validate received destination id.
 
-    @type app:
-    @param app: Current app
-
-    @type destination: str
-    @param destination: string containing the destination id that is being
+    :param app: Current app
+    :param destination: string containing the destination id that is being
                         validated
-
-    @type err_message: str
-    @param err_message: Error message to be formatted with the contents of
+    :param err_message: Error message to be formatted with the contents of
                         `err_message_contents` upon the event of invalid
                         destination
-
-    @type err_message_contents: tuple
-    @param err_message_contents: A tuple of strings to be placed in
-                                 `err_message`
-
-    @type return_bool: bool
-    @param return_bool: Whether or not the calling function has been told to
+    :type err_message_contents: tuple
+    :param err_message_contents: A tuple of strings to be placed in
+                                 ``err_message``
+    :param return_bool: Whether or not the calling function has been told to
                         return a boolean value or not. Determines whether or
                         not to print 'Ignoring...' after error messages.
 
-    @rtype: bool
-    @return: True if the destination is valid and False otherwise.
+    :rtype: bool
+    :returns: True if the destination is valid and False otherwise.
     """
 
     valid_destination = False
@@ -821,19 +800,15 @@ def validate_destination(app, destination, err_message, err_message_contents,
     return valid_destination
 
 
-def validate_config(obj, app=None, return_bool=False,):
+def validate_config(obj: dict, app=None, return_bool: bool = False):
     """
     Validate received config.
 
-    @type obj: dict
-    @param obj: the entire contents of the config
-
-    @type return_bool: bool
-    @param return_bool: True when we are only interested in the result of the
-                          validation, and not the validated rule itself.
-
-    @rtype: bool, dict (depending on return_bool)
-    @return: validated rule or result of validation (depending on return_bool)
+    :param obj: the entire contents of the config
+    :param return_bool: True when we are only interested in the result of the
+                        validation, and not the validated rule itself.
+    :rtype: bool, dict (depending on return_bool)
+    :returns: validated rule or result of validation (depending on return_bool)
     """
 
     global priority_list
@@ -888,8 +863,8 @@ def validate_config(obj, app=None, return_bool=False,):
 
             elif isinstance(obj['default_destination'], dict):
 
-                if ('priority' in obj['default_destination'] and
-                        isinstance(obj['default_destination']['priority'], dict)):
+                if ('priority' in obj['default_destination']
+                        and isinstance(obj['default_destination']['priority'], dict)):
 
                     for priority in obj['default_destination']['priority']:
                         if isinstance(obj['default_destination']['priority'][priority],
@@ -1018,7 +993,7 @@ def validate_config(obj, app=None, return_bool=False,):
                                     (tool, curr['default_destination']))
                                 if is_valid:
                                     new_config['tools'][tool]['default_destination'] = (
-                                        (curr['default_destination']))
+                                        curr['default_destination'])
                                     tool_has_default = True
                                 else:
                                     valid_config = False
@@ -1103,8 +1078,8 @@ def validate_config(obj, app=None, return_bool=False,):
                                         # if we got a rule back that seems to be
                                         # valid (or was fixable) then append it to
                                         # list of ready-to-use tools
-                                        if (not return_bool and
-                                                validated_rule is not None):
+                                        if (not return_bool
+                                                and validated_rule is not None):
                                             curr_tool_rules.append(
                                                 copy.deepcopy(validated_rule))
 
@@ -1217,8 +1192,8 @@ def bytes_to_str(size, unit="YB"):
         i = 0
 
     try:
-        return_str = "%.2f %s" % (size_changer, units[i])
-    except TypeError:
+        return_str = "{:.2f} {}".format(size_changer, units[i])
+    except (ValueError, TypeError):
         return_str = "%s" % (size_changer)
 
     return return_str
@@ -1261,12 +1236,12 @@ def str_to_bytes(size):
             # Get the unit and convert to bytes
             try:
                 pos = units.index(curr_unit)
-                for x in range(pos, 1, -1):
+                for _ in range(pos, 1, -1):
                     curr_size *= 1024
             except ValueError:
                 error = "Unable to convert size " + str(size)
                 raise MalformedYMLException(error)
-            except (UnboundLocalError, NameError):
+            except NameError:
                 pass
         else:
             curr_size = -1
@@ -1287,7 +1262,7 @@ def importer(test):
     global JobDestination
     global JobMappingException
     if test:
-        class JobDestination(object):
+        class JobDestination:
             def __init__(self, *kwd):
                 self.id = kwd.get('id')
                 self.nativeSpec = kwd.get('params')['nativeSpecification']
@@ -1338,7 +1313,7 @@ def map_tool_to_destination(
         raise JobMappingException(e)
 
     # Get all inputs from tool and databases
-    inp_data = dict([(da.name, da.dataset) for da in job.input_datasets])
+    inp_data = {da.name: da.dataset for da in job.input_datasets}
     inp_data.update([(da.name, da.dataset) for da in job.input_library_datasets])
 
     if config is not None and str(tool.old_id) in config['tools']:
@@ -1622,21 +1597,22 @@ def map_tool_to_destination(
     return destination
 
 
-def get_destination_list_from_job_config(job_config_location):
+def get_destination_list_from_job_config(job_config_location) -> set:
     """
     returns A list of all destination IDs declared in the job configuration
 
-    @type job_config_location: str
-    @param job_config_location: The location of the job config file relative
-                to the galaxy root directory. If NoneType, defaults to
-                galaxy/config/job_conf.xml,
-                galaxy/config/job_conf.xml.sample_advanced, or
-                galaxy/config/job_conf.xml.sample_basic
-                (first one that exists)
+    :type job_config_location: str
+    :param job_config_location:
 
-    @rtype: list
-    @return: A list of all of the destination IDs declared in the job
-                configuration file.
+        The location of the job config file relative
+        to the galaxy root directory. If NoneType, defaults to
+        galaxy/config/job_conf.xml,
+        galaxy/config/job_conf.xml.sample_advanced, or
+        galaxy/config/job_conf.xml.sample_basic
+        (first one that exists)
+
+    :return: A list of all of the destination IDs declared in the job
+             configuration file.
     """
     global destination_list
 
@@ -1644,29 +1620,25 @@ def get_destination_list_from_job_config(job_config_location):
     # and then os.path.join is used to go back four directories
 
     config_location = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), '../../..')
+        os.path.dirname(os.path.realpath(__file__)), os.pardir, os.pardir, os.pardir)
 
     if job_config_location:
         local_path = re.compile('^/config/.+$')
         if local_path.match(job_config_location):
-            job_config_location = config_location + job_config_location
+            job_config_location = os.path.join(config_location, job_config_location)
     else:  # Pick one of the default ones
         message = "* No job config specified, "
-        if os.path.isfile(config_location + "/config/job_conf.xml"):
-            job_config_location = config_location + "/config/job_conf.xml"
-            message += "using 'config/job_conf.xml'. *"
-
-        elif os.path.isfile(config_location +
-                "/config/job_conf.xml.sample_advanced"):
-            job_config_location = (config_location
-                + "/config/job_conf.xml.sample_advanced")
-            message += "using 'config/job_conf.xml.sample_advanced'. *"
-
-        elif os.path.isfile(config_location +
-                "/config/job_conf.xml.sample_basic"):
-            job_config_location = (config_location
-                + "/config/job_conf.xml.sample_basic")
-            message += "using 'config/job_conf.xml.sample_basic'. *"
+        possible_job_conf_files = [
+            "config/job_conf.xml",
+            "config/job_conf.xml.sample_advanced",
+            "config/job_conf.xml.sample_basic",
+        ]
+        for f in possible_job_conf_files:
+            possible_job_conf_path = os.path.join(config_location, f)
+            if os.path.isfile(possible_job_conf_path):
+                job_config_location = possible_job_conf_path
+                message += "using '%s'. *" % f
+                break
         else:
             message += ("and no default job configs in 'config/'. "
                     + "Expect lots of failures. *")
@@ -1675,7 +1647,7 @@ def get_destination_list_from_job_config(job_config_location):
             log.debug(message)
 
     if job_config_location:
-        job_conf = ET.parse(job_config_location)
+        job_conf = parse_xml(job_config_location, strip_whitespace=False)
 
         # Add all destination IDs from the job configuration xml file
         for destination in job_conf.getroot().iter("destination"):
@@ -1752,20 +1724,18 @@ def get_typo_correction(typo_str, word_set, max_dist):
     the same when case is not considered. If there are no
     appropriate matches, nothing is returned instead.
 
-    @type typo_str: str
-    @param typo_str: The string to be compared
+    :type typo_str: str
+    :param typo_str: The string to be compared
+    :type word_set: set of str
+    :param word_set: The set of strings to compare to
+    :type max_dist: int
+    :param max_dist: the largest allowed edit distance between
+                     the word and the result. If nothing is
+                     within this range, nothing is returned
 
-    @type word_set: set of str
-    @param word_set: The set of strings to compare to
-
-    @type max_dist: int
-    @param max_dist: the largest allowed edit distance between
-                    the word and the result. If nothing is
-                    within this range, nothing is returned
-
-    @rtype: str or NoneType
-    @return: The closest matching string, or None, if no strings
-    being compared to are within max_dist edit distance.
+    :rtype: str or NoneType
+    :returns: The closest matching string, or None, if no strings
+              being compared to are within max_dist edit distance.
     """
 
     # Start curr_best out as the largest

@@ -6,7 +6,5 @@ lib
 
    galaxy
    galaxy_ext
-   log_tempfile
-   mimeparse
-   psyco_full
+   galaxy_test
    tool_shed

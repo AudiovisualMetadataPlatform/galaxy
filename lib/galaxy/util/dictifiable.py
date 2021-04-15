@@ -2,7 +2,19 @@ import datetime
 import uuid
 
 
+<<<<<<< HEAD
 class Dictifiable(object):
+=======
+def dict_for(obj, **kwds):
+    # Create dict to represent item.
+    return dict(
+        model_class=obj.__class__.__name__,
+        **kwds
+    )
+
+
+class Dictifiable:
+>>>>>>> refs/heads/release_21.01
     """ Mixin that enables objects to be converted to dictionaries. This is useful
         when for sharing objects across boundaries, such as the API, tool scripts,
         and JavaScript code. """

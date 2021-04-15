@@ -1,15 +1,19 @@
+import logging
 import os
 import shutil
 import string
-import tempfile
 import time
 import traceback
 from xml.sax.saxutils import escape
 
+from galaxy.util import RW_R__R__
+from galaxy.util.renamed_temporary_file import RenamedTemporaryFile
 from .panel import (
     panel_item_types,
     ToolPanelElements
 )
+
+log = logging.getLogger(__name__)
 
 INTEGRATED_TOOL_PANEL_DESCRIPTION = """
 This is Galaxy's integrated tool panel and should be modified directly only for
@@ -26,7 +30,7 @@ its section) modify that file and restart Galaxy.
 """
 
 
-class ManagesIntegratedToolPanelMixin(object):
+class ManagesIntegratedToolPanelMixin:
 
     def _init_integrated_tool_panel(self, config):
         self.update_integrated_tool_panel = config.update_integrated_tool_panel
@@ -51,14 +55,16 @@ class ManagesIntegratedToolPanelMixin(object):
         Write the current in-memory version of the integrated_tool_panel.xml file to disk.  Since Galaxy administrators
         use this file to manage the tool panel, we'll not use xml_to_string() since it doesn't write XML quite right.
         """
+        destination = os.path.abspath(self._integrated_tool_panel_config)
+        log.debug("Writing integrated tool panel config file to '%s'", destination)
         tracking_directory = self._integrated_tool_panel_tracking_directory
-        if not tracking_directory:
-            fd, filename = tempfile.mkstemp()
-        else:
+        if tracking_directory:
             if not os.path.exists(tracking_directory):
                 os.makedirs(tracking_directory)
             name = "integrated_tool_panel_%.10f.xml" % time.time()
             filename = os.path.join(tracking_directory, name)
+        else:
+            filename = destination
         template = string.Template("""<?xml version="1.0"?>
 <toolbox>
     <!--
@@ -68,7 +74,7 @@ $INTEGRATED_TOOL_PANEL
 </toolbox>
 """)
         integrated_tool_panel = []
-        for key, item_type, item in self._integrated_tool_panel.panel_items_iter():
+        for _, item_type, item in self._integrated_tool_panel.panel_items_iter():
             if item:
                 if item_type == panel_item_types.TOOL:
                     integrated_tool_panel.append('    <tool id="%s" />\n' % item.id)
@@ -78,12 +84,12 @@ $INTEGRATED_TOOL_PANEL
                     label_id = item.id or ''
                     label_text = item.text or ''
                     label_version = item.version or ''
-                    integrated_tool_panel.append('    <label id="%s" text="%s" version="%s" />\n' % (label_id, label_text, label_version))
+                    integrated_tool_panel.append(f'    <label id="{label_id}" text="{label_text}" version="{label_version}" />\n')
                 elif item_type == panel_item_types.SECTION:
                     section_id = item.id or ''
                     section_name = item.name or ''
                     section_version = item.version or ''
-                    integrated_tool_panel.append('    <section id="%s" name="%s" version="%s">\n' % (escape(section_id), escape(section_name), section_version))
+                    integrated_tool_panel.append('    <section id="{}" name="{}" version="{}">\n'.format(escape(section_id), escape(section_name), section_version))
                     for section_key, section_item_type, section_item in item.panel_items_iter():
                         if section_item_type == panel_item_types.TOOL:
                             if section_item:
@@ -96,21 +102,20 @@ $INTEGRATED_TOOL_PANEL
                                 label_id = section_item.id or ''
                                 label_text = section_item.text or ''
                                 label_version = section_item.version or ''
-                                integrated_tool_panel.append('        <label id="%s" text="%s" version="%s" />\n' % (label_id, label_text, label_version))
+                                integrated_tool_panel.append(f'        <label id="{label_id}" text="{label_text}" version="{label_version}" />\n')
                     integrated_tool_panel.append('    </section>\n')
-        tool_panel_description = '\n    '.join([l for l in INTEGRATED_TOOL_PANEL_DESCRIPTION.split("\n") if l])
+        tool_panel_description = '\n    '.join(l for l in INTEGRATED_TOOL_PANEL_DESCRIPTION.split("\n") if l)
         tp_string = template.substitute(INTEGRATED_TOOL_PANEL_DESCRIPTION=tool_panel_description,
                                         INTEGRATED_TOOL_PANEL='\n'.join(integrated_tool_panel))
-        with open(filename, "w") as integrated_tool_panel_file:
-            integrated_tool_panel_file.write(tp_string)
-        destination = os.path.abspath(self._integrated_tool_panel_config)
+        with RenamedTemporaryFile(filename, mode='w') as f:
+            f.write(tp_string)
         if tracking_directory:
-            open(filename + ".stack", "w").write(''.join(traceback.format_stack()))
+            with open(filename + ".stack", "w") as f:
+                f.write(''.join(traceback.format_stack()))
             shutil.copy(filename, filename + ".copy")
-            filename = filename + ".copy"
-        shutil.move(filename, destination)
+            shutil.move(filename + ".copy", destination)
         try:
-            os.chmod(destination, 0o644)
+            os.chmod(destination, RW_R__R__)
         except OSError:
             # That can happen if multiple threads are simultaneously moving/chmod'ing this file
             # Should be harmless, though this race condition should be avoided.

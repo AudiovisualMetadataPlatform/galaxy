@@ -2,11 +2,11 @@
 If the current installed Python version is not supported, prints an error
 message to stderr and returns 1
 """
-from __future__ import print_function
 
 import os
 import sys
 
+<<<<<<< HEAD
 version_string = '.'.join(str(_) for _ in sys.version_info[:3])
 
 msg = """ERROR: Your Python version is: %s
@@ -23,15 +23,29 @@ install a supported Python version. If a supported version is already
 installed but is not your default, https://galaxyproject.org/admin/python/
 contains instructions on how to force Galaxy to use a different version.""" % version_string
 
+=======
+>>>>>>> refs/heads/release_21.01
 
 def check_python():
+<<<<<<< HEAD
     venv = os.getenv('VIRTUAL_ENV')
     if sys.version_info[:2] == (2, 7):
+=======
+    if sys.version_info[:2] >= (3, 6):
+>>>>>>> refs/heads/release_21.01
         # supported
         return
     elif sys.version_info[:2] >= (3, 4) and venv:
         print(msg_beta, file=sys.stderr)
     else:
+        version_string = '.'.join(str(_) for _ in sys.version_info[:3])
+        msg = """\
+ERROR: Your Python version is: %s
+Galaxy is currently supported on Python >=3.6 .
+To run Galaxy, please install a supported Python version.
+If a supported version is already installed but is not your default,
+https://docs.galaxyproject.org/en/latest/admin/python.html contains instructions
+on how to force Galaxy to use a different version.""" % version_string
         print(msg, file=sys.stderr)
         raise Exception(msg)
 

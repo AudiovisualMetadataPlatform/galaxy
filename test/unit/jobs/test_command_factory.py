@@ -4,7 +4,11 @@ from os import getcwd
 from tempfile import mkdtemp
 from unittest import TestCase
 
-from galaxy.jobs.command_factory import build_command, SETUP_GALAXY_FOR_METADATA
+from galaxy.jobs.command_factory import (
+    build_command,
+    PREPARE_DIRS,
+    SETUP_GALAXY_FOR_METADATA,
+)
 from galaxy.util.bunch import Bunch
 
 MOCK_COMMAND_LINE = "/opt/galaxy/tools/bowtie /mnt/galaxyData/files/000/input000.dat"
@@ -38,15 +42,28 @@ class TestCommandFactory(TestCase):
         self.include_work_dir_outputs = False
         dep_commands = [". /opt/galaxy/tools/bowtie/default/env.sh"]
         self.job_wrapper.dependency_shell_commands = dep_commands
+<<<<<<< HEAD
         self.__assert_command_is(_surrond_command("%s; %s; return_code=$?" % (dep_commands[0], MOCK_COMMAND_LINE)))
+=======
+        self.__assert_command_is(_surround_command("{}; {}; return_code=$?".format(dep_commands[0], MOCK_COMMAND_LINE)))
+>>>>>>> refs/heads/release_21.01
 
     def test_shell_commands_external(self):
         self.job_wrapper.commands_in_new_shell = True
         self.include_work_dir_outputs = False
         dep_commands = [". /opt/galaxy/tools/bowtie/default/env.sh"]
         self.job_wrapper.dependency_shell_commands = dep_commands
+<<<<<<< HEAD
         self.__assert_command_is(_surrond_command("%s/tool_script.sh; return_code=$?" % self.job_wrapper.working_directory))
         self.__assert_tool_script_is("#!/bin/sh\n%s; %s" % (dep_commands[0], MOCK_COMMAND_LINE))
+=======
+        self.__assert_command_is(_surround_command(
+            "{} {}/tool_script.sh > ../outputs/tool_stdout 2> ../outputs/tool_stderr; return_code=$?".format(
+                self.job_wrapper.shell,
+                self.job_wrapper.working_directory,
+            )))
+        self.__assert_tool_script_is("#!/bin/sh\n{}; {}".format(dep_commands[0], MOCK_COMMAND_LINE))
+>>>>>>> refs/heads/release_21.01
 
     def test_remote_dependency_resolution(self):
         self.include_work_dir_outputs = False
@@ -58,7 +75,11 @@ class TestCommandFactory(TestCase):
         self.include_work_dir_outputs = False
         dep_commands = [". /opt/galaxy/tools/bowtie/default/env.sh"]
         self.job_wrapper.dependency_shell_commands = dep_commands
+<<<<<<< HEAD
         self.__assert_command_is(_surrond_command("%s; %s; return_code=$?" % (dep_commands[0], MOCK_COMMAND_LINE)),
+=======
+        self.__assert_command_is(_surround_command("{}; {}; return_code=$?".format(dep_commands[0], MOCK_COMMAND_LINE)),
+>>>>>>> refs/heads/release_21.01
                                  remote_command_params=dict(dependency_resolution="local"))
 
     def test_task_prepare_inputs(self):
@@ -87,7 +108,11 @@ class TestCommandFactory(TestCase):
         self.include_metadata = True
         self.include_work_dir_outputs = False
         self.job_wrapper.metadata_line = TEST_METADATA_LINE
+<<<<<<< HEAD
         expected_command = _surrond_command("%s; return_code=$?; cd '%s'; %s%s" % (MOCK_COMMAND_LINE, self.job_dir, SETUP_GALAXY_FOR_METADATA, TEST_METADATA_LINE))
+=======
+        expected_command = _surround_command(f"{MOCK_COMMAND_LINE}; return_code=$?; cd '{self.job_dir}'; {SETUP_GALAXY_FOR_METADATA}{TEST_METADATA_LINE}")
+>>>>>>> refs/heads/release_21.01
         self.__assert_command_is(expected_command)
 
     def test_empty_metadata(self):
@@ -98,7 +123,11 @@ class TestCommandFactory(TestCase):
         self.include_work_dir_outputs = False
         self.job_wrapper.metadata_line = ' '
         # Empty metadata command do not touch command line.
+<<<<<<< HEAD
         expected_command = _surrond_command("%s; return_code=$?; cd '%s'" % (MOCK_COMMAND_LINE, self.job_dir))
+=======
+        expected_command = _surround_command(f"{MOCK_COMMAND_LINE}; return_code=$?; cd '{self.job_dir}'")
+>>>>>>> refs/heads/release_21.01
         self.__assert_command_is(expected_command)
 
     def test_metadata_kwd_defaults(self):
@@ -135,7 +164,7 @@ class TestCommandFactory(TestCase):
         self.assertEqual(command, expected_command)
 
     def __assert_tool_script_is(self, expected_command):
-        self.assertEqual(open(self.__tool_script, "r").read(), expected_command)
+        self.assertEqual(open(self.__tool_script).read(), expected_command)
 
     @property
     def __tool_script(self):
@@ -152,11 +181,16 @@ class TestCommandFactory(TestCase):
         return build_command(**kwds)
 
 
+<<<<<<< HEAD
 def _surrond_command(command):
     return '''rm -rf working; mkdir -p working; cd working; %s; sh -c "exit $return_code"''' % command
+=======
+def _surround_command(command):
+    return f'''{PREPARE_DIRS}; {command}; sh -c "exit $return_code"'''
+>>>>>>> refs/heads/release_21.01
 
 
-class MockJobWrapper(object):
+class MockJobWrapper:
 
     def __init__(self, job_dir):
         self.strict_shell = False
@@ -174,9 +208,13 @@ class MockJobWrapper(object):
             )
         )
         self.shell = "/bin/sh"
+        self.use_metadata_binary = False
 
     def get_command_line(self):
         return self.command_line
+
+    def container_monitor_command(self, *args, **kwds):
+        return None
 
     @property
     def requires_setting_metadata(self):

@@ -20,6 +20,7 @@
 <html>
     <head>
         <title>${self.title()}</title>
+        <link rel="index" href="${ h.url_for( '/' ) }"/>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         ${self.metas()}
         ${self.stylesheets()}
@@ -44,10 +45,6 @@ ${h.css('base')}
 
 ## Default javascripts
 <%def name="javascripts()">
-${h.js(
-    "libs/jquery/jquery",
-    "libs/jquery/jquery.migrate"
-)}
 ## connect to Galaxy here
 
 <script type="text/javascript">
@@ -70,8 +67,4 @@ ${h.js(
 
 ## Default javascripts
 <%def name="late_javascripts()">
-${h.js(
-    "libs/jquery/jquery",
-    "libs/jquery/jquery.migrate"
-)}
 </%def>

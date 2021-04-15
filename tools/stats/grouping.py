@@ -69,6 +69,7 @@ def main():
         if asciitodelete:
             oldfile = open(inputfile, 'r')
             newinputfile = "input_cleaned.tsv"
+<<<<<<< HEAD
             newfile = open(newinputfile, 'w')
             asciitodelete = asciitodelete.split(',')
             for i in range(len(asciitodelete)):
@@ -78,6 +79,13 @@ def main():
                     newfile.write(line)
             oldfile.close()
             newfile.close()
+=======
+            with open(inputfile) as oldfile, open(newinputfile, 'w') as newfile:
+                asciitodelete = {chr(int(_)) for _ in asciitodelete.split(',')}
+                for line in oldfile:
+                    if line[0] not in asciitodelete:
+                        newfile.write(line)
+>>>>>>> refs/heads/release_21.01
             inputfile = newinputfile
 
     # get operations and options in separate arrays
@@ -122,16 +130,19 @@ def main():
     try:
         subprocess.check_output(command_line, stderr=subprocess.STDOUT, shell=True)
     except subprocess.CalledProcessError as e:
-        stop_err("Sorting input dataset resulted in error: %s: %s" % (e.returncode, e.output))
+        stop_err("Sorting input dataset resulted in error: %s: %s" % (e.returncode, e.output.decode()))
 
     fout = open(sys.argv[1], "w")
 
     def is_new_item(line):
         try:
+<<<<<<< HEAD
             item = line.strip().split("\t")[group_col]
+=======
+            item = line.rstrip("\r\n").split("\t")[group_col]
+>>>>>>> refs/heads/release_21.01
         except IndexError:
             stop_err("The following line didn't have %s columns: %s" % (group_col + 1, line))
-
         if ignorecase == 1:
             return item.lower()
         return item

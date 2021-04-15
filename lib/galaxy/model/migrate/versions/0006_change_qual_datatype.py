@@ -2,21 +2,12 @@
 This migration script changes certain values in the history_dataset_association.extension
 column, specifically 'qual' is changed to be 'qual454'.
 """
-from __future__ import print_function
 
 import logging
-import sys
 
 from sqlalchemy import Index, MetaData, Table
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-handler = logging.StreamHandler(sys.stdout)
-format = "%(name)s %(levelname)s %(asctime)s %(message)s"
-formatter = logging.Formatter(format)
-handler.setFormatter(formatter)
-log.addHandler(handler)
-
 metadata = MetaData()
 
 

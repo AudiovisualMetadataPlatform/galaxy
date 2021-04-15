@@ -9,7 +9,7 @@ from beaker.util import parse_cache_config_options
 log = logging.getLogger(__name__)
 
 
-class CitationsManager(object):
+class CitationsManager:
 
     def __init__(self, app):
         self.app = app
@@ -34,7 +34,7 @@ class CitationsManager(object):
         return tool
 
 
-class DoiCache(object):
+class DoiCache:
 
     def __init__(self, config):
         cache_opts = {
@@ -46,8 +46,9 @@ class DoiCache(object):
 
     def _raw_get_bibtex(self, doi):
         doi_url = "https://doi.org/" + doi
-        headers = {'Accept': 'text/bibliography; style=bibtex, application/x-bibtex'}
+        headers = {'Accept': 'application/x-bibtex'}
         req = requests.get(doi_url, headers=headers)
+        req.encoding = req.apparent_encoding
         return req.text
 
     def get_bibtex(self, doi):
@@ -65,10 +66,18 @@ def parse_citation(elem, directory, citation_manager):
     if not citation_class:
         log.warning("Unknown or unspecified citation type: %s" % citation_type)
         return None
+<<<<<<< HEAD
     return citation_class(elem, directory, citation_manager)
+=======
+    try:
+        citation = citation_class(elem, citation_manager)
+    except Exception as e:
+        raise Exception(f"Invalid citation of type '{citation_type}' with content '{elem.text}': {e}")
+    return citation
+>>>>>>> refs/heads/release_21.01
 
 
-class CitationCollection(object):
+class CitationCollection:
 
     def __init__(self):
         self.citations = []
@@ -90,7 +99,7 @@ class CitationCollection(object):
         return True
 
 
-class BaseCitation(object):
+class BaseCitation:
 
     def to_dict(self, citation_format):
         if citation_format == "bibtex":
@@ -151,10 +160,10 @@ class DoiCitation(BaseCitation):
                 log.exception("Failed to fetch bibtex for DOI %s", self.__doi)
 
         if self.raw_bibtex is DoiCitation.BIBTEX_UNSET:
-            return """@MISC{%s,
-                DOI = {%s},
-                note = {Failed to fetch BibTeX for DOI.}
-            }""" % (self.__doi, self.__doi)
+            return """@MISC{{{doi},
+                DOI = {{{doi}}},
+                note = {{Failed to fetch BibTeX for DOI.}}
+            }}""".format(doi=self.__doi)
         else:
             return self.raw_bibtex
 

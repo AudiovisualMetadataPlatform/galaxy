@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 uwsgi:
 
   # The address and port on which to listen.  By default, only listen to
@@ -136,3 +137,6 @@ reports:
   # under the special topics area of the admin documentation.
   #enable_beta_gdpr: false
 
+=======
+../lib/galaxy/config/sample/reports.yml.sample
+>>>>>>> refs/heads/release_21.01

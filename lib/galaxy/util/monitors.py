@@ -1,17 +1,15 @@
-from __future__ import absolute_import
-
 import logging
 import threading
 
-from galaxy.web.stack import register_postfork_function
 from .sleeper import Sleeper
+from .web_compat import register_postfork_function
 
 log = logging.getLogger(__name__)
 
 DEFAULT_MONITOR_THREAD_JOIN_TIMEOUT = 5
 
 
-class Monitors(object):
+class Monitors:
 
     def _init_monitor_thread(self, name, target_name=None, target=None, start=False, config=None):
         self.monitor_join_sleep = getattr(config, "monitor_thread_join_timeout", DEFAULT_MONITOR_THREAD_JOIN_TIMEOUT)

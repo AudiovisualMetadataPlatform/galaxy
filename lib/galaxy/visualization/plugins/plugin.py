@@ -19,7 +19,7 @@ from galaxy.web import url_for
 log = logging.getLogger(__name__)
 
 
-class ServesTemplatesPluginMixin(object):
+class ServesTemplatesPluginMixin:
     """
     An object that renders (mako) template files from the server.
     """
@@ -71,10 +71,10 @@ class VisualizationPlugin(ServesTemplatesPluginMixin):
         self.name = name
         self.config = config
         base_url = context.get('base_url', '')
-        self.base_url = '/'.join([base_url, self.name]) if base_url else self.name
-        self.static_path = os.path.join(self.path.replace('./config', './static'), 'static')
-        if os.path.exists(os.path.join(self.static_path, 'logo.png')):
-            self.config['logo'] = '/'.join([self.static_path, 'logo.png'])
+        self.base_url = '/'.join((base_url, self.name)) if base_url else self.name
+        self.static_path = self._get_static_path(self.path)
+        if self.static_path and os.path.exists(os.path.join(self.static_path, 'logo.png')):
+            self.config['logo'] = self.static_path + '/logo.png'
         template_cache_dir = context.get('template_cache_dir', None)
         additional_template_paths = context.get('additional_template_paths', [])
         self._set_up_template_plugin(template_cache_dir, additional_template_paths=additional_template_paths)
@@ -114,7 +114,7 @@ class VisualizationPlugin(ServesTemplatesPluginMixin):
             'logo'          : self.config.get('logo'),
             'title'         : self.config.get('title'),
             'target'        : self.config.get('render_target', 'galaxy_main'),
-            'embeddable'    : self.config.get('embeddable', False),
+            'embeddable'    : self.config.get('embeddable'),
             'entry_point'   : self.config.get('entry_point'),
             'settings'      : self.config.get('settings'),
             'groups'        : self.config.get('groups'),
@@ -126,6 +126,13 @@ class VisualizationPlugin(ServesTemplatesPluginMixin):
         if self.name in self.app.visualizations_registry.BUILT_IN_VISUALIZATIONS:
             return url_for(controller='visualization', action=self.name)
         return url_for('visualization_plugin', visualization_name=self.name)
+
+    def _get_static_path(self, path):
+        if '/config/' in path:
+            match = path.split('/config/')[-1]
+            return os.path.join('./static', match, 'static')
+        else:
+            log.debug('Visualization has no static path: %s.' % path)
 
     def _get_saved_visualization_config(self, visualization, revision=None, **kwargs):
         """
@@ -227,7 +234,7 @@ class InteractiveEnvironmentPlugin(VisualizationPlugin):
     def __init__(self, app, path, name, config, context=None, **kwargs):
         # TODO: this is a hack until we can get int envs seperated from the vis reg and into their own framework
         context['base_url'] = 'interactive_environments'
-        super(InteractiveEnvironmentPlugin, self).__init__(app, path, name, config, context=context, **kwargs)
+        super().__init__(app, path, name, config, context=context, **kwargs)
 
     def _error_template(self, trans):
         return trans.fill_template('message.mako',
@@ -328,5 +335,5 @@ class StaticFileVisualizationPlugin(VisualizationPlugin):
 
         static_file_path = self.config['entry_point']['file']
         static_file_path = os.path.join(self.path, static_file_path)
-        with open(static_file_path, 'r') as outfile:
+        with open(static_file_path) as outfile:
             return outfile.read()

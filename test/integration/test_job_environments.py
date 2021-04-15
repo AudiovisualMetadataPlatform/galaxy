@@ -4,11 +4,11 @@ import collections
 import os
 import tempfile
 
-from base import integration_util
-from base.populators import (
+from galaxy_test.base.populators import (
     DatasetPopulator,
     skip_without_tool,
 )
+from galaxy_test.driver import integration_util
 
 SCRIPT_DIRECTORY = os.path.abspath(os.path.dirname(__file__))
 SIMPLE_JOB_CONFIG_FILE = os.path.join(SCRIPT_DIRECTORY, "simple_job_conf.xml")
@@ -25,7 +25,7 @@ JobEnviromentProperties = collections.namedtuple("JobEnvironmentProperties", [
 ])
 
 
-class RunsEnvironmentJobs(object):
+class RunsEnvironmentJobs:
 
     def _run_and_get_environment_properties(self, tool_id="job_environment_default"):
         with self.dataset_populator.test_history() as history_id:
@@ -48,7 +48,7 @@ class BaseJobEnvironmentIntegrationTestCase(integration_util.IntegrationTestCase
     framework_tool_and_types = True
 
     def setUp(self):
-        super(BaseJobEnvironmentIntegrationTestCase, self).setUp()
+        super().setUp()
         self.dataset_populator = DatasetPopulator(self.galaxy_interactor)
 
 
@@ -72,7 +72,7 @@ class DefaultJobEnvironmentIntegrationTestCase(BaseJobEnvironmentIntegrationTest
         assert job_env.pwd.startswith(self.jobs_directory)
         assert job_env.pwd.endswith("/working")
 
-        # Newer tools have isolated home directories in job_directory/home
+        # Newer tools get isolated home directories in job_directory/home
         job_directory = os.path.dirname(job_env.pwd)
         assert job_env.home == os.path.join(job_directory, "home"), job_env.home
 
@@ -93,11 +93,21 @@ class DefaultJobEnvironmentIntegrationTestCase(BaseJobEnvironmentIntegrationTest
 
     @skip_without_tool("job_environment_explicit_shared_home")
     def test_default_environment_force_legacy_home(self):
-        # Home should not overridden because we haven't set legacy_home_dir in job_conf
-        # or app, so it should just HOME.
+        # Home should not be overridden because we haven't set legacy_home_dir in job_conf
+        # or app, so it should just be HOME.
         job_env = self._run_and_get_environment_properties("job_environment_explicit_shared_home")
         home = os.getenv("HOME")
         assert job_env.home == home, job_env.home
+
+    @skip_without_tool("job_environment_explicit_isolated_home")
+    def test_default_environment_explicit_isolated_home(self):
+        # A tool with no profile but setting `use_shared_home="false"` must get
+        # an isolated home directory in job_directory/home
+        job_env = self._run_and_get_environment_properties("job_environment_explicit_isolated_home")
+        assert job_env.pwd.startswith(self.jobs_directory)
+        assert job_env.pwd.endswith("/working")
+        job_directory = os.path.dirname(job_env.pwd)
+        assert job_env.home == os.path.join(job_directory, "home"), job_env.home
 
 
 class TmpDirToTrueJobEnvironmentIntegrationTestCase(BaseJobEnvironmentIntegrationTestCase):
@@ -164,3 +174,38 @@ class SharedHomeJobEnvironmentIntegrationTestCase(BaseJobEnvironmentIntegrationT
         # shared_home_dir used for newer tools if forced in tool XML
         job_env = self._run_and_get_environment_properties("job_environment_explicit_shared_home")
         assert job_env.home == self.shared_home_directory, job_env.home
+<<<<<<< HEAD
+=======
+
+    @skip_without_tool("job_environment_explicit_isolated_home")
+    def test_default_environment_explicit_isolated_home(self):
+        # shared_home_dir ignored for tools setting `use_shared_home="false"`
+        job_env = self._run_and_get_environment_properties("job_environment_explicit_isolated_home")
+        job_directory = os.path.dirname(job_env.pwd)
+        assert job_env.home == os.path.join(job_directory, "home"), job_env.home
+
+
+class JobIOEnvironmentIntegrationTestCase(BaseJobEnvironmentIntegrationTestCase):
+
+    @classmethod
+    def handle_galaxy_config_kwds(cls, config):
+        cls.jobs_directory = tempfile.mkdtemp()
+        config["jobs_directory"] = cls.jobs_directory
+        config["job_config_file"] = IO_INJECTION_JOB_CONFIG_FILE
+
+    @skip_without_tool("job_environment_default")
+    def test_io_separation(self):
+        self._run_and_get_environment_properties()
+
+    def _check_completed_history(self, history_id):
+        jobs = self.dataset_populator.history_jobs(history_id)
+        assert len(jobs) == 1
+        job = jobs[0]
+        job_details = self.dataset_populator.get_job_details(job["id"], full=True)
+        job_details = job_details.json()
+        print(job_details)
+        assert 'moo std cow' in job_details['job_stdout']
+        assert 'moo err cow' in job_details['job_stderr']
+        assert 'Writing environment properties to output files.' in job_details['tool_stdout']
+        assert 'Example tool stderr output.' in job_details['tool_stderr']
+>>>>>>> refs/heads/release_21.01

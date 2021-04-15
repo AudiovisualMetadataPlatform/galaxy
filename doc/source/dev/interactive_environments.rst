@@ -33,7 +33,7 @@ should match ``[a-z]+``, like ``jupyter`` or ``rstudio``. Here you can see the
 configuration, ``allowed_images.yml.sample`` specifies acceptable images,
 and then ``{gie}.xml`` which outlines that it is a GIE.
 
-The static directory can hold resources such as javascript and css files. If
+The static directory can hold resources such as JavaScript and CSS files. If
 you are actively developing a GIE, you'll need to restart Galaxy after adding
 any resources to that file, before they can be accessed in the browser.
 
@@ -122,14 +122,6 @@ Once this is done, we can set up our INI file, ``config/helloworld.ini.sample`` 
     # Set the following value to false if Docker volumes between Galaxy server and Docker
     # container cannot or should not be used.
     #use_volumes = True
-
-    # To run containers in Docker Swarm mode on (an existing swarm), set the
-    # following option to True *and*:
-    # - set docker_connect_port above. For Nginx the # port should most likely be
-    #   80.
-    # - If command_inject is uncommented and includes `--sig-proxy`, that option should
-    #   be removed.
-    #swarm_mode = False
 
 You'll then need to create the GIE plugin YML file ``allowed_images.yml.sample``
 to specify allowed images
@@ -559,4 +551,4 @@ If everything went well, at this point you should see a directory listing show u
 .. image:: interactive_environments_success.png
 
 If you find yourself encountering difficulties, the "Hello, World" IE is
-available in a `GitHub repo <https://github.com/erasche/hello-world-interactive-environment/releases/tag/v15.10>`__, and there are people on the IRC channel who can help debug.
+available in a `GitHub repo <https://github.com/hexylena/hello-world-interactive-environment/releases/tag/v15.10>`__, and there are people on the IRC channel who can help debug.

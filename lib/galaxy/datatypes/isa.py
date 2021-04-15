@@ -3,9 +3,7 @@ ISA datatype
 
 See https://github.com/ISA-tools
 """
-from __future__ import print_function
 
-import io
 import json
 import logging
 import os
@@ -54,7 +52,7 @@ def utf8_text_file_open(path):
     if sys.version_info[0] < 3:
         fp = open(path, 'rb')
     else:
-        fp = open(path, 'r', newline='', encoding='utf8')
+        fp = open(path, newline='', encoding='utf8')
     return fp
 
 
@@ -64,7 +62,6 @@ def utf8_text_file_open(path):
 class _Isa(data.Data):
     """ Base class for implementing ISA datatypes """
     composite_type = 'auto_primary_file'
-    allow_datatype_change = False
     is_binary = True
     _main_file_regex = None
 
@@ -78,7 +75,7 @@ class _Isa(data.Data):
     ################################################################
 
     def __init__(self, main_file_regex, **kwd):
-        super(_Isa, self).__init__(**kwd)
+        super().__init__(**kwd)
         self._main_file_regex = main_file_regex
 
         # Add the archive file as the only composite file
@@ -162,7 +159,7 @@ class _Isa(data.Data):
             raise RuntimeError("Unable to find the main file within the 'files_path' folder")
 
         # Read first lines of main file
-        with io.open(main_file, encoding='utf-8') as f:
+        with open(main_file, encoding='utf-8') as f:
             data = []
             for line in f:
                 if len(data) < _MAX_LINES_HISTORY_PEEK:
@@ -195,7 +192,7 @@ class _Isa(data.Data):
             out.append('</table>')
             out = "".join(out)
         except Exception as exc:
-            out = "Can't create peek %s" % str(exc)
+            out = "Can't create peek: %s" % util.unicodify(exc)
         return out
 
     # Generate primary file {{{2
@@ -210,7 +207,7 @@ class _Isa(data.Data):
             if hasattr(dataset, "extra_files_path"):
                 rval.append('<div>ISA Dataset composed of the following files:<p/><ul>')
                 for cmp_file in os.listdir(dataset.extra_files_path):
-                    rval.append('<li><a href="%s" type="text/plain">%s</a></li>' % (cmp_file, escape(cmp_file)))
+                    rval.append('<li><a href="{}" type="text/plain">{}</a></li>'.format(cmp_file, escape(cmp_file)))
                 rval.append('</ul></div></html>')
             else:
                 rval.append('<div>ISA Dataset is empty!<p/><ul>')
@@ -264,7 +261,7 @@ class _Isa(data.Data):
 
         # if it is not required a preview use the default behaviour of `display_data`
         if not preview:
-            return super(_Isa, self).display_data(trans, dataset, preview, filename, to_ext, **kwd)
+            return super().display_data(trans, dataset, preview, filename, to_ext, **kwd)
 
         # prepare the preview of the ISA dataset
         investigation = self._get_investigation(dataset)
@@ -277,7 +274,7 @@ class _Isa(data.Data):
                    </body></html>"""
         else:
             html = '<html><body>'
-            html += '<h1>{0} {1}</h1>'.format(investigation.title, investigation.identifier)
+            html += f'<h1>{investigation.title} {investigation.identifier}</h1>'
 
             # Loop on all studies
             for study in investigation.studies:
@@ -287,7 +284,7 @@ class _Isa(data.Data):
                 html += '<p>Submitted the %s</p>' % study.submission_date
                 html += '<p>Released on %s</p>' % study.public_release_date
 
-                html += '<p>Experimental factors used: %s</p>' % ', '.join([x.name for x in study.factors])
+                html += '<p>Experimental factors used: %s</p>' % ', '.join(x.name for x in study.factors)
 
                 # Loop on all assays of this study
                 for assay in study.assays:
@@ -322,7 +319,7 @@ class IsaTab(_Isa):
     ################################################################
 
     def __init__(self, **kwd):
-        super(IsaTab, self).__init__(main_file_regex=INVESTIGATION_FILE_REGEX, **kwd)
+        super().__init__(main_file_regex=INVESTIGATION_FILE_REGEX, **kwd)
 
     # Make investigation instance {{{2
     ################################################################
@@ -355,7 +352,7 @@ class IsaJson(_Isa):
     ################################################################
 
     def __init__(self, **kwd):
-        super(IsaJson, self).__init__(main_file_regex=JSON_FILE_REGEX, **kwd)
+        super().__init__(main_file_regex=JSON_FILE_REGEX, **kwd)
 
     # Make investigation instance {{{2
     ################################################################

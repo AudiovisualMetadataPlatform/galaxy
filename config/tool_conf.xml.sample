@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version='1.0' encoding='utf-8'?>
 <toolbox monitor="true">
   <section id="getext" name="Get Data">
@@ -124,3 +125,6 @@
     <tool file="phenotype_association/master2pg.xml" />
   </section>
 </toolbox>
+=======
+../lib/galaxy/config/sample/tool_conf.xml.sample
+>>>>>>> refs/heads/release_21.01

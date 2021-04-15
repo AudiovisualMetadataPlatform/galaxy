@@ -2,8 +2,8 @@ Quickstart
 ==========
 
 Log in as your user, navigate to the API Keys page in the User menu, and
-generate a new API key.  Make a note of the API key, and then pull up a
-terminal.  Now we'll use the display.py script in your galaxy/scripts/api
+generate a new API key. Make a note of the API key, and then pull up a
+terminal.  Now we'll use the display.py script in your ``galaxy/scripts/api``
 directory for a short example, which assumes your local galaxy server is
 running on the default port 8080::
 
@@ -69,11 +69,11 @@ And now you've successfully used the API to request and select a history,
 browse the contents of that history, and then look at detailed information
 about a particular dataset.
 
-For a more comprehensive Data Library example, set the following option in your
-galaxy.ini as well, and restart galaxy again::
+For a more comprehensive Data Library example, set the following options in your
+galaxy.yml as well, and restart galaxy again::
 
-        admin_users = you@example.org
-        library_import_dir = /path/to/some/directory
+        admin_users: you@example.org
+        library_import_dir: /path/to/some/directory
 
 In the directory you specified for 'library_import_dir', create some
 subdirectories, and put (or symlink) files to import into Galaxy into those

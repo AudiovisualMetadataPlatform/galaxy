@@ -144,23 +144,12 @@
 % endif
 </h2>
 
-<h3>Dataset Information</h3>
-<table class="tabletip" id="dataset-details">
-    <tbody>
-        <%
-        encoded_hda_id = trans.security.encode_id( hda.id )
-        encoded_history_id = trans.security.encode_id( hda.history_id )
-        %>
-        <tr><td>Number:</td><td>${hda.hid | h}</td></tr>
-        <tr><td>Name:</td><td>${hda.name | h}</td></tr>
-        <tr><td>Created:</td><td>${unicodify(hda.create_time.strftime(trans.app.config.pretty_datetime_format))}</td></tr>
-        ##      <tr><td>Copied from another history?</td><td>${hda.source_library_dataset}</td></tr>
-        <tr><td>Filesize:</td><td>${nice_size(hda.dataset.file_size)}</td></tr>
-        <tr><td>Dbkey:</td><td>${hda.dbkey | h}</td></tr>
-        <tr><td>Format:</td><td>${hda.ext | h}</td></tr>
-    </tbody>
-</table>
+<%
+encoded_hda_id = trans.security.encode_id( hda.id )
+encoded_history_id = trans.security.encode_id( hda.history_id )
+%>
 
+<<<<<<< HEAD
 <h3>Job Information</h3>
 <table class="tabletip">
     <tbody>
@@ -227,8 +216,23 @@
 %if has_parameter_errors:
     <br />
     ${ render_msg( 'One or more of your original parameters may no longer be valid or displayed properly.', status='warning' ) }
+=======
+<div class="dataset-information" hda_id="${encoded_hda_id}"></div>
+<p>
+%if job:
+<div class="job-parameters" dataset_id="${encoded_hda_id}" dataset_type="hda">
+</div>
+<p>
+>>>>>>> refs/heads/release_21.01
 %endif
+<<<<<<< HEAD
 
+=======
+<div class="job-information" hda_id="${encoded_hda_id}" job_id="${trans.security.encode_id( job.id )}"></div>
+<p>
+<div class="dataset-storage" dataset_id="${encoded_hda_id}" dataset_type="hda"></div>
+<p>
+>>>>>>> refs/heads/release_21.01
 
 <h3>Inheritance Chain</h3>
 <div class="inherit" style="background-color: #fff; font-weight:bold;">${hda.name | h}</div>
@@ -239,16 +243,10 @@
         '${dep[0].name | h}' in ${dep[1]}<br/>
     </div>
 % endfor
-
-
-
-%if job and job.command_line and (trans.user_is_admin or trans.app.config.expose_dataset_path):
-<h3>Command Line</h3>
-<pre class="code">
-${ job.command_line | h }</pre>
-%endif
+<p>
 
 %if job and (trans.user_is_admin or trans.app.config.expose_potentially_sensitive_job_metrics):
+<<<<<<< HEAD
 <h3>Job Metrics</h3>
 <% job_metrics = trans.app.job_metrics %>
 <% plugins = set([metric.plugin for metric in job.metrics]) %>
@@ -269,30 +267,18 @@ ${ job.command_line | h }</pre>
     </table>
     %endif
     %endfor
+=======
+<div class="job-metrics" dataset_id="${encoded_hda_id}" aws_estimate="${trans.app.config.aws_estimate}" dataset_type="hda">
+</div>
+<p>
+>>>>>>> refs/heads/release_21.01
 %endif
 
 %if trans.user_is_admin:
 <h3>Destination Parameters</h3>
-    <table class="tabletip">
-        <tbody>
-            <tr><th scope="row">Runner</th><td>${ job.job_runner_name }</td></tr>
-            <tr><th scope="row">Runner Job ID</th><td>${ job.job_runner_external_id }</td></tr>
-            <tr><th scope="row">Handler</th><td>${ job.handler }</td></tr>
-            %if job.destination_params:
-            %for (k, v) in job.destination_params.items():
-                <tr><th scope="row">${ k | h }</th>
-                    <td>
-                        %if str(k) in ('nativeSpecification', 'rank', 'requirements'):
-                        <pre style="white-space: pre-wrap; word-wrap: break-word;">${ v | h }</pre>
-                        %else:
-                        ${ v | h }
-                        %endif
-                    </td>
-                </tr>
-            %endfor
-            %endif
-        </tbody>
-    </table>
+<div class="job-destination-parameters" job_id="${trans.security.encode_id(job.id)}">
+</div>
+<p>
 %endif
 
 %if job and job.dependencies:
@@ -328,6 +314,7 @@ ${ job.command_line | h }</pre>
 
         </tbody>
     </table>
+    <p>
 %endif
 
 %if hda.peek:
@@ -345,5 +332,11 @@ $(function(){
             window.parent.Galaxy.currHistoryPanel.scrollToId( 'dataset-' + $( this ).data( 'hda-id' ) );
         }
     })
+<<<<<<< HEAD
+=======
+
+     const mountComponents = ["mountJobMetrics", "mountJobParameters", "mountDestinationParams","mountDatasetInformation","mountJobInformation", "mountDatasetStorage"]
+     mountComponents.forEach(component => window.bundleEntries[component]())
+>>>>>>> refs/heads/release_21.01
 });
 </script>

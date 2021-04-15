@@ -4,7 +4,17 @@ Releases
 .. toctree::
    :maxdepth: 1
 
+<<<<<<< HEAD
    19.01_announce
+=======
+   21.01_announce_user
+   20.09_announce_user
+   20.05_announce_user
+   20.01_announce_user
+   19.09_announce_user
+   19.05_announce_user
+   19.01_announce_user
+>>>>>>> refs/heads/release_21.01
    18.09_announce
    18.05_announce
    18.01_announce

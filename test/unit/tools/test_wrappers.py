@@ -1,13 +1,17 @@
 import os
 import tempfile
-from xml.etree.ElementTree import XML
+
+import pytest
 
 from galaxy.datatypes.metadata import MetadataSpecCollection
-from galaxy.jobs.datasets import DatasetPath
+from galaxy.job_execution.datasets import DatasetPath
 from galaxy.tools.parameters.basic import (
+    BooleanToolParameter,
     DrillDownSelectToolParameter,
+    FloatToolParameter,
     IntegerToolParameter,
-    SelectToolParameter
+    SelectToolParameter,
+    TextToolParameter,
 )
 from galaxy.tools.wrappers import (
     DatasetFilenameWrapper,
@@ -15,6 +19,7 @@ from galaxy.tools.wrappers import (
     RawObjectWrapper,
     SelectToolParameterWrapper
 )
+from galaxy.util import XML
 from galaxy.util.bunch import Bunch
 
 
@@ -28,18 +33,44 @@ def with_mock_tool(func):
     return call
 
 
-@with_mock_tool
-def test_select_wrapper_simple_options(tool):
-    xml = XML('''<param name="blah" type="select">
+def selectwrapper(tool, value, multiple=False, optional=False):
+    optional = 'optional="true"' if optional else ''
+    multiple = 'multiple="true"' if multiple else ''
+    xml = XML('''<param name="blah" type="select" {} {}>
         <option value="x">I am X</option>
         <option value="y" selected="true">I am Y</option>
         <option value="z">I am Z</option>
-    </param>''')
+    </param>'''.format(multiple, optional))
     parameter = SelectToolParameter(tool, xml)
-    wrapper = SelectToolParameterWrapper(parameter, "x")
-    assert str(wrapper) == "x"
+    return SelectToolParameterWrapper(parameter, value)
+
+
+@with_mock_tool
+def test_select_wrapper_simple_options(tool):
+    wrapper = selectwrapper(tool, "x")
     assert wrapper.name == "blah"
+    assert str(wrapper) == "x"
     assert wrapper.value_label == "I am X"
+    wrapper = selectwrapper(tool, None, optional=True)
+    assert str(wrapper) == "None"
+    assert wrapper == ""
+    assert wrapper == "None"
+
+
+@with_mock_tool
+def test_select_wrapper_multiple_options(tool):
+    wrapper = selectwrapper(tool, ["x"], multiple=True)
+    assert wrapper.name == "blah"
+    assert str(wrapper) == "x"
+    assert "x" in wrapper
+    wrapper = selectwrapper(tool, ["x", "z"], multiple=True)
+    assert str(wrapper) == "x,z"
+    assert "x" in wrapper
+    wrapper = selectwrapper(tool, [], multiple=True)
+    assert str(wrapper) == "None"
+    assert wrapper == ""
+    assert wrapper == "None"
+    assert "x" not in wrapper
 
 
 @with_mock_tool
@@ -69,7 +100,8 @@ def test_select_wrapper_multiple(tool):
 @with_mock_tool
 def test_select_wrapper_with_path_rewritting(tool):
     parameter = _setup_blast_tool(tool, multiple=True)
-    wrapper = SelectToolParameterWrapper(parameter, ["val1", "val2"], other_values={}, path_rewriter=lambda v: "Rewrite<%s>" % v)
+    compute_environment = MockComputeEnvironment(None)
+    wrapper = SelectToolParameterWrapper(parameter, ["val1", "val2"], other_values={}, compute_environment=compute_environment)
     assert wrapper.fields.path == "Rewrite<path1>,Rewrite<path2>"
 
 
@@ -83,11 +115,79 @@ def test_raw_object_wrapper():
     assert not false_wrapper
 
 
+def valuewrapper(tool, value, paramtype, optional=False):
+    if paramtype == "integer":
+        optional = 'optional="true"' if optional else 'value="10"'
+        parameter = IntegerToolParameter(tool, XML('<param name="blah" type="integer" %s min="0" />' % optional))
+    elif paramtype == "text":
+        optional = 'optional="true"' if optional else 'value="foo"'
+        parameter = TextToolParameter(tool, XML('<param name="blah" type="text" %s/>' % optional))
+    elif paramtype == "float":
+        optional = 'optional="true"' if optional else 'value="10.0"'
+        parameter = FloatToolParameter(tool, XML('<param name="blah" type="float" %s/>' % optional))
+    elif paramtype == "boolean":
+        optional = 'optional="true"' if optional else 'value=""'
+        parameter = BooleanToolParameter(tool, XML('<param name="blah" type="boolean" truevalue="truevalue" falsevalue="falsevalue" %s/>' % optional))
+    return InputValueWrapper(parameter, value)
+
+
 @with_mock_tool
-def test_input_value_wrapper(tool):
-    parameter = IntegerToolParameter(tool, XML('<param name="blah" type="integer" value="10" min="0" />'))
-    wrapper = InputValueWrapper(parameter, "5")
+def test_input_value_wrapper_comparison(tool):
+    wrapper = valuewrapper(tool, 5, "integer")
     assert str(wrapper) == "5"
+<<<<<<< HEAD
+=======
+    assert int(wrapper) == 5
+    assert wrapper != "5"
+    assert wrapper == 5
+    assert wrapper == 5.0
+    assert wrapper > 2
+    assert wrapper < 10
+    assert wrapper < 5.1
+    wrapper = valuewrapper(tool, True, "boolean")
+    assert bool(wrapper) is True, wrapper
+    assert str(wrapper) == "truevalue"
+    assert wrapper == "truevalue"
+    wrapper = valuewrapper(tool, False, "boolean")
+    assert bool(wrapper) is False, wrapper
+    assert str(wrapper) == "falsevalue"
+    assert wrapper == "falsevalue"
+
+
+@with_mock_tool
+def test_input_value_wrapper_comparison_optional(tool):
+    wrapper = valuewrapper(tool, None, 'integer', optional=True)
+    assert not wrapper
+    with pytest.raises(ValueError):
+        int(wrapper)
+    assert str(wrapper) == ""
+    assert wrapper == ""  # for backward-compatibility
+    wrapper = valuewrapper(tool, 0, 'integer', optional=True)
+    assert wrapper == 0
+    assert int(wrapper) == 0
+    assert str(wrapper)
+    assert wrapper != ""  # for backward-compatibility, the correct way to check if an optional integer param is not empty is to use str(wrapper)
+    wrapper = valuewrapper(tool, None, 'integer', optional=True)
+    assert wrapper != 1
+    assert str(wrapper) == ""
+    assert wrapper == None  # noqa: E711
+    wrapper = valuewrapper(tool, None, "boolean")
+    assert bool(wrapper) is False, wrapper
+    assert str(wrapper) == 'falsevalue'
+
+
+@with_mock_tool
+def test_input_value_wrapper_input_value_wrapper_comparison(tool):
+    wrapper = valuewrapper(tool, 5, "integer")
+    assert str(wrapper) == valuewrapper(tool, "5", "text")
+    assert int(wrapper) == valuewrapper(tool, "5", "integer")
+    assert wrapper != valuewrapper(tool, "5", "text")
+    assert wrapper == valuewrapper(tool, "5", "integer")
+    assert wrapper == valuewrapper(tool, "5", "float")
+    assert wrapper > valuewrapper(tool, "2", "integer")
+    assert wrapper < valuewrapper(tool, "10", "integer")
+    assert wrapper < valuewrapper(tool, "5.1", "float")
+>>>>>>> refs/heads/release_21.01
 
 
 def test_dataset_wrapper():
@@ -102,9 +202,25 @@ def test_dataset_wrapper():
 def test_dataset_wrapper_false_path():
     dataset = MockDataset()
     new_path = "/new/path/dataset_123.dat"
-    wrapper = DatasetFilenameWrapper(dataset, dataset_path=Bunch(false_path=new_path))
+    wrapper = DatasetFilenameWrapper(dataset, compute_environment=MockComputeEnvironment(false_path=new_path))
     assert str(wrapper) == new_path
     assert wrapper.file_name == new_path
+
+
+class MockComputeEnvironment:
+
+    def __init__(self, false_path, false_extra_files_path=None):
+        self.false_path = false_path
+        self.false_extra_files_path = false_extra_files_path
+
+    def input_path_rewrite(self, dataset):
+        return self.false_path
+
+    def input_extra_files_rewrite(self, dataset):
+        return self.false_extra_files_path
+
+    def unstructured_path_rewrite(self, path):
+        return "Rewrite<%s>" % path
 
 
 def test_dataset_false_extra_files_path():
@@ -115,13 +231,12 @@ def test_dataset_false_extra_files_path():
 
     new_path = "/new/path/dataset_123.dat"
     dataset_path = DatasetPath(123, MOCK_DATASET_PATH, false_path=new_path)
-    wrapper = DatasetFilenameWrapper(dataset, dataset_path=dataset_path)
+    wrapper = DatasetFilenameWrapper(dataset, compute_environment=MockComputeEnvironment(dataset_path))
     # Setting false_path is not enough to override
     assert wrapper.extra_files_path == MOCK_DATASET_EXTRA_FILES_PATH
 
     new_files_path = "/new/path/dataset_123_files"
-    dataset_path = DatasetPath(123, MOCK_DATASET_PATH, false_path=new_path, false_extra_files_path=new_files_path)
-    wrapper = DatasetFilenameWrapper(dataset, dataset_path=dataset_path)
+    wrapper = DatasetFilenameWrapper(dataset, compute_environment=MockComputeEnvironment(false_path=new_path, false_extra_files_path=new_files_path))
     assert wrapper.extra_files_path == new_files_path
 
 
@@ -161,7 +276,7 @@ MOCK_DATASET_EXTRA_FILES_PATH = "/galaxy/database/files/001/dataset_123.dat"
 MOCK_DATASET_EXT = "bam"
 
 
-class MockDataset(object):
+class MockDataset:
 
     def __init__(self):
         self.metadata = MetadataSpecCollection({})
@@ -171,14 +286,14 @@ class MockDataset(object):
         self.tags = []
 
 
-class MockTool(object):
+class MockTool:
 
     def __init__(self, app):
         self.app = app
         self.options = Bunch(sanitize=False)
 
 
-class MockApp(object):
+class MockApp:
 
     def __init__(self, test_directory):
         self.config = Bunch(tool_data_path=test_directory)

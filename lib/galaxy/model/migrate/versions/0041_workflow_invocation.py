@@ -1,14 +1,28 @@
 """
 Migration script to create tables for tracking workflow invocations.
 """
-from __future__ import print_function
 
 import datetime
 import logging
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, MetaData, Table
+from sqlalchemy import (
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    MetaData,
+    Table
+)
 
+<<<<<<< HEAD
 logging.basicConfig(level=logging.DEBUG)
+=======
+from galaxy.model.migrate.versions.util import (
+    create_table,
+    drop_table
+)
+
+>>>>>>> refs/heads/release_21.01
 log = logging.getLogger(__name__)
 now = datetime.datetime.utcnow
 metadata = MetaData()

@@ -5,12 +5,12 @@ import os
 import re
 import unittest
 
-from six import text_type
-
 from galaxy import model
+from galaxy.util import clean_multiline_string
 from galaxy.visualization.plugins import plugin
 from galaxy.visualization.plugins.registry import VisualizationsRegistry
-from ...unittest_utils import galaxy_mock, utility
+from . import VisualizationsBase_TestCase
+from ...unittest_utils import galaxy_mock
 
 glx_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir, os.pardir))
 template_cache_dir = os.path.join(glx_dir, 'database', 'compiled_templates')
@@ -36,7 +36,7 @@ config1 = """\
 """
 
 
-class VisualizationsRegistry_TestCase(unittest.TestCase):
+class VisualizationsRegistry_TestCase(VisualizationsBase_TestCase):
 
     def test_plugin_load_from_repo(self):
         """should attempt load if criteria met"""
@@ -52,7 +52,7 @@ class VisualizationsRegistry_TestCase(unittest.TestCase):
         scatterplot = plugin_mgr.plugins['scatterplot']
         self.assertEqual(scatterplot.name, 'scatterplot')
         self.assertEqual(scatterplot.path, os.path.join(expected_plugins_path, 'scatterplot'))
-        self.assertEqual(scatterplot.base_url, '/'.join([plugin_mgr.base_url, scatterplot.name]))
+        self.assertEqual(scatterplot.base_url, '/'.join((plugin_mgr.base_url, scatterplot.name)))
         self.assertTrue(scatterplot.serves_templates)
         self.assertEqual(scatterplot.template_path, os.path.join(scatterplot.path, 'templates'))
         self.assertEqual(scatterplot.template_lookup.__class__.__name__, 'TemplateLookup')
@@ -60,7 +60,7 @@ class VisualizationsRegistry_TestCase(unittest.TestCase):
         trackster = plugin_mgr.plugins['trackster']
         self.assertEqual(trackster.name, 'trackster')
         self.assertEqual(trackster.path, os.path.join(expected_plugins_path, 'trackster'))
-        self.assertEqual(trackster.base_url, '/'.join([plugin_mgr.base_url, trackster.name]))
+        self.assertEqual(trackster.base_url, '/'.join((plugin_mgr.base_url, trackster.name)))
         self.assertFalse(trackster.serves_templates)
 
     def test_plugin_load(self):
@@ -115,7 +115,7 @@ class VisualizationsRegistry_TestCase(unittest.TestCase):
         vis1 = plugin_mgr.plugins['vis1']
         self.assertEqual(vis1.name, 'vis1')
         self.assertEqual(vis1.path, os.path.join(expected_plugins_path, 'vis1'))
-        self.assertEqual(vis1.base_url, '/'.join([plugin_mgr.base_url, vis1.name]))
+        self.assertEqual(vis1.base_url, '/'.join((plugin_mgr.base_url, vis1.name)))
         self.assertTrue(vis1.serves_templates)
         self.assertEqual(vis1.template_path, os.path.join(vis1.path, 'templates'))
         self.assertEqual(vis1.template_lookup.__class__.__name__, 'TemplateLookup')
@@ -123,7 +123,7 @@ class VisualizationsRegistry_TestCase(unittest.TestCase):
         vis2 = plugin_mgr.plugins['vis2']
         self.assertEqual(vis2.name, 'vis2')
         self.assertEqual(vis2.path, os.path.join(expected_plugins_path, 'vis2'))
-        self.assertEqual(vis2.base_url, '/'.join([plugin_mgr.base_url, vis2.name]))
+        self.assertEqual(vis2.base_url, '/'.join((plugin_mgr.base_url, vis2.name)))
         self.assertFalse(vis2.serves_templates)
 
         mock_app_dir.remove()
@@ -132,7 +132,7 @@ class VisualizationsRegistry_TestCase(unittest.TestCase):
     def test_interactive_environ_plugin_load(self):
         """
         """
-        jupyter_config = utility.clean_multiline_string("""\
+        jupyter_config = clean_multiline_string("""\
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE interactive_environment SYSTEM "../../interactive_environments.dtd">
         <interactive_environment name="Jupyter">
@@ -198,7 +198,7 @@ class VisualizationsRegistry_TestCase(unittest.TestCase):
         # should return the (new) api key for the above user (see the template above)
         response = jupyter._render({}, trans=trans)
         response.strip()
-        self.assertIsInstance(response, text_type)
+        self.assertIsInstance(response, str)
         self.assertTrue('-' in response)
         ie_request, api_key = response.split('-')
 
@@ -212,7 +212,7 @@ class VisualizationsRegistry_TestCase(unittest.TestCase):
 
     def test_script_entry(self):
         """"""
-        script_entry_config = utility.clean_multiline_string("""\
+        script_entry_config = clean_multiline_string("""\
         <?xml version="1.0" encoding="UTF-8"?>
         <visualization name="js-test">
             <data_sources>

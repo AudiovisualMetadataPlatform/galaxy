@@ -3,7 +3,7 @@ Galaxy web framework helpers
 
 The functions in this module should be considered part of the API used by
 visualizations in their mako files through the `$h` object, see
-GalaxyWebTransaction in galaxy/web/framework/webapp.py
+GalaxyWebTransaction in galaxy/webapps/base/webapp.py
 """
 from datetime import datetime, timedelta
 
@@ -67,7 +67,16 @@ def css(*args):
 
     Cache-bust with time that server started running on
     """
-    urls = (url_for("/static/style/%s.css?v=%s" % (name, server_starttime)) for name in args)
+    urls = (url_for(f"/static/style/{name}.css?v={server_starttime}") for name in args)
+    return stylesheet_link(*urls)
+
+
+def dist_css(*args):
+    """
+    Transition function 'css' helper -- this is the modern way where all bundled
+    artifacts are in the unified 'dist'.
+    """
+    urls = (url_for(f"/static/dist/{name}.css?v={server_starttime}") for name in args)
     return stylesheet_link(*urls)
 
 
@@ -78,28 +87,19 @@ def js_helper(prefix, *args):
 
     Cache-bust with time that server started running on
     """
-    urls = (url_for("/%s%s.js?v=%s" % (prefix, name, server_starttime)) for name in args)
+    urls = (url_for(f"/{prefix}{name}.js?v={server_starttime}") for name in args)
     return javascript_link(*urls)
 
 
-def js(*args):
+def dist_js(*args):
     """
     Take a prefix and list of javascript names and return appropriate
     string of script tags.
     """
-    return js_helper('static/scripts/', *args)
+    return js_helper('static/dist/', *args)
 
-
-def templates(*args):
-    """
-    Take a list of template names (no extension) and return appropriate
-    string of script tags.
-    """
-    return js_helper('static/scripts/templates/compiled/', *args)
 
 # Hashes
-
-
 def md5(s):
     """
     Return hex encoded md5 hash of string s

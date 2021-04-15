@@ -2,40 +2,43 @@
 Build indexes for searching the Tool Shed.
 Run this script from the root folder, example:
 
-$ python scripts/tool_shed/build_ts_whoosh_index.py -c config/tool_shed.ini
+$ python scripts/tool_shed/build_ts_whoosh_index.py -c config/tool_shed.yml
 
-Make sure you adjusted your config to:
- * turn on searching via toolshed_search_on
- * specify whoosh_index_dir where the indexes will be placed
+Make sure you adjust your Toolshed config to:
+ * turn on searching with "toolshed_search_on"
+ * specify "whoosh_index_dir" where the indexes will be placed
 
 This script expects the Tool Shed's runtime virtualenv to be active.
 """
-from __future__ import print_function
 
+import argparse
 import logging
 import os
 import sys
+<<<<<<< HEAD
 from optparse import OptionParser
 
 from six.moves import configparser
 from whoosh.fields import Schema, STORED, TEXT
 from whoosh.filedb.filestore import FileStorage
+=======
+>>>>>>> refs/heads/release_21.01
 
 sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'lib')))
 
-import galaxy.webapps.tool_shed.model.mapping
-from galaxy.tools.loader_directory import load_tool_elements_from_path
-from galaxy.util import (
-    directory_hash_id,
-    pretty_print_time_interval,
-    unicodify
+from galaxy.util.script import (
+    app_properties_from_args,
+    populate_config_args
 )
+<<<<<<< HEAD
 from galaxy.webapps.tool_shed import config, model
+=======
+from tool_shed.util.shed_index import build_index
+from tool_shed.webapp import config as ts_config
+>>>>>>> refs/heads/release_21.01
 
-if sys.version_info > (3,):
-    long = int
-
-logging.basicConfig(level='DEBUG')
+log = logging.getLogger()
+log.addHandler(logging.StreamHandler(sys.stdout))
 
 repo_schema = Schema(
     id=STORED,
@@ -50,6 +53,7 @@ repo_schema = Schema(
     last_updated=STORED,
     full_last_updated=STORED)
 
+<<<<<<< HEAD
 tool_schema = Schema(
     name=TEXT(stored=True),
     description=TEXT(stored=True),
@@ -119,8 +123,31 @@ def build_index(sa_session, whoosh_index_dir, path_to_repositories):
 
     print("TOTAL repos indexed: ", repos_indexed)
     print("TOTAL tools indexed: ", tools_indexed)
+=======
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Build a disk-backed Toolshed repository index and tool index for searching.')
+    populate_config_args(parser)
+    parser.add_argument('-d', '--debug',
+                        action='store_true',
+                        default=False,
+                        help='Print extra info')
+    args = parser.parse_args()
+    app_properties = app_properties_from_args(args)
+    config = ts_config.ToolShedAppConfiguration(**app_properties)
+    args.dburi = config.database_connection
+    args.hgweb_config_dir = config.hgweb_config_dir
+    args.whoosh_index_dir = config.whoosh_index_dir
+    args.file_path = config.file_path
+    if args.debug:
+        log.setLevel(logging.DEBUG)
+        log.debug('Full options:')
+        for i in vars(args).items():
+            log.debug('%s: %s' % i)
+    return args
+>>>>>>> refs/heads/release_21.01
 
 
+<<<<<<< HEAD
 def get_repos(sa_session, path_to_repositories):
     """
     Load repos from DB and included tools from .xml configs.
@@ -213,9 +240,15 @@ def get_sa_session_and_needed_config_settings(path_to_tool_shed_config):
         db_con = "sqlite:///%s?isolation_level=IMMEDIATE" % config_settings.database
     model = galaxy.webapps.tool_shed.model.mapping.init(config_settings.file_path, db_con, engine_options={}, create_tables=False)
     return model.context.current, config_settings
+=======
+def main():
+    args = parse_arguments()
+    build_index(**vars(args))
+>>>>>>> refs/heads/release_21.01
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     parser = OptionParser()
     parser.add_option("-c", "--config", dest="path_to_tool_shed_config", default="config/tool_shed.ini", help="specify tool_shed.ini location")
     (options, args) = parser.parse_args()
@@ -224,3 +257,6 @@ if __name__ == "__main__":
     whoosh_index_dir = config_settings.get('whoosh_index_dir', None)
     path_to_repositories = config_settings.get('file_path', 'database/community_files')
     build_index(sa_session, whoosh_index_dir, path_to_repositories)
+=======
+    main()
+>>>>>>> refs/heads/release_21.01

@@ -1,17 +1,29 @@
-import logging
 import os
 from functools import partial
-from xml.etree import ElementTree
 
 import galaxy.workflow.schedulers
 from galaxy import model
 from galaxy.exceptions import HandlerAssignmentError
+<<<<<<< HEAD
 from galaxy.util import plugin_config
 from galaxy.util.handlers import ConfiguresHandlers, HANDLER_ASSIGNMENT_METHODS
+=======
+from galaxy.jobs.handler import ItemGrabber
+from galaxy.util import (
+    parse_xml,
+    plugin_config,
+)
+from galaxy.util.custom_logging import get_logger
+>>>>>>> refs/heads/release_21.01
 from galaxy.util.monitors import Monitors
+<<<<<<< HEAD
 from galaxy.web.stack.message import WorkflowSchedulingMessage
+=======
+from galaxy.web_stack.handlers import ConfiguresHandlers, HANDLER_ASSIGNMENT_METHODS
+from galaxy.web_stack.message import WorkflowSchedulingMessage
+>>>>>>> refs/heads/release_21.01
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 DEFAULT_SCHEDULER_ID = "default"  # well actually this should be called DEFAULT_DEFAULT_SCHEDULER_ID...
 DEFAULT_SCHEDULER_PLUGIN_TYPE = "core"
@@ -29,11 +41,9 @@ class WorkflowSchedulingManager(ConfiguresHandlers):
     processes.
     """
     DEFAULT_BASE_HANDLER_POOLS = ('workflow-schedulers', 'job-handlers')
-    UNSUPPORTED_HANDLER_ASSIGNMENT_METHODS = (
-        HANDLER_ASSIGNMENT_METHODS.DB_TRANSACTION_ISOLATION,
-        HANDLER_ASSIGNMENT_METHODS.DB_SKIP_LOCKED,
+    UNSUPPORTED_HANDLER_ASSIGNMENT_METHODS = {
         HANDLER_ASSIGNMENT_METHODS.UWSGI_MULE_MESSAGE,
-    )
+    }
 
     def __init__(self, app):
         self.app = app
@@ -116,7 +126,7 @@ class WorkflowSchedulingManager(ConfiguresHandlers):
     def _message_callback(self, workflow_invocation):
         return WorkflowSchedulingMessage(task='setup', workflow_invocation_id=workflow_invocation.id)
 
-    def _assign_handler(self, workflow_invocation):
+    def _assign_handler(self, workflow_invocation, flush=True):
         # Use random-ish integer history_id to produce a consistent index to pick
         # job handler with.
         random_index = workflow_invocation.history.id
@@ -126,7 +136,7 @@ class WorkflowSchedulingManager(ConfiguresHandlers):
             random_index = None
         return self.__handlers_config.assign_handler(
             workflow_invocation, configured=None, index=random_index, queue_callback=queue_callback,
-            message_callback=message_callback)
+            message_callback=message_callback, flush=flush)
 
     def shutdown(self):
         exception = None
@@ -146,15 +156,15 @@ class WorkflowSchedulingManager(ConfiguresHandlers):
         if exception:
             raise exception
 
-    def queue(self, workflow_invocation, request_params):
+    def queue(self, workflow_invocation, request_params, flush=True):
         workflow_invocation.state = model.WorkflowInvocation.states.NEW
         workflow_invocation.scheduler = request_params.get("scheduler", None) or self.default_scheduler_id
         sa_session = self.app.model.context
         sa_session.add(workflow_invocation)
 
-        # Assign handler (also performs the flush)
+        # Assign handler
         try:
-            self._assign_handler(workflow_invocation)
+            self._assign_handler(workflow_invocation, flush=flush)
         except HandlerAssignmentError:
             raise RuntimeError("Unable to set a handler for workflow invocation '%s'" % workflow_invocation.id)
 
@@ -176,7 +186,7 @@ class WorkflowSchedulingManager(ConfiguresHandlers):
     def __init_schedulers(self):
         config_file = self.app.config.workflow_schedulers_config_file
         use_default_scheduler = False
-        if not config_file:
+        if not config_file or (not os.path.exists(config_file) and not self.app.config.is_set('workflow_schedulers_config_file')):
             log.info("No workflow schedulers plugin config file defined, using default scheduler.")
             use_default_scheduler = True
         elif not os.path.exists(config_file):
@@ -186,7 +196,7 @@ class WorkflowSchedulingManager(ConfiguresHandlers):
         if use_default_scheduler:
             self.__init_default_scheduler()
         else:
-            plugins_element = ElementTree.parse(config_file).getroot()
+            plugins_element = parse_xml(config_file).getroot()
             self.__init_schedulers_for_element(plugins_element)
 
         if not self.__handlers_configured and self.__stack_has_pool:
@@ -207,7 +217,8 @@ class WorkflowSchedulingManager(ConfiguresHandlers):
                 self.__init_handlers(config_element)
 
                 # Determine the default handler(s)
-                self.default_handler_id = self._get_default(self.app.config, config_element, list(self.handlers.keys()))
+                self.default_handler_id = self._get_default(
+                    self.app.config, config_element, list(self.handlers.keys()), required=False)
             else:
                 plugin_type = config_element_tag
                 plugin_element = config_element
@@ -263,16 +274,39 @@ class WorkflowRequestMonitor(Monitors):
         self.app = app
         self.workflow_scheduling_manager = workflow_scheduling_manager
         self._init_monitor_thread(name="WorkflowRequestMonitor.monitor_thread", target=self.__monitor, config=app.config)
+        self.invocation_grabber = None
+        self_handler_tags = set(self.app.job_config.self_handler_tags)
+        self_handler_tags.add(self.workflow_scheduling_manager.default_handler_id)
+        handler_assignment_method = ItemGrabber.get_grabbable_handler_assignment_method(self.workflow_scheduling_manager.handler_assignment_methods)
+        if handler_assignment_method:
+            self.invocation_grabber = ItemGrabber(
+                app=app,
+                grab_type='WorkflowInvocation',
+                handler_assignment_method=handler_assignment_method,
+                max_grab=self.workflow_scheduling_manager.handler_max_grab,
+                self_handler_tags=self_handler_tags,
+                handler_tags=self_handler_tags,
+            )
 
     def __monitor(self):
         to_monitor = self.workflow_scheduling_manager.active_workflow_schedulers
         while self.monitor_running:
-            for workflow_scheduler_id, workflow_scheduler in to_monitor.items():
-                if not self.monitor_running:
-                    return
+            try:
+                if self.invocation_grabber:
+                    self.invocation_grabber.grab_unhandled_items()
 
-                self.__schedule(workflow_scheduler_id, workflow_scheduler)
+                monitor_step_timer = self.app.execution_timer_factory.get_timer(
+                    'internal.galaxy.workflows.scheduling_manager.monitor_step',
+                    'Workflow scheduling manager monitor step complete.'
+                )
+                for workflow_scheduler_id, workflow_scheduler in to_monitor.items():
+                    if not self.monitor_running:
+                        return
 
+                    self.__schedule(workflow_scheduler_id, workflow_scheduler)
+                log.trace(monitor_step_timer.to_str())
+            except Exception:
+                log.exception('An exception occured scheduling while scheduling workflows')
             self._monitor_sleep(1)
 
     def __schedule(self, workflow_scheduler_id, workflow_scheduler):

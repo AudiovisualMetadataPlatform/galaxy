@@ -15,6 +15,11 @@ DYNAMIC_DESTINATION_ID = "dynamic_legacy_from_url"
 
 ERROR_MESSAGE_NO_RULE_FUNCTION = "Galaxy misconfigured - cannot find dynamic rule function name for destination %s."
 ERROR_MESSAGE_RULE_FUNCTION_NOT_FOUND = "Galaxy misconfigured - no rule function named %s found in dynamic rule modules."
+ERROR_MESSAGE_RULE_EXCEPTION = "Encountered an unhandled exception while caching job destination dynamic rule."
+
+
+class JobMappingConfigurationException(Exception):
+    pass
 
 
 class JobMappingException(Exception):
@@ -38,7 +43,7 @@ STOCK_RULES = dict(
 )
 
 
-class JobRunnerMapper(object):
+class JobRunnerMapper:
     """
     This class is responsible to managing the mapping of jobs
     (in the form of job_wrappers) to job runner url strings.
@@ -157,12 +162,12 @@ class JobRunnerMapper(object):
                 rule_modules, expand_function_name)
             if not expand_function:
                 message = ERROR_MESSAGE_RULE_FUNCTION_NOT_FOUND % expand_function_name
-                raise Exception(message)
+                raise JobMappingConfigurationException(message)
         else:
             expand_function = self.__find_function_by_tool_id(rule_modules)
             if not expand_function:
                 message = ERROR_MESSAGE_NO_RULE_FUNCTION % destination
-                raise Exception(message)
+                raise JobMappingConfigurationException(message)
         return expand_function
 
     def __get_rule_modules_or_defaults(self, rules_module_name):
@@ -192,7 +197,7 @@ class JobRunnerMapper(object):
         elif expand_type in STOCK_RULES:
             expand_function = STOCK_RULES[expand_type]
         else:
-            raise Exception("Unhandled dynamic job runner type specified - %s" % expand_type)
+            raise JobMappingConfigurationException("Unhandled dynamic job runner type specified - %s" % expand_type)
 
         return self.__handle_rule(expand_function, destination)
 
@@ -207,6 +212,10 @@ class JobRunnerMapper(object):
         return job_destination
 
     def __determine_job_destination(self, params, raw_job_destination=None):
+        if self.job_wrapper.tool is None:
+            raise JobMappingException(
+                "Can't map job to destination, tool '%s' is unavailable" % self.job_wrapper.get_job().tool_id
+            )
         if raw_job_destination is None:
             raw_job_destination = self.job_wrapper.tool.get_job_destination(params)
         if raw_job_destination.runner == DYNAMIC_RUNNER_NAME:
@@ -221,8 +230,15 @@ class JobRunnerMapper(object):
         return job_destination
 
     def __cache_job_destination(self, params, raw_job_destination=None):
-        self.cached_job_destination = self.__determine_job_destination(
-            params, raw_job_destination=raw_job_destination)
+        try:
+            self.cached_job_destination = self.__determine_job_destination(params, raw_job_destination=raw_job_destination)
+        except (JobMappingConfigurationException, JobMappingException, JobNotReadyException):
+            raise
+        except Exception:
+            # Other exceptions should not bubble up to the job wrapper since they can occur during the fail() method,
+            # causing jobs to become permanently stuck in a non-terminal state.
+            log.exception("Caught unhandled exception while attempting to cache job destination:")
+            raise JobMappingException(ERROR_MESSAGE_RULE_EXCEPTION)
         return self.cached_job_destination
 
     def get_job_destination(self, params):

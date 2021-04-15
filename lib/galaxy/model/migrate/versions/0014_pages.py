@@ -3,7 +3,6 @@ Migration script to add support for "Pages".
   1) Creates Page and PageRevision tables
   2) Adds username column to User table
 """
-from __future__ import print_function
 
 import datetime
 import logging
@@ -14,15 +13,18 @@ now = datetime.datetime.utcnow
 log = logging.getLogger(__name__)
 metadata = MetaData()
 
-Page_table = Table("page", metadata,
-                   Column("id", Integer, primary_key=True),
-                   Column("create_time", DateTime, default=now),
-                   Column("update_time", DateTime, default=now, onupdate=now),
-                   Column("user_id", Integer, ForeignKey("galaxy_user.id"), index=True, nullable=False),
-                   Column("latest_revision_id", Integer,
-                          ForeignKey("page_revision.id", use_alter=True, name='page_latest_revision_id_fk'), index=True),
-                   Column("title", TEXT),
-                   Column("slug", TEXT, unique=True, index=True))
+Page_table = Table(
+    "page", metadata,
+    Column("id", Integer, primary_key=True),
+    Column("create_time", DateTime, default=now),
+    Column("update_time", DateTime, default=now, onupdate=now),
+    Column("user_id", Integer, ForeignKey("galaxy_user.id"), index=True, nullable=False),
+    Column("latest_revision_id", Integer,
+        ForeignKey("page_revision.id", use_alter=True, name='page_latest_revision_id_fk'), index=True),
+    Column("title", TEXT),
+    Column("slug", TEXT),
+    Index('ix_page_slug', 'slug', unique=True, mysql_length=200),
+)
 
 PageRevision_table = Table("page_revision", metadata,
                            Column("id", Integer, primary_key=True),
@@ -37,6 +39,7 @@ def upgrade(migrate_engine):
     metadata.bind = migrate_engine
     print(__doc__)
     metadata.reflect()
+<<<<<<< HEAD
     try:
         if migrate_engine.name == 'mysql':
             # Strip slug index prior to creation so we can do it manually.
@@ -56,6 +59,11 @@ def upgrade(migrate_engine):
         PageRevision_table.create()
     except Exception:
         log.exception("Could not create page_revision table")
+=======
+
+    create_table(Page_table)
+    create_table(PageRevision_table)
+>>>>>>> refs/heads/release_21.01
 
     # Add 1 column to the user table
     User_table = Table("galaxy_user", metadata, autoload=True)

@@ -6,9 +6,11 @@ import gzip
 import logging
 import subprocess
 import tempfile
-
-from six.moves.urllib.parse import urlencode, urlparse
-from six.moves.urllib.request import urlopen
+from urllib.parse import (
+    urlencode,
+    urlparse,
+)
+from urllib.request import urlopen
 
 from . import (
     base,
@@ -41,7 +43,7 @@ class SubprocessDataProvider(base.DataProvider):
         command_list = args
         self.popen = self.subprocess(*command_list, **kwargs)
         # TODO:?? not communicate()?
-        super(SubprocessDataProvider, self).__init__(self.popen.stdout)
+        super().__init__(self.popen.stdout)
         self.exit_code = self.popen.poll()
 
     # NOTE: there's little protection here v. sending a ';' and a dangerous command here
@@ -54,26 +56,26 @@ class SubprocessDataProvider(base.DataProvider):
         try:
             # how expensive is this?
             popen = subprocess.Popen(command_list, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-            log.info('opened subrocess (%s), PID: %s' % (str(command_list), str(popen.pid)))
+            log.info('opened subrocess ({}), PID: {}'.format(str(command_list), str(popen.pid)))
 
         except OSError as os_err:
             command_str = ' '.join(self.command)
-            raise OSError(' '.join([str(os_err), ':', command_str]))
+            raise OSError(' '.join((str(os_err), ':', command_str)))
 
         return popen
 
     def __exit__(self, *args):
         # poll the subrocess for an exit code
         self.exit_code = self.popen.poll()
-        log.info('%s.__exit__, exit_code: %s' % (str(self), str(self.exit_code)))
-        return super(SubprocessDataProvider, self).__exit__(*args)
+        log.info('{}.__exit__, exit_code: {}'.format(str(self), str(self.exit_code)))
+        return super().__exit__(*args)
 
     def __str__(self):
         # provide the pid and current return code
         source_str = ''
         if hasattr(self, 'popen'):
-            source_str = '%s:%s' % (str(self.popen.pid), str(self.popen.poll()))
-        return '%s(%s)' % (self.__class__.__name__, str(source_str))
+            source_str = '{}:{}'.format(str(self.popen.pid), str(self.popen.poll()))
+        return '{}({})'.format(self.__class__.__name__, str(source_str))
 
 
 class RegexSubprocessDataProvider(line.RegexLineDataProvider):
@@ -85,7 +87,7 @@ class RegexSubprocessDataProvider(line.RegexLineDataProvider):
     def __init__(self, *args, **kwargs):
         # using subprocess as proxy data source in filtered line prov.
         subproc_provider = SubprocessDataProvider(*args)
-        super(RegexSubprocessDataProvider, self).__init__(subproc_provider, **kwargs)
+        super().__init__(subproc_provider, **kwargs)
 
 
 # ----------------------------------------------------------------------------- other apis
@@ -123,7 +125,7 @@ class URLDataProvider(base.DataProvider):
         else:
             raise ValueError('Not a valid method: %s' % (method))
 
-        super(URLDataProvider, self).__init__(opened, **kwargs)
+        super().__init__(opened, **kwargs)
         # NOTE: the request object is now accessible as self.source
 
     def __enter__(self):
@@ -143,7 +145,7 @@ class GzipDataProvider(base.DataProvider):
 
     def __init__(self, source, **kwargs):
         unzipped = gzip.GzipFile(source, 'rb')
-        super(GzipDataProvider, self).__init__(unzipped, **kwargs)
+        super().__init__(unzipped, **kwargs)
         # NOTE: the GzipFile is now accessible in self.source
 
 
@@ -167,7 +169,7 @@ class TempfileDataProvider(base.DataProvider):
         return self.tmp_file
 
     def write_to_file(self):
-        parent_gen = super(TempfileDataProvider, self).__iter__()
+        parent_gen = super().__iter__()
         with open(self.tmp_file, 'w') as open_file:
             for datum in parent_gen:
                 open_file.write(datum + '\n')

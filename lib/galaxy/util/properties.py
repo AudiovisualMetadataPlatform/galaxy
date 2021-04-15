@@ -5,13 +5,13 @@ this should be reusable by tool shed and pulsar as well.
 import os
 import os.path
 import sys
+from configparser import ConfigParser
 from functools import partial
 from itertools import product, starmap
 
 import yaml
-from six import iteritems, string_types
-from six.moves.configparser import ConfigParser
 
+from galaxy.exceptions import InvalidFileFormatError
 from galaxy.util.path import extensions, has_ext, joinext
 
 
@@ -63,36 +63,28 @@ def find_config_file(names, exts=None, dirs=None, include_samples=False):
 
 
 def load_app_properties(
-    kwds={},
+    kwds=None,
     ini_file=None,
     ini_section=None,
     config_file=None,
     config_section=None,
     config_prefix="GALAXY_CONFIG_"
 ):
-    properties = kwds.copy() if kwds else {}
     if config_file is None:
         config_file = ini_file
         config_section = ini_section
 
+    # read from file or init w/no file
     if config_file:
-        if not has_ext(config_file, 'yaml', aliases=True, ignore='sample'):
-            if config_section is None:
-                config_section = "app:main"
-            parser = nice_config_parser(config_file)
-            if parser.has_section(config_section):
-                properties.update(dict(parser.items(config_section)))
-            else:
-                properties.update(parser.defaults())
-        else:
-            if config_section is None:
-                config_section = "galaxy"
+        properties = read_properties_from_file(config_file, config_section)
+    else:
+        properties = {'__file__': None}
 
-            with open(config_file, "r") as f:
-                raw_properties = yaml.safe_load(f)
-            properties = __default_properties(config_file)
-            properties.update(raw_properties.get(config_section) or {})
+    # update from kwds
+    if kwds:
+        properties.update(kwds)
 
+    # update from env
     override_prefix = "%sOVERRIDE_" % config_prefix
     for key in os.environ:
         if key.startswith(override_prefix):
@@ -104,6 +96,33 @@ def load_app_properties(
                 properties[config_key] = os.environ[key]
 
     return properties
+
+
+def read_properties_from_file(config_file, config_section=None):
+    properties = {}
+    if has_ext(config_file, 'yaml', aliases=True, ignore='sample'):
+        if config_section is None:
+            config_section = "galaxy"
+        properties.update(__default_properties(config_file))
+        raw_properties = _read_from_yaml_file(config_file)
+        if raw_properties:
+            properties.update(raw_properties.get(config_section) or {})
+    elif has_ext(config_file, 'ini', aliases=True, ignore='sample'):
+        if config_section is None:
+            config_section = "app:main"
+        parser = nice_config_parser(config_file)  # default properties loaded w/parser
+        if parser.has_section(config_section):
+            properties.update(dict(parser.items(config_section)))
+        else:
+            properties.update(parser.defaults())
+    else:
+        raise InvalidFileFormatError("File '%s' doesn't have a supported extension" % config_file)
+    return properties
+
+
+def _read_from_yaml_file(path):
+    with open(path) as f:
+        return yaml.safe_load(f)
 
 
 def nice_config_parser(path):
@@ -123,6 +142,7 @@ class NicerConfigParser(ConfigParser):
             self._interpolation = self.InterpolateWrapper(self._interpolation)
 
     read_file = getattr(ConfigParser, 'read_file', ConfigParser.readfp)
+    read_file.__doc__ = ""
 
     def defaults(self):
         """Return the defaults, with their values interpolated (with the
@@ -131,7 +151,7 @@ class NicerConfigParser(ConfigParser):
         Mainly to support defaults using values such as %(here)s
         """
         defaults = ConfigParser.defaults(self).copy()
-        for key, val in iteritems(defaults):
+        for key, val in defaults.items():
             defaults[key] = self.get('DEFAULT', key) or val
         return defaults
 
@@ -143,12 +163,12 @@ class NicerConfigParser(ConfigParser):
         except Exception:
             e = sys.exc_info()[1]
             args = list(e.args)
-            args[0] = 'Error in file %s: %s' % (self.filename, e)
+            args[0] = f'Error in file {self.filename}: {e}'
             e.args = tuple(args)
             e.message = args[0]
             raise
 
-    class InterpolateWrapper(object):
+    class InterpolateWrapper:
         # Python >= 3.2
         def __init__(self, original):
             self._original = original
@@ -163,10 +183,29 @@ class NicerConfigParser(ConfigParser):
             except Exception:
                 e = sys.exc_info()[1]
                 args = list(e.args)
-                args[0] = 'Error in file %s: %s' % (parser.filename, e)
+                args[0] = f'Error in file {parser.filename}: {e}'
                 e.args = tuple(args)
                 e.message = args[0]
                 raise
+
+
+def _running_from_source():
+    paths = ['run.sh', 'lib/galaxy/__init__.py', 'scripts/common_startup.sh']
+    return all(map(os.path.exists, paths))
+
+
+running_from_source = _running_from_source()
+
+
+def get_data_dir(properties):
+    data_dir = properties.get('data_dir', None)
+    if data_dir is None:
+        if running_from_source:
+            data_dir = './database'
+        else:
+            config_dir = properties.get('config_dir', os.path.dirname(properties['__file__']))
+            data_dir = os.path.join(config_dir, 'data')
+    return data_dir
 
 
 def __get_all_configs(dirs, names):
@@ -175,7 +214,7 @@ def __get_all_configs(dirs, names):
 
 def __find_config_files(names, exts=None, dirs=None, include_samples=False):
     sample_names = []
-    if isinstance(names, string_types):
+    if isinstance(names, str):
         names = [names]
     if not dirs:
         dirs = [os.getcwd()]
@@ -196,4 +235,4 @@ def __default_properties(path):
     }
 
 
-__all__ = ('find_config_file', 'load_app_properties', 'NicerConfigParser')
+__all__ = ('find_config_file', 'get_data_dir', 'load_app_properties', 'NicerConfigParser', 'running_from_source')

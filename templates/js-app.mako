@@ -17,12 +17,19 @@
         ## relative href for site root
         <link rel="index" href="${ h.url_for( '/' ) }"/>
         ## TODO: use loaders to move everything but the essentials below the fold
+        ${ h.dist_css(
+            'base',
+        )}
         ${ h.css(
             ## 'jquery.rating',
             'jquery-ui/smoothness/jquery-ui',
+<<<<<<< HEAD
             ## base needs to come after jquery-ui because of ui-button, ui- etc. name collision
             'base',
             ##'bootstrap-tour',
+=======
+            'bootstrap-tour',
+>>>>>>> refs/heads/release_21.01
         )}
         ${ page_setup() }
     </head>
@@ -50,6 +57,7 @@
     </body>
 </html>
 
+<<<<<<< HEAD
 ## ============================================================================
 <%def name="page_setup()">
     ## Send js errors to Sentry server if configured
@@ -60,6 +68,30 @@
         %if trans.user:
             Raven.setUser( { email: "${trans.user.email|h}" } );
         %endif
+=======
+<%def name="javascripts()">
+    ${ h.dist_js(
+        'libs.chunk',
+        'base.chunk'
+    )}
+    ${ h.dist_js('%s.bundled' % js_app_name)}
+</%def>
+
+<%def name="javascript_app()">
+
+    <script type="text/javascript">
+        console.debug("Initializing javascript application:", "${js_app_entry_fn}");
+
+        // js-app.mako
+        var options = ${ h.dumps( options ) };
+        var bootstrapped = ${ h.dumps( bootstrapped ) };
+
+        config.set({
+            options: options,
+            bootstrapped: bootstrapped,
+            form_input_auto_focus: ${h.to_js_bool(form_input_auto_focus)}
+        });
+>>>>>>> refs/heads/release_21.01
     </script>
     %endif
 
@@ -74,6 +106,7 @@
     </script>
     %endif
 
+<<<<<<< HEAD
     ## google analytics
     %if app.config.ga_code:
     <script type="text/javascript">
@@ -84,6 +117,11 @@
         ga('create', '${app.config.ga_code}', 'auto');
         ga('send', 'pageview');
     </script>
+=======
+    ${ galaxy_client.config_sentry(app) }
+    %if app.config.ga_code:
+        ${ galaxy_client.config_google_analytics(app.config.ga_code) }
+>>>>>>> refs/heads/release_21.01
     %endif
 
 </%def>

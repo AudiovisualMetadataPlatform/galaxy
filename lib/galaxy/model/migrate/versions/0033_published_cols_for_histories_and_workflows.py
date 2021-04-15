@@ -2,7 +2,6 @@
 Migration script to add necessary columns for distinguishing between viewing/importing and publishing histories, \
 workflows, and pages. Script adds published column to histories and workflows and importable column to pages.
 """
-from __future__ import print_function
 
 import logging
 
@@ -20,12 +19,16 @@ def upgrade(migrate_engine):
     # Create published column in history table.
     History_table = Table("history", metadata, autoload=True)
     c = Column("published", Boolean, index=True)
+<<<<<<< HEAD
     try:
         c.create(History_table, index_name='ix_history_published')
         assert c is History_table.c.published
     except Exception:
         log.exception("Adding published column to history table failed.")
 
+=======
+    add_column(c, History_table, metadata, index_name='ix_history_published')
+>>>>>>> refs/heads/release_21.01
     if migrate_engine.name != 'sqlite':
         # Create index for published column in history table.
         try:
@@ -38,12 +41,16 @@ def upgrade(migrate_engine):
     # Create published column in stored workflows table.
     StoredWorkflow_table = Table("stored_workflow", metadata, autoload=True)
     c = Column("published", Boolean, index=True)
+<<<<<<< HEAD
     try:
         c.create(StoredWorkflow_table, index_name='ix_stored_workflow_published')
         assert c is StoredWorkflow_table.c.published
     except Exception:
         log.exception("Adding published column to stored_workflow table failed.")
 
+=======
+    add_column(c, StoredWorkflow_table, metadata, index_name='ix_stored_workflow_published')
+>>>>>>> refs/heads/release_21.01
     if migrate_engine.name != 'sqlite':
         # Create index for published column in stored workflows table.
         try:
@@ -56,12 +63,16 @@ def upgrade(migrate_engine):
     # Create importable column in page table.
     Page_table = Table("page", metadata, autoload=True)
     c = Column("importable", Boolean, index=True)
+<<<<<<< HEAD
     try:
         c.create(Page_table, index_name='ix_page_importable')
         assert c is Page_table.c.importable
     except Exception:
         log.exception("Adding importable column to page table failed.")
 
+=======
+    add_column(c, Page_table, metadata, index_name='ix_page_importable')
+>>>>>>> refs/heads/release_21.01
     if migrate_engine.name != 'sqlite':
         # Create index for importable column in page table.
         try:

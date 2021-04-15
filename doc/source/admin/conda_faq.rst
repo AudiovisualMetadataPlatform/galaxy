@@ -399,9 +399,33 @@ you let Galaxy install Conda prior to the release of 17.01 you probably have ver
 
 .. code-block:: bash
 
+<<<<<<< HEAD
    $ <tool_dependency_dir/_conda/bin/conda update -y conda==4.2.13
+=======
+   $ <tool_dependency_dir/_conda/bin/conda install -c conda-forge conda==4.6.14
+>>>>>>> refs/heads/release_21.01
 
+<<<<<<< HEAD
 The command can obviously be adapted to install any version of Conda.
+=======
+The command can obviously be adapted to install any version of Conda. If the
+above command fails with an error like:
+
+.. code-block:: bash
+
+   UnsatisfiableError: The following specifications were found to be in conflict:
+     - conda ==4.6.14 -> python >=3.6,<3.7.0a0
+     - python 3.5*
+   Use "conda info <package>" to see the dependencies for each package.
+
+Then you need to also update the ``python`` package installed in the base
+environment by appending to the ``conda install`` command above an appropriate
+specification, which for the example error above would be ``python==3.6``:
+
+.. code-block:: bash
+
+   $ <tool_dependency_dir/_conda/bin/conda install -c conda-forge conda==4.6.14 python==3.6
+>>>>>>> refs/heads/release_21.01
 
 
 .. _Conda documentation: https://conda.io/docs/

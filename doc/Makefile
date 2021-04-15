@@ -2,7 +2,7 @@
 #
 
 # You can set these variables from the command line.
-SPHINXOPTS    =
+SPHINXOPTS    ?=
 SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = build
@@ -15,7 +15,11 @@ ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) sou
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
 
+<<<<<<< HEAD
 GENERATED_RST = source/api/api.rst source/api/ts_api.rst source/dev/schema.rst source/admin/config_logging_default_yaml.rst
+=======
+GENERATED_RST = source/dev/schema.md source/admin/config_logging_default_yaml.rst
+>>>>>>> refs/heads/release_21.01
 
 .PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext updaterst
 
@@ -42,15 +46,18 @@ help:
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
 	@echo "  updaterst  to update Sphinx RST files for lib/ to reflect code structure changes"
 
+<<<<<<< HEAD
 schema.md: parse_gx_xsd.py schema_template.md ../lib/galaxy/tools/xsd/galaxy.xsd ## Build Github-flavored Markdown from Galaxy Tool XSD (expects libxml in environment)
 	python parse_gx_xsd.py schema_template.md ../lib/galaxy/tools/xsd/galaxy.xsd > $@
+=======
+source/dev/run_tests_help.txt:
+	bash ../run_tests.sh --help >> source/dev/run_tests_help.txt
+>>>>>>> refs/heads/release_21.01
 
-source/api/api.rst: source/lib/galaxy.webapps.galaxy.api.rst
-	printf "Galaxy API\n==========\n" > $@
-	tail -n +11 source/lib/galaxy.webapps.galaxy.api.rst >> $@
-	sed -i.bak -e 's/^galaxy\\\.webapps\\\.galaxy\\\.api\\\.//' $@
-	rm -f $@.bak
+source/dev/schema.md: parse_gx_xsd.py schema_template.md ../lib/galaxy/tool_util/xsd/galaxy.xsd ## Build Github-flavored Markdown from Galaxy Tool XSD (expects lxml in environment)
+	python parse_gx_xsd.py schema_template.md ../lib/galaxy/tool_util/xsd/galaxy.xsd > $@
 
+<<<<<<< HEAD
 source/api/ts_api.rst: source/lib/galaxy.webapps.tool_shed.api.rst
 	printf "Tool Shed API\n=============\n" > $@
 	tail -n +11 source/lib/galaxy.webapps.tool_shed.api.rst >> $@
@@ -62,6 +69,9 @@ source/dev/schema.rst: schema.md ## Convert Galaxy Tool XSD Markdown docs into r
 	./fix_schema_rst.sh $@
 
 source/admin/config_logging_default_yaml.rst: ../lib/galaxy/config.py
+=======
+source/admin/config_logging_default_yaml.rst: ../lib/galaxy/config/__init__.py
+>>>>>>> refs/heads/release_21.01
 	printf '.. code-block:: yaml\n\n' > $@
 	printf '    galaxy:\n' >> $@
 	printf '      logging:\n        ' >> $@

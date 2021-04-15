@@ -1,7 +1,6 @@
 """
 Migration script to create missing indexes.  Adding new columns to existing tables via SQLAlchemy does not create the index, even if the column definition includes index=True.
 """
-from __future__ import print_function
 
 import logging
 
@@ -9,7 +8,6 @@ from sqlalchemy import Index, MetaData, Table
 from sqlalchemy.engine import reflection
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
 metadata = MetaData()
 
 indexes = (
@@ -72,7 +70,11 @@ def downgrade(migrate_engine):
     metadata.bind = migrate_engine
     metadata.reflect()
 
+<<<<<<< HEAD
     # Drop indexes
+=======
+    # TODO: Dropping a column used in a foreign key fails in MySQL, need to remove the FK first.
+>>>>>>> refs/heads/release_21.01
     for ix, table, col in indexes:
         try:
             t = Table(table, metadata, autoload=True)

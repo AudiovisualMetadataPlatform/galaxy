@@ -19,7 +19,10 @@ import galaxy
 import galaxy.app
 import galaxy.config
 from galaxy.objectstore import build_object_store_from_config
-from galaxy.util import hash_util
+from galaxy.util import (
+    hash_util,
+    unicodify
+)
 from galaxy.util.script import app_properties_from_args, populate_config_args
 
 sample_config = os.path.abspath(os.path.join(os.path.dirname(__file__), 'grt.yml.sample'))
@@ -43,7 +46,7 @@ def _init(args):
 
 def kw_metrics(job):
     return {
-        '%s_%s' % (metric.plugin, metric.metric_name): metric.metric_value
+        f'{metric.plugin}_{metric.metric_name}': metric.metric_value
         for metric in job.metrics
     }
 
@@ -93,7 +96,7 @@ def main(argv):
     REPORT_BASE = os.path.join(REPORT_DIR, REPORT_IDENTIFIER)
 
     if os.path.exists(CHECK_POINT_FILE):
-        with open(CHECK_POINT_FILE, 'r') as handle:
+        with open(CHECK_POINT_FILE) as handle:
             last_job_sent = int(handle.read())
     else:
         last_job_sent = -1
@@ -126,7 +129,7 @@ def main(argv):
         if end_job_id - last_job_sent > args.max_records:
             end_job_id = last_job_sent + args.max_records
 
-    annotate('endpoint_end', 'Processing jobs (%s, %s]' % (last_job_sent, end_job_id))
+    annotate('endpoint_end', f'Processing jobs ({last_job_sent}, {end_job_id}]')
 
     # Remember the last job sent.
     if end_job_id == last_job_sent:
@@ -139,152 +142,146 @@ def main(argv):
     blacklisted_tools = config['sanitization']['tools']
 
     annotate('export_jobs_start', 'Exporting Jobs')
-    handle_job = open(REPORT_BASE + '.jobs.tsv', 'w')
-    handle_job.write('\t'.join(('id', 'tool_id', 'tool_version', 'state', 'create_time')) + '\n')
-    for offset_start in range(last_job_sent, end_job_id, args.batch_size):
-        logging.debug("Processing %s:%s", offset_start, min(end_job_id, offset_start + args.batch_size))
-        for job in sa_session.query(model.Job.id, model.Job.user_id, model.Job.tool_id, model.Job.tool_version, model.Job.state, model.Job.create_time) \
-                .filter(model.Job.id > offset_start) \
-                .filter(model.Job.id <= min(end_job_id, offset_start + args.batch_size)) \
-                .all():
-            # If the tool is blacklisted, exclude everywhere
-            if job[2] in blacklisted_tools:
-                continue
+    with open(REPORT_BASE + '.jobs.tsv', 'w', encoding='utf-8') as handle_job:
+        handle_job.write('\t'.join(('id', 'tool_id', 'tool_version', 'state', 'create_time')) + '\n')
+        for offset_start in range(last_job_sent, end_job_id, args.batch_size):
+            logging.debug("Processing %s:%s", offset_start, min(end_job_id, offset_start + args.batch_size))
+            for job in sa_session.query(model.Job.id, model.Job.user_id, model.Job.tool_id, model.Job.tool_version, model.Job.state, model.Job.create_time) \
+                    .filter(model.Job.id > offset_start) \
+                    .filter(model.Job.id <= min(end_job_id, offset_start + args.batch_size)) \
+                    .all():
+                # If the tool is blacklisted, exclude everywhere
+                if job[2] in blacklisted_tools:
+                    continue
 
-            try:
-                handle_job.write(str(job[0]))  # id
-                handle_job.write('\t')
-                handle_job.write(job[2])  # tool_id
-                handle_job.write('\t')
-                handle_job.write(job[3])  # tool_version
-                handle_job.write('\t')
-                handle_job.write(job[4])  # state
-                handle_job.write('\t')
-                handle_job.write(str(job[5]))  # create_time
-                handle_job.write('\n')
-            except Exception:
-                logging.warning("Unable to write out a 'handle_job' row. Ignoring the row.", exc_info=True)
-                continue
-            # meta counts
-            job_state_data[job[4]] += 1
-            active_users[job[1]] += 1
-            job_tool_map[job[0]] = job[2]
-
-    handle_job.close()
+                try:
+                    line = [
+                        str(job[0]),  # id
+                        job[2],  # tool_id
+                        job[3],  # tool_version
+                        job[4],  # state
+                        str(job[5])  # create_time
+                    ]
+                    cline = unicodify('\t'.join(line) + '\n')
+                    handle_job.write(cline)
+                except Exception:
+                    logging.warning("Unable to write out a 'handle_job' row. Ignoring the row.", exc_info=True)
+                    continue
+                # meta counts
+                job_state_data[job[4]] += 1
+                active_users[job[1]] += 1
+                job_tool_map[job[0]] = job[2]
     annotate('export_jobs_end')
 
     annotate('export_datasets_start', 'Exporting Datasets')
-    handle_datasets = open(REPORT_BASE + '.datasets.tsv', 'w')
-    handle_datasets.write('\t'.join(('job_id', 'dataset_id', 'extension', 'file_size', 'param_name', 'type')) + '\n')
-    for offset_start in range(last_job_sent, end_job_id, args.batch_size):
-        logging.debug("Processing %s:%s", offset_start, min(end_job_id, offset_start + args.batch_size))
+    with open(REPORT_BASE + '.datasets.tsv', 'w', encoding='utf-8') as handle_datasets:
+        handle_datasets.write('\t'.join(('job_id', 'dataset_id', 'extension', 'file_size', 'param_name', 'type')) + '\n')
+        for offset_start in range(last_job_sent, end_job_id, args.batch_size):
+            logging.debug("Processing %s:%s", offset_start, min(end_job_id, offset_start + args.batch_size))
 
-        # four queries: JobToInputDatasetAssociation, JobToOutputDatasetAssociation, HistoryDatasetAssociation, Dataset
+            # four queries: JobToInputDatasetAssociation, JobToOutputDatasetAssociation, HistoryDatasetAssociation, Dataset
 
-        job_to_input_hda_ids = sa_session.query(model.JobToInputDatasetAssociation.job_id, model.JobToInputDatasetAssociation.dataset_id,
-            model.JobToInputDatasetAssociation.name) \
-            .filter(model.JobToInputDatasetAssociation.job_id > offset_start) \
-            .filter(model.JobToInputDatasetAssociation.job_id <= min(end_job_id, offset_start + args.batch_size)) \
-            .all()
+            job_to_input_hda_ids = sa_session.query(model.JobToInputDatasetAssociation.job_id, model.JobToInputDatasetAssociation.dataset_id,
+                model.JobToInputDatasetAssociation.name) \
+                .filter(model.JobToInputDatasetAssociation.job_id > offset_start) \
+                .filter(model.JobToInputDatasetAssociation.job_id <= min(end_job_id, offset_start + args.batch_size)) \
+                .all()
 
-        job_to_output_hda_ids = sa_session.query(model.JobToOutputDatasetAssociation.job_id, model.JobToOutputDatasetAssociation.dataset_id,
-            model.JobToOutputDatasetAssociation.name) \
-            .filter(model.JobToOutputDatasetAssociation.job_id > offset_start) \
-            .filter(model.JobToOutputDatasetAssociation.job_id <= min(end_job_id, offset_start + args.batch_size)) \
-            .all()
+            job_to_output_hda_ids = sa_session.query(model.JobToOutputDatasetAssociation.job_id, model.JobToOutputDatasetAssociation.dataset_id,
+                model.JobToOutputDatasetAssociation.name) \
+                .filter(model.JobToOutputDatasetAssociation.job_id > offset_start) \
+                .filter(model.JobToOutputDatasetAssociation.job_id <= min(end_job_id, offset_start + args.batch_size)) \
+                .all()
 
-        # add type and concat
-        job_to_hda_ids = [[list(i), "input"] for i in job_to_input_hda_ids] + [[list(i), "output"] for i in job_to_output_hda_ids]
+            # add type and concat
+            job_to_hda_ids = [[list(i), "input"] for i in job_to_input_hda_ids] + [[list(i), "output"] for i in job_to_output_hda_ids]
 
-        # put all of the hda_ids into a list
-        hda_ids = [i[0][1] for i in job_to_hda_ids]
+            # put all of the hda_ids into a list
+            hda_ids = [i[0][1] for i in job_to_hda_ids]
 
-        hdas = sa_session.query(model.HistoryDatasetAssociation.id, model.HistoryDatasetAssociation.dataset_id,
-            model.HistoryDatasetAssociation.extension) \
-            .filter(model.HistoryDatasetAssociation.id.in_(hda_ids)) \
-            .all()
+            hdas = sa_session.query(model.HistoryDatasetAssociation.id, model.HistoryDatasetAssociation.dataset_id,
+                model.HistoryDatasetAssociation.extension) \
+                .filter(model.HistoryDatasetAssociation.id.in_(hda_ids)) \
+                .all()
 
-        # put all the dataset ids into a list
-        dataset_ids = [i[1] for i in hdas]
+            # put all the dataset ids into a list
+            dataset_ids = [i[1] for i in hdas]
 
-        # get the sizes of the datasets
-        datasets = sa_session.query(model.Dataset.id, model.Dataset.total_size) \
-            .filter(model.Dataset.id.in_(dataset_ids)) \
-            .all()
+            # get the sizes of the datasets
+            datasets = sa_session.query(model.Dataset.id, model.Dataset.total_size) \
+                .filter(model.Dataset.id.in_(dataset_ids)) \
+                .all()
 
-        # datasets to dictionay for easy search
-        hdas = {i[0]: i[1:] for i in hdas}
-        datasets = {i[0]: i[1:] for i in datasets}
+            # datasets to dictionay for easy search
+            hdas = {i[0]: i[1:] for i in hdas}
+            datasets = {i[0]: i[1:] for i in datasets}
 
-        for job_to_hda in job_to_hda_ids:
+            for job_to_hda in job_to_hda_ids:
 
-            job = job_to_hda[0]  # job_id, hda_id, name
-            filetype = job_to_hda[1]  # input|output
+                job = job_to_hda[0]  # job_id, hda_id, name
+                filetype = job_to_hda[1]  # input|output
 
-            # No associated job
-            if job[0] not in job_tool_map:
-                continue
+                # No associated job
+                if job[0] not in job_tool_map:
+                    continue
 
-            # If the tool is blacklisted, exclude everywhere
-            if job_tool_map[job[0]] in blacklisted_tools:
-                continue
+                # If the tool is blacklisted, exclude everywhere
+                if job_tool_map[job[0]] in blacklisted_tools:
+                    continue
 
-            hda_id = job[1]
-            if hda_id is None:
-                continue
+                hda_id = job[1]
+                if hda_id is None:
+                    continue
 
-            dataset_id = hdas[hda_id][0]
-            if dataset_id is None:
-                continue
+                dataset_id = hdas[hda_id][0]
+                if dataset_id is None:
+                    continue
 
-            try:
-                handle_datasets.write(str(job[0]))
-                handle_datasets.write('\t')
-                handle_datasets.write(str(hda_id))
-                handle_datasets.write('\t')
-                handle_datasets.write(str(hdas[hda_id][1]))
-                handle_datasets.write('\t')
-                handle_datasets.write(round_to_2sd(datasets[dataset_id][0]))
-                handle_datasets.write('\t')
-                handle_datasets.write(str(job[2]))
-                handle_datasets.write('\t')
-                handle_datasets.write(str(filetype))
-                handle_datasets.write('\n')
-            except Exception:
-                logging.warning("Unable to write out a 'handle_datasets' row. Ignoring the row.", exc_info=True)
-                continue
-    handle_datasets.close()
+                try:
+                    line = [
+                        str(job[0]),  # Job ID
+                        str(hda_id),  # HDA ID
+                        str(hdas[hda_id][1]),  # Extension
+                        round_to_2sd(datasets[dataset_id][0]),  # File size
+                        job[2],  # Parameter name
+                        str(filetype)  # input/output
+                    ]
+                    cline = unicodify('\t'.join(line) + '\n')
+                    handle_datasets.write(cline)
+                except Exception:
+                    logging.warning("Unable to write out a 'handle_datasets' row. Ignoring the row.", exc_info=True)
+                    continue
     annotate('export_datasets_end')
 
     annotate('export_metric_num_start', 'Exporting Metrics (Numeric)')
-    handle_metric_num = open(REPORT_BASE + '.metric_num.tsv', 'w')
-    handle_metric_num.write('\t'.join(('job_id', 'plugin', 'name', 'value')) + '\n')
-    for offset_start in range(last_job_sent, end_job_id, args.batch_size):
-        logging.debug("Processing %s:%s", offset_start, min(end_job_id, offset_start + args.batch_size))
-        for metric in sa_session.query(model.JobMetricNumeric.job_id, model.JobMetricNumeric.plugin, model.JobMetricNumeric.metric_name, model.JobMetricNumeric.metric_value) \
-                .filter(model.JobMetricNumeric.job_id > offset_start) \
-                .filter(model.JobMetricNumeric.job_id <= min(end_job_id, offset_start + args.batch_size)) \
-                .all():
-            # No associated job
-            if metric[0] not in job_tool_map:
-                continue
-            # If the tool is blacklisted, exclude everywhere
-            if job_tool_map[metric[0]] in blacklisted_tools:
-                continue
+    with open(REPORT_BASE + '.metric_num.tsv', 'w', encoding='utf-8') as handle_metric_num:
+        handle_metric_num.write('\t'.join(('job_id', 'plugin', 'name', 'value')) + '\n')
+        for offset_start in range(last_job_sent, end_job_id, args.batch_size):
+            logging.debug("Processing %s:%s", offset_start, min(end_job_id, offset_start + args.batch_size))
+            for metric in sa_session.query(model.JobMetricNumeric.job_id, model.JobMetricNumeric.plugin, model.JobMetricNumeric.metric_name, model.JobMetricNumeric.metric_value) \
+                    .filter(model.JobMetricNumeric.job_id > offset_start) \
+                    .filter(model.JobMetricNumeric.job_id <= min(end_job_id, offset_start + args.batch_size)) \
+                    .all():
+                # No associated job
+                if metric[0] not in job_tool_map:
+                    continue
+                # If the tool is blacklisted, exclude everywhere
+                if job_tool_map[metric[0]] in blacklisted_tools:
+                    continue
 
-            try:
-                handle_metric_num.write(str(metric[0]))
-                handle_metric_num.write('\t')
-                handle_metric_num.write(metric[1])
-                handle_metric_num.write('\t')
-                handle_metric_num.write(metric[2])
-                handle_metric_num.write('\t')
-                handle_metric_num.write(str(metric[3]))
-                handle_metric_num.write('\n')
-            except Exception:
-                logging.warning("Unable to write out a 'handle_metric_num' row. Ignoring the row.", exc_info=True)
-                continue
-    handle_metric_num.close()
+                try:
+                    line = [
+                        str(metric[0]),  # job id
+                        metric[1],  # plugin
+                        metric[2],  # name
+                        str(metric[3])  # value
+                    ]
+
+                    cline = unicodify('\t'.join(line) + '\n')
+                    handle_metric_num.write(cline)
+                except Exception:
+                    logging.warning("Unable to write out a 'handle_metric_num' row. Ignoring the row.", exc_info=True)
+                    continue
     annotate('export_metric_num_end')
 
     # Now on to outputs.
@@ -296,7 +293,7 @@ def main(argv):
         os.unlink(REPORT_BASE + '.' + name + '.tsv')
 
     _times.append(('job_finish', time.time() - _start_time))
-    sha = hash_util.memory_bound_hexdigest(hash_util.sha256, REPORT_BASE + ".tar.gz")
+    sha = hash_util.memory_bound_hexdigest(hash_func=hash_util.sha256, path=REPORT_BASE + ".tar.gz")
     _times.append(('hash_finish', time.time() - _start_time))
 
     # Now serialize the individual report data.

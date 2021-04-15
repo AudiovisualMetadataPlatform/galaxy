@@ -1,20 +1,35 @@
 """
 Migration script for collections and workflows connections.
 """
-from __future__ import print_function
 
 import datetime
 import logging
-from collections import OrderedDict
 
-from sqlalchemy import Column, ForeignKey, Integer, MetaData, String, Table
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    Integer,
+    MetaData,
+    String,
+    Table
+)
 
 from galaxy.model.custom_types import TrimmedString
+<<<<<<< HEAD
 
 
 now = datetime.datetime.utcnow
+=======
+from galaxy.model.migrate.versions.util import (
+    add_column,
+    create_table,
+    drop_column,
+    drop_table
+)
+>>>>>>> refs/heads/release_21.01
 
 log = logging.getLogger(__name__)
+now = datetime.datetime.utcnow
 metadata = MetaData()
 
 
@@ -30,10 +45,10 @@ workflow_invocation_output_dataset_association_table = Table(
 workflow_invocation_output_dataset_collection_association_table = Table(
     "workflow_invocation_output_dataset_collection_association", metadata,
     Column("id", Integer, primary_key=True),
-    Column("workflow_invocation_id", Integer, ForeignKey("workflow_invocation.id"), index=True),
-    Column("workflow_step_id", Integer, ForeignKey("workflow_step.id")),
-    Column("dataset_collection_id", Integer, ForeignKey("history_dataset_collection_association.id"), index=True),
-    Column("workflow_output_id", Integer, ForeignKey("workflow_output.id")),
+    Column("workflow_invocation_id", Integer, ForeignKey("workflow_invocation.id", name='fk_wiodca_wii'), index=True),
+    Column("workflow_step_id", Integer, ForeignKey("workflow_step.id", name='fk_wiodca_wsi')),
+    Column("dataset_collection_id", Integer, ForeignKey("history_dataset_collection_association.id", name='fk_wiodca_dci'), index=True),
+    Column("workflow_output_id", Integer, ForeignKey("workflow_output.id", name='fk_wiodca_woi')),
 )
 
 workflow_invocation_step_output_dataset_association_table = Table(
@@ -47,9 +62,9 @@ workflow_invocation_step_output_dataset_association_table = Table(
 workflow_invocation_step_output_dataset_collection_association_table = Table(
     "workflow_invocation_step_output_dataset_collection_association", metadata,
     Column("id", Integer, primary_key=True),
-    Column("workflow_invocation_step_id", Integer, ForeignKey("workflow_invocation_step.id"), index=True),
-    Column("workflow_step_id", Integer, ForeignKey("workflow_step.id")),
-    Column("dataset_collection_id", Integer, ForeignKey("history_dataset_collection_association.id"), index=True),
+    Column("workflow_invocation_step_id", Integer, ForeignKey("workflow_invocation_step.id", name='fk_wisodca_wisi'), index=True),
+    Column("workflow_step_id", Integer, ForeignKey("workflow_step.id", name='fk_wisodca_wsi')),
+    Column("dataset_collection_id", Integer, ForeignKey("history_dataset_collection_association.id", name='fk_wisodca_dci'), index=True),
     Column("output_name", String(255), nullable=True),
 )
 
@@ -61,8 +76,8 @@ implicit_collection_jobs_table = Table(
 
 implicit_collection_jobs_job_association_table = Table(
     "implicit_collection_jobs_job_association", metadata,
-    Column("implicit_collection_jobs_id", Integer, ForeignKey("implicit_collection_jobs.id"), index=True),
     Column("id", Integer, primary_key=True),
+    Column("implicit_collection_jobs_id", Integer, ForeignKey("implicit_collection_jobs.id"), index=True),
     Column("job_id", Integer, ForeignKey("job.id"), index=True),  # Consider making this nullable...
     Column("order_index", Integer, nullable=False),
 )
@@ -72,26 +87,29 @@ def get_new_tables():
     # Normally we define this globally in the file, but we need to delay the
     # reading of existing tables because an existing workflow_invocation_step
     # table exists that we want to recreate.
-
-    tables = OrderedDict()
-    tables["workflow_invocation_output_dataset_association"] = workflow_invocation_output_dataset_association_table
-    tables["workflow_invocation_output_dataset_collection_association"] = workflow_invocation_output_dataset_collection_association_table
-    tables["workflow_invocation_step_output_dataset_association"] = workflow_invocation_step_output_dataset_association_table
-    tables["workflow_invocation_step_output_dataset_collection_association"] = workflow_invocation_step_output_dataset_collection_association_table
-    tables["implicit_collection_jobs"] = implicit_collection_jobs_table
-    tables["implicit_collection_jobs_job_association"] = implicit_collection_jobs_job_association_table
-
-    return tables
+    return [
+        workflow_invocation_output_dataset_association_table,
+        workflow_invocation_output_dataset_collection_association_table,
+        workflow_invocation_step_output_dataset_association_table,
+        workflow_invocation_step_output_dataset_collection_association_table,
+        implicit_collection_jobs_table,
+        implicit_collection_jobs_job_association_table
+    ]
 
 
 def upgrade(migrate_engine):
     metadata.bind = migrate_engine
     print(__doc__)
 
+<<<<<<< HEAD
     metadata.reflect()
     tables = get_new_tables()
     for table in tables.values():
         __create(table)
+=======
+    for table in get_new_tables():
+        create_table(table)
+>>>>>>> refs/heads/release_21.01
 
     # Set default for creation to scheduled, actual mapping has new as default.
     workflow_invocation_step_state_column = Column("state", TrimmedString(64), default="scheduled")
@@ -144,6 +162,7 @@ def downgrade(migrate_engine):
     __drop_column("state", "workflow_invocation_step", metadata)
     __drop_column("element_count", "dataset_collection", metadata)
 
+<<<<<<< HEAD
     tables = get_new_tables()
     for table in reversed(list(tables.values())):
         __drop(table)
@@ -161,3 +180,7 @@ def __drop(table):
         table.drop()
     except Exception:
         log.exception("Dropping %s table failed.", table.name)
+=======
+    for table in reversed(get_new_tables()):
+        drop_table(table)
+>>>>>>> refs/heads/release_21.01

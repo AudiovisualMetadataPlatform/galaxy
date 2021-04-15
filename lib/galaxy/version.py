@@ -1,3 +1,8 @@
+<<<<<<< HEAD
 VERSION_MAJOR = "19.01"
 VERSION_MINOR = None
+=======
+VERSION_MAJOR = "21.01"
+VERSION_MINOR = ""
+>>>>>>> refs/heads/release_21.01
 VERSION = VERSION_MAJOR + ('.' + VERSION_MINOR if VERSION_MINOR else '')

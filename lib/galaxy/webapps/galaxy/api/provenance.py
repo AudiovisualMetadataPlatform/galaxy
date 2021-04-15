@@ -12,7 +12,7 @@ from galaxy import (
     managers,
     web
 )
-from galaxy.web.base.controller import BaseAPIController
+from galaxy.webapps.base.controller import BaseAPIController
 
 log = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ class BaseProvenanceController(BaseAPIController):
     """
 
     def __init__(self, app):
-        super(BaseProvenanceController, self).__init__(app)
+        super().__init__(app)
         self.hda_manager = managers.hdas.HDAManager(app)
 
     @web.expose_api

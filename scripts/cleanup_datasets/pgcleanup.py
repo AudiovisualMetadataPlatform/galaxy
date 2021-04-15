@@ -4,7 +4,6 @@ pgcleanup.py - A script for cleaning up datasets in Galaxy efficiently, by
     bypassing the Galaxy model and operating directly on the database.
     PostgreSQL 9.1 or greater is required.
 """
-from __future__ import print_function
 
 import argparse
 import datetime
@@ -26,7 +25,11 @@ sys.path.insert(1, os.path.join(galaxy_root, 'lib'))
 import galaxy.config
 from galaxy.exceptions import ObjectNotFound
 from galaxy.objectstore import build_object_store_from_config
-from galaxy.util.script import app_properties_from_args, populate_config_args
+from galaxy.util.script import (
+    app_properties_from_args,
+    populate_config_args,
+    set_log_handler,
+)
 
 DEFAULT_LOG_DIR = os.path.join(galaxy_root, 'scripts', 'cleanup_datasets')
 
@@ -54,7 +57,7 @@ class LevelFormatter(logging.Formatter):
         return logging.Formatter.format(self, record)
 
 
-class Action(object):
+class Action:
     """Base class for all actions.
 
     When writing new actions, the following things happen automatically:
@@ -97,6 +100,7 @@ class Action(object):
 
     def __init__(self, app):
         self._log_dir = app.args.log_dir
+        self._log_file = app.args.log_file
         self._dry_run = app.args.dry_run
         self._debug = app.args.debug
         self._update_time = app.args.update_time
@@ -120,13 +124,16 @@ class Action(object):
             self.__close_log()
 
     def __open_log(self):
-        logf = os.path.join(self._log_dir, self.name + '.log')
+        if self._log_file:
+            logf = os.path.join(self._log_dir, self._log_file)
+        else:
+            logf = os.path.join(self._log_dir, self.name + '.log')
         if self._dry_run:
             log.info('--dry-run specified, logging changes to stderr instead of log file: %s' % logf)
-            h = logging.StreamHandler()
+            h = set_log_handler()
         else:
             log.info('Opening log file: %s' % logf)
-            h = logging.FileHandler(logf)
+            h = set_log_handler(filename=logf)
         h.setLevel(logging.DEBUG if self._debug else logging.INFO)
         h.setFormatter(LevelFormatter())
         l = logging.getLogger(self.name)
@@ -204,11 +211,11 @@ class Action(object):
 
     def _log_results(self, results, primary_key):
         for primary in sorted(results.keys()):
-            self.log.info('%s: %s' % (primary_key, primary))
+            self.log.info(f'{primary_key}: {primary}')
             for causal, s in zip(self.causals, results[primary]):
                 for r in sorted(s):
-                    secondaries = ', '.join(['%s: %s' % x for x in zip(causal[1:], r[1:])])
-                    self.log.info('%s %s caused %s' % (causal[0], r[0], secondaries))
+                    secondaries = ', '.join('%s: %s' % x for x in zip(causal[1:], r[1:]))
+                    self.log.info('{} {} caused {}'.format(causal[0], r[0], secondaries))
 
     def handle_results(self, cur):
         results = {}
@@ -233,7 +240,7 @@ class Action(object):
         pass
 
 
-class RemovesObjects(object):
+class RemovesObjects:
     """Base class for mixins that remove objects from object stores.
     """
     def _init(self):
@@ -280,7 +287,7 @@ class RemovesObjects(object):
 #
 
 
-class PurgesHDAs(object):
+class PurgesHDAs:
     """Avoid repetition in queries that purge HDAs, since they must also delete MetadataFiles and ICDAs.
 
     To use, place ``{purge_hda_dependencies_sql}`` somewhere in your CTEs after a ``purged_hda_ids`` CTE returning HDA
@@ -304,7 +311,7 @@ class PurgesHDAs(object):
                           implicitly_converted_dataset_association.id AS id),
              deleted_icda_purged_child_hda_ids
           AS (     UPDATE history_dataset_association
-                      SET purged = true{update_time_sql}
+                      SET purged = true, deleted = true{update_time_sql}
                      FROM deleted_icda_ids
                     WHERE deleted_icda_ids.hda_id = history_dataset_association.id),
              metadata_file_events
@@ -336,7 +343,7 @@ class PurgesHDAs(object):
         )
 
 
-class RequiresDiskUsageRecalculation(object):
+class RequiresDiskUsageRecalculation:
     """Causes disk usage to be recalculated for affected users.
 
     To use, ensure your query returns a ``recalculate_disk_usage_user_id`` column.
@@ -437,7 +444,7 @@ class UpdateHDAPurgedFlag(Action):
     _action_sql = """
         WITH purged_hda_ids
           AS (     UPDATE history_dataset_association
-                      SET purged = true
+                      SET purged = true, deleted = true
                      FROM dataset
                         WHERE history_dataset_association.dataset_id = dataset.id
                           AND dataset.purged
@@ -575,7 +582,7 @@ class PurgeDeletedUsers(PurgesHDAs, RemovesMetadataFiles, Action):
                      FROM purged_history_ids),
              purged_hda_ids
           AS (     UPDATE history_dataset_association
-                      SET purged = true{update_time_sql}
+                      SET purged = true, deleted = true{update_time_sql}
                      FROM purged_history_ids
                     WHERE purged_history_ids.id = history_dataset_association.history_id
                           AND NOT history_dataset_association.purged
@@ -626,7 +633,7 @@ class PurgeDeletedUsers(PurgesHDAs, RemovesMetadataFiles, Action):
     )
 
     def _init(self):
-        super(PurgeDeletedUsers, self)._init()
+        super()._init()
         self.__zero_disk_usage_user_ids = set()
         self._register_row_method(self.collect_zero_disk_usage_user_id)
         self._register_post_method(self.zero_disk_usage)
@@ -644,7 +651,7 @@ class PurgeDeletedUsers(PurgesHDAs, RemovesMetadataFiles, Action):
         user_ids = sorted(self.__zero_disk_usage_user_ids)
         args = {'user_ids': tuple(user_ids)}
         self._update(sql, args, add_event=False)
-        self.log.info('zero_disk_usage user_ids: %s', ' '.join([str(i) for i in user_ids]))
+        self.log.info('zero_disk_usage user_ids: %s', ' '.join(str(i) for i in user_ids))
 
 
 class PurgeDeletedHDAs(PurgesHDAs, RemovesMetadataFiles, RequiresDiskUsageRecalculation, Action):
@@ -660,7 +667,7 @@ class PurgeDeletedHDAs(PurgesHDAs, RemovesMetadataFiles, RequiresDiskUsageRecalc
     _action_sql = """
         WITH purged_hda_ids
           AS (     UPDATE history_dataset_association
-                      SET purged = true{update_time_sql}
+                      SET purged = true, deleted = true{update_time_sql}
                     WHERE deleted{force_retry_sql}
                           AND update_time < (NOW() AT TIME ZONE 'utc' - interval '%(days)s days')
                 RETURNING id,
@@ -699,7 +706,7 @@ class PurgeHistorylessHDAs(PurgesHDAs, RemovesMetadataFiles, RequiresDiskUsageRe
     _action_sql = """
         WITH purged_hda_ids
           AS (     UPDATE history_dataset_association
-                      SET purged = true{update_time_sql}
+                      SET purged = true, deleted = true{update_time_sql}
                     WHERE history_id IS NULL{force_retry_sql}
                           AND update_time < (NOW() AT TIME ZONE 'utc' - interval '%(days)s days')
                 RETURNING id),
@@ -736,7 +743,7 @@ class PurgeErrorHDAs(PurgesHDAs, RemovesMetadataFiles, RequiresDiskUsageRecalcul
     _action_sql = """
         WITH purged_hda_ids
           AS (     UPDATE history_dataset_association
-                      SET purged = true{update_time_sql}
+                      SET purged = true, deleted = true{update_time_sql}
                      FROM dataset
                     WHERE history_dataset_association.dataset_id = dataset.id{force_retry_sql}
                           AND dataset.state = 'error'
@@ -779,7 +786,7 @@ class PurgeHDAsOfPurgedHistories(PurgesHDAs, RequiresDiskUsageRecalculation, Act
     _action_sql = """
         WITH purged_hda_ids
           AS (     UPDATE history_dataset_association
-                      SET purged = true{update_time_sql}
+                      SET purged = true, deleted = true{update_time_sql}
                      FROM history
                     WHERE history_dataset_association.history_id = history.id{force_retry_sql}
                           AND history.purged
@@ -830,7 +837,7 @@ class PurgeDeletedHistories(PurgesHDAs, RequiresDiskUsageRecalculation, Action):
                      FROM purged_history_ids),
              purged_hda_ids
           AS (     UPDATE history_dataset_association
-                      SET purged = true{update_time_sql}
+                      SET purged = true, deleted = true{update_time_sql}
                      FROM purged_history_ids
                     WHERE purged_history_ids.id = history_dataset_association.history_id
                           AND NOT history_dataset_association.purged
@@ -950,7 +957,7 @@ class PurgeDatasets(RemovesDatasets, Action):
     """
 
 
-class Cleanup(object):
+class Cleanup:
     def __init__(self):
         self.args = None
         self.config = None
@@ -1039,6 +1046,10 @@ class Cleanup(object):
             default=DEFAULT_LOG_DIR,
             help='Log file directory')
         parser.add_argument(
+            '-g', '--log-file',
+            default=None,
+            help='Log file name')
+        parser.add_argument(
             'actions',
             nargs='*',
             metavar='ACTION',
@@ -1050,6 +1061,8 @@ class Cleanup(object):
         self.args.sequence = [x.strip() for x in self.args.sequence.split(',')]
         if self.args.sequence != ['']:
             self.args.actions.extend(self.args.sequence)
+        if not self.args.actions:
+            parser.error("Please specify one or more actions")
 
     def __setup_logging(self):
         logging.basicConfig(

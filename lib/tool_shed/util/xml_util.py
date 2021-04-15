@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import io
 import logging
 import os
@@ -97,3 +98,6 @@ def parse_xml(file_name):
                 log.exception(error_message)
                 return None, error_message
     return tree, error_message
+=======
+from galaxy.util.tool_shed.xml_util import *  # noqa: F401,F403
+>>>>>>> refs/heads/release_21.01

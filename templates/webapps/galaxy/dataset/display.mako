@@ -61,8 +61,10 @@
         %endif
         ## TODO: why is the default font size so small?
         <pre style="font-size: 135%">${ data_to_render | h }</pre>
+    %elif data.get_size() == 0:
+        <i>Dataset is empty.</i>
     %else:
-        <p align='center'>Cannot show dataset content</p>
+        <i>Problem displaying dataset content.</i>
     %endif
 </%def>
 
@@ -72,7 +74,7 @@
             You are viewing a deleted dataset.
             %if data.history and data.history.user == trans.get_user():
                 <br />
-                <a href="#" onclick="$.ajax( {type: 'GET', cache: false, url: '${h.url_for( controller='dataset', action='undelete_async', dataset_id=trans.security.encode_id( data.id ) )}', dataType: 'text', contentType: 'text/html', success: function( data, textStatus, jqXHR ){ if (data == 'OK' ){ $( '#deleted-data-message' ).slideUp( 'slow' ) } else { alert( 'Undelete failed.' ) } }, error: function( data, textStatus, jqXHR ){ alert( 'Undelete failed.' ); } } );">Undelete</a>
+                <a href="javascript:void(0)" role="button" onclick="$.ajax( {type: 'GET', cache: false, url: '${h.url_for( controller='dataset', action='undelete_async', dataset_id=trans.security.encode_id( data.id ) )}', dataType: 'text', contentType: 'text/html', success: function( data, textStatus, jqXHR ){ if (data == 'OK' ){ $( '#deleted-data-message' ).slideUp( 'slow' ) } else { alert( 'Undelete failed.' ) } }, error: function( data, textStatus, jqXHR ){ alert( 'Undelete failed.' ); } } );">Undelete</a>
             %endif
         </div>
     %endif

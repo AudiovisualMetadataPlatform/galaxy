@@ -1,6 +1,5 @@
 import os
 
-import galaxy.queue_worker
 from galaxy import (
     exceptions,
     web
@@ -9,7 +8,7 @@ from galaxy.web import (
     _future_expose_api as expose_api,
     _future_expose_api_raw as expose_api_raw
 )
-from galaxy.web.base.controller import BaseAPIController
+from galaxy.webapps.base.controller import BaseAPIController
 
 
 class ToolData(BaseAPIController):
@@ -21,8 +20,9 @@ class ToolData(BaseAPIController):
     @expose_api
     def index(self, trans, **kwds):
         """
-        GET /api/tool_data: returns a list tool_data tables::
+        GET /api/tool_data
 
+        Return a list tool_data tables.
         """
         return list(a.to_dict() for a in self._data_tables.values())
 
@@ -42,9 +42,11 @@ class ToolData(BaseAPIController):
         decoded_tool_data_id = id
         data_table = trans.app.tool_data_tables.data_tables.get(decoded_tool_data_id)
         data_table.reload_from_files()
-        galaxy.queue_worker.send_control_task(trans.app, 'reload_tool_data_tables',
-                                              noop_self=True,
-                                              kwargs={'table_name': decoded_tool_data_id})
+        trans.app.queue_worker.send_control_task(
+            'reload_tool_data_tables',
+            noop_self=True,
+            kwargs={'table_name': decoded_tool_data_id}
+        )
         return self._data_table(decoded_tool_data_id).to_dict(view='element')
 
     @web.require_admin
@@ -84,12 +86,14 @@ class ToolData(BaseAPIController):
 
         if len(split_values) != len(data_table.get_column_name_list()):
             trans.response.status = 400
-            return "Invalid data table item ( %s ) specified. Wrong number of columns (%s given, %s required)." % (str(values), str(len(split_values)), str(len(data_table.get_column_name_list())))
+            return "Invalid data table item ( {} ) specified. Wrong number of columns ({} given, {} required).".format(str(values), str(len(split_values)), str(len(data_table.get_column_name_list())))
 
         data_table.remove_entry(split_values)
-        galaxy.queue_worker.send_control_task(trans.app, 'reload_tool_data_tables',
-                                              noop_self=True,
-                                              kwargs={'table_name': decoded_tool_data_id})
+        trans.app.queue_worker.send_control_task(
+            'reload_tool_data_tables',
+            noop_self=True,
+            kwargs={'table_name': decoded_tool_data_id}
+        )
         return self._data_table(decoded_tool_data_id).to_dict(view='element')
 
     @web.require_admin
@@ -115,7 +119,7 @@ class ToolData(BaseAPIController):
     def _data_table_field(self, id, value):
         out = self._data_table(id).get_field(value)
         if out is None:
-            raise exceptions.ObjectNotFound("No such field %s in data table %s." % (value, id))
+            raise exceptions.ObjectNotFound(f"No such field {value} in data table {id}.")
         return out
 
     def _data_table(self, id):

@@ -2,11 +2,18 @@
 Remove unique constraint from page slugs to allow creating a page with
 the same slug as a deleted page.
 """
-from __future__ import print_function
 
 import logging
 
-from sqlalchemy import Index, MetaData, Table
+from sqlalchemy import (
+    MetaData,
+    Table
+)
+
+from galaxy.model.migrate.versions.util import (
+    add_index,
+    drop_index
+)
 
 log = logging.getLogger(__name__)
 metadata = MetaData()
@@ -22,13 +29,21 @@ def upgrade(migrate_engine):
     try:
 
         # Sqlite doesn't support .alter, so we need to drop an recreate
+<<<<<<< HEAD
 
         i = Index("ix_page_slug", Page_table.c.slug)
         i.drop()
+=======
+        drop_index("ix_page_slug", Page_table, 'slug')
+>>>>>>> refs/heads/release_21.01
 
+<<<<<<< HEAD
         i = Index("ix_page_slug", Page_table.c.slug, unique=False)
         i.create()
 
+=======
+        add_index("ix_page_slug", Page_table, 'slug', unique=False)
+>>>>>>> refs/heads/release_21.01
     except Exception:
 
         # Mysql doesn't have a named index, but alter should work
@@ -37,5 +52,4 @@ def upgrade(migrate_engine):
 
 
 def downgrade(migrate_engine):
-    metadata.bind = migrate_engine
-    metadata.reflect()
+    pass

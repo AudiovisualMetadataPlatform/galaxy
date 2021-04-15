@@ -41,7 +41,7 @@ def __main__():
         out_files[spec].write('#chrom\tstart\tend\tstrand\tscore\tname\t%s\n' % ('\t'.join(all_species)))
     num_species = len(all_species)
 
-    file_in = open(input_filename, 'r')
+    file_in = open(input_filename)
     maf_reader = maf.Reader(file_in)
 
     for i, m in enumerate(maf_reader):
@@ -55,7 +55,7 @@ def __main__():
                     sequences[spec] = c.text.replace('-', '')
                 else:
                     sequences[spec] = c.text
-            sequences = '\t'.join([sequences.get(_, '') for _ in all_species])
+            sequences = '\t'.join(sequences.get(_, '') for _ in all_species)
             for spec in species:
                 c = block.get_component_by_src_start(spec)
                 if c is not None:

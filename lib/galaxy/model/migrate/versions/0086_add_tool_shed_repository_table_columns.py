@@ -1,24 +1,28 @@
 """
 Migration script to add the metadata, update_available and includes_datatypes columns to the tool_shed_repository table.
 """
-from __future__ import print_function
 
 import logging
-import sys
 
-from sqlalchemy import Boolean, Column, MetaData, Table
+from sqlalchemy import (
+    Boolean,
+    Column,
+    MetaData,
+    Table
+)
 
 # Need our custom types, but don't import anything else from model
 from galaxy.model.custom_types import JSONType
+<<<<<<< HEAD
+=======
+from galaxy.model.migrate.versions.util import (
+    add_column,
+    drop_column,
+    engine_false
+)
+>>>>>>> refs/heads/release_21.01
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-handler = logging.StreamHandler(sys.stdout)
-format = "%(name)s %(levelname)s %(asctime)s %(message)s"
-formatter = logging.Formatter(format)
-handler.setFormatter(formatter)
-log.addHandler(handler)
-
 metadata = MetaData()
 
 
@@ -36,7 +40,14 @@ def upgrade(migrate_engine):
     print(__doc__)
     metadata.reflect()
     ToolShedRepository_table = Table("tool_shed_repository", metadata, autoload=True)
+<<<<<<< HEAD
     c = Column("metadata", JSONType(), nullable=True)
+=======
+    c = Column("metadata", JSONType, nullable=True)
+    add_column(c, ToolShedRepository_table, metadata)
+    c = Column("includes_datatypes", Boolean, index=True, default=False)
+    add_column(c, ToolShedRepository_table, metadata, index_name="ix_tool_shed_repository_includes_datatypes")
+>>>>>>> refs/heads/release_21.01
     try:
         c.create(ToolShedRepository_table)
         assert c is ToolShedRepository_table.c.metadata
@@ -50,6 +61,10 @@ def upgrade(migrate_engine):
     except Exception:
         log.exception("Adding includes_datatypes column to the tool_shed_repository table failed.")
     c = Column("update_available", Boolean, default=False)
+<<<<<<< HEAD
+=======
+    add_column(c, ToolShedRepository_table, metadata)
+>>>>>>> refs/heads/release_21.01
     try:
         c.create(ToolShedRepository_table)
         assert c is ToolShedRepository_table.c.update_available

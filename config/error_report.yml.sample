@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Each element in this file corresponds to a destination for an error
 # report.
 
@@ -64,3 +65,6 @@
 #   github_oauth_token: 00000000000
 #   github_repo_owner: galaxyproject
 #   github_repo_name: galaxy
+=======
+../lib/galaxy/config/sample/error_report.yml.sample
+>>>>>>> refs/heads/release_21.01

@@ -1,12 +1,27 @@
 """
 Migration script for job metric plugins.
 """
-from __future__ import print_function
 
 import logging
 
-from sqlalchemy import Column, ForeignKey, Integer, MetaData, Numeric, Table, Unicode
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    Integer,
+    MetaData,
+    Numeric,
+    Table,
+    Unicode
+)
 
+<<<<<<< HEAD
+=======
+from galaxy.model.migrate.versions.util import (
+    create_table,
+    drop_table
+)
+
+>>>>>>> refs/heads/release_21.01
 log = logging.getLogger(__name__)
 metadata = MetaData()
 

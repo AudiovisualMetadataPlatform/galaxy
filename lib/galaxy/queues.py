@@ -30,9 +30,17 @@ def control_queue_from_config(config):
     Returns a Queue instance with the correct name and routing key for this
     galaxy process's config
     """
+<<<<<<< HEAD
     return Queue("control.%s" % config.server_name,
                  galaxy_exchange,
                  routing_key='control.%s' % config.server_name)
+=======
+    hostname = socket.gethostname()
+    process_name = f"{config.server_name}@{hostname}"
+    exchange_queue = Queue("control.%s" % process_name, galaxy_exchange, routing_key='control.*')
+    non_exchange_queue = Queue("control.%s" % process_name, routing_key='control.%s' % process_name)
+    return exchange_queue, non_exchange_queue
+>>>>>>> refs/heads/release_21.01
 
 
 def connection_from_config(config):

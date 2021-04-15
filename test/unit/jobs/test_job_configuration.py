@@ -3,17 +3,29 @@ import os
 import shutil
 import tempfile
 import unittest
+from unittest import mock
 
+<<<<<<< HEAD
 import mock
+=======
+from pykwalify.core import Core
+>>>>>>> refs/heads/release_21.01
 
+from galaxy.job_metrics import JobMetrics
 from galaxy.jobs import JobConfiguration
 from galaxy.util import bunch
-from galaxy.web.stack import ApplicationStack, UWSGIApplicationStack
+from galaxy.web_stack import ApplicationStack, UWSGIApplicationStack
 
 # File would be slightly more readable if contents were embedded directly, but
 # there are advantages to testing the documentation/examples.
+<<<<<<< HEAD
 SIMPLE_JOB_CONF = os.path.join(os.path.dirname(__file__), "..", "..", "..", "config", "job_conf.xml.sample_basic")
 ADVANCED_JOB_CONF = os.path.join(os.path.dirname(__file__), "..", "..", "..", "config", "job_conf.xml.sample_advanced")
+=======
+SIMPLE_JOB_CONF = os.path.join(os.path.dirname(__file__), "..", "..", "..", "lib", "galaxy", "config", "sample", "job_conf.xml.sample_basic")
+ADVANCED_JOB_CONF = os.path.join(os.path.dirname(__file__), "..", "..", "..", "lib", "galaxy", "config", "sample", "job_conf.xml.sample_advanced")
+ADVANCED_JOB_CONF_YAML = os.path.join(os.path.dirname(__file__), "job_conf.sample_advanced.yml")
+>>>>>>> refs/heads/release_21.01
 CONDITIONAL_RUNNER_JOB_CONF = os.path.join(os.path.dirname(__file__), "conditional_runners_job_conf.xml")
 HANDLER_TEMPLATE_JOB_CONF = os.path.join(os.path.dirname(__file__), "handler_template_job_conf.xml")
 
@@ -41,6 +53,78 @@ class JobConfXmlParserTestCase(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.temp_directory)
 
+<<<<<<< HEAD
+=======
+    # TODO: Add job metrics parsing test.
+
+    @property
+    def app(self):
+        if not self._app:
+            self._app = bunch.Bunch(
+                config=self.config,
+                job_metrics=JobMetrics(),
+                application_stack=self.application_stack
+            )
+        return self._app
+
+    @property
+    def application_stack(self):
+        if not self._application_stack:
+            self._application_stack = ApplicationStack()
+        return self._application_stack
+
+    @property
+    def job_config(self):
+        if not self._job_configuration:
+            base_handler_pools = self._job_configuration_base_pools or JobConfiguration.DEFAULT_BASE_HANDLER_POOLS
+            mock_uwsgi = mock.Mock()
+            mock_uwsgi.mule_id = lambda: 1
+            with mock.patch('galaxy.web_stack.uwsgi', mock_uwsgi), \
+                    mock.patch('galaxy.web_stack.uwsgi.opt', self._uwsgi_opt), \
+                    mock.patch('galaxy.jobs.JobConfiguration.DEFAULT_BASE_HANDLER_POOLS', base_handler_pools):
+                self._job_configuration = JobConfiguration(self.app)
+        return self._job_configuration
+
+    def _with_uwsgi_application_stack(self, **uwsgi_opt):
+        self._uwsgi_opt = uwsgi_opt
+        self._application_stack = UWSGIApplicationStack()
+
+    def _with_handlers_config(self, assign_with=None, default=None, handlers=None, base_pools=None):
+        handlers = handlers or []
+        template = {
+            'assign_with': ' assign_with="%s"' % assign_with if assign_with is not None else '',
+            'default': ' default="%s"' % default if default is not None else '',
+            'handlers': '\n'.join(
+                '<handler id="{id}"{tags}/>'.format(
+                    id=x['id'],
+                    tags=' tags="%s"' % x['tags'] if 'tags' in x else ''
+                ) for x in handlers),
+        }
+        self._job_configuration_base_pools = base_pools
+        self._write_config_from(HANDLER_TEMPLATE_JOB_CONF, template=template)
+
+    def _write_config_from(self, path, template=None):
+        template = template or {}
+        contents = open(path).read()
+        if template:
+            contents = contents.format(**template)
+        self._write_config(contents)
+
+    def _write_config(self, contents):
+        with open(os.path.join(self.temp_directory, "job_conf.%s" % self.extension), "w") as f:
+            f.write(contents)
+
+    def _with_advanced_config(self):
+        if self.extension == "xml":
+            self._write_config_from(ADVANCED_JOB_CONF)
+        else:
+            self._write_config_from(ADVANCED_JOB_CONF_YAML)
+
+
+class SimpleJobConfXmlParserTestCase(BaseJobConfXmlParserTestCase):
+    extension = "xml"
+
+>>>>>>> refs/heads/release_21.01
     def test_load_simple_runner(self):
         runner_plugin = self.job_config.runner_plugins[0]
         assert runner_plugin["id"] == "local"
@@ -277,6 +361,7 @@ class JobConfXmlParserTestCase(unittest.TestCase):
             self.__application_stack = ApplicationStack()
         return self.__application_stack
 
+<<<<<<< HEAD
     @property
     def job_config(self):
         if not self.__job_configuration:
@@ -288,6 +373,25 @@ class JobConfXmlParserTestCase(unittest.TestCase):
                     mock.patch('galaxy.jobs.JobConfiguration.DEFAULT_BASE_HANDLER_POOLS', base_handler_pools):
                 self.__job_configuration = JobConfiguration(self.app)
         return self.__job_configuration
+=======
+    def test_disable_job_metrics(self):
+        self._with_advanced_config()
+        self.job_config.destinations["multicore_local"]
+        assert len(self.app.job_metrics.job_instrumenters["multicore_local"].plugins) == 0
+
+    def test_default_job_metrics(self):
+        self._with_advanced_config()
+        self.job_config.destinations["pbs_longjobs"]
+        assert self.app.job_metrics.job_instrumenters["pbs_longjobs"] == self.app.job_metrics.default_job_instrumenter
+
+    def test_load_destination_params(self):
+        self._with_advanced_config()
+        pbs_dest = self.job_config.destinations["pbs_longjobs"][0]
+        assert pbs_dest.id == "pbs_longjobs", pbs_dest
+        assert pbs_dest.runner == "pbs"
+        dest_params = pbs_dest.params
+        assert dest_params["Resource_List"] == "walltime=72:00:00"
+>>>>>>> refs/heads/release_21.01
 
     def __with_uwsgi_application_stack(self, **uwsgi_opt):
         self.__uwsgi_opt = uwsgi_opt
@@ -314,6 +418,7 @@ class JobConfXmlParserTestCase(unittest.TestCase):
         template = template or {}
         self.__write_config(open(path, "r").read().format(**template))
 
+<<<<<<< HEAD
     def __write_config(self, contents):
         with open(os.path.join(self.temp_directory, "job_conf.xml"), "w") as f:
             f.write(contents)
@@ -326,3 +431,87 @@ class MockJobMetrics(object):
 
     def set_destination_conf_element(self, id, element):
         pass
+=======
+    def test_env_parsing(self):
+        self._with_advanced_config()
+        env_dest = self.job_config.destinations["java_cluster"][0]
+        assert len(env_dest.env) == 4, len(env_dest.env)
+        assert env_dest.env[0]["name"] == "_JAVA_OPTIONS"
+        assert env_dest.env[0]["value"] == '-Xmx6G'
+
+        assert env_dest.env[1]["name"] == "ANOTHER_OPTION"
+        assert env_dest.env[1]["raw"] is True
+
+        assert env_dest.env[2]["file"] == "/mnt/java_cluster/environment_setup.sh"
+
+        assert env_dest.env[3]["execute"] == "module load javastuff/2.10"
+
+    def test_runners_kwds(self):
+        self._with_advanced_config()
+        sge_runner = [r for r in self.job_config.runner_plugins if r["id"] == "sge"][0]
+        assert sge_runner["kwds"]["drmaa_library_path"] == "/sge/lib/libdrmaa.so"
+
+        drmaa_runner = [r for r in self.job_config.runner_plugins if r["id"] == "drmaa"][0]
+        assert drmaa_runner["kwds"]["invalidjobexception_state"] == "ok"
+
+        assert self.job_config.dynamic_params["rules_module"] == "galaxy.jobs.rules"
+
+    def test_container_tag_in_destination(self):
+        self._with_advanced_config()
+        container_dest = self.job_config.destinations["customized_container"][0]
+        assert "container" in container_dest.params
+        assert "container_override" in container_dest.params
+        container = container_dest.params["container"]
+        assert len(container) == 2
+        container0 = container[0]
+        assert container0["type"] == "docker"
+        assert container0["identifier"] == "busybox:ubuntu-14.04"
+
+        container_override = container_dest.params["container_override"]
+        assert len(container_override) == 2
+
+        container_override1 = container_override[1]
+        assert container_override1["type"] == "singularity"
+        assert container_override1["identifier"] == "/path/to/default/container"
+        assert not container_override1["resolve_dependencies"]
+
+    def test_tool_mapping_parameters(self):
+        self._with_advanced_config()
+        assert self.job_config.tools["foo"][-1].params["source"] == "trackster"
+        assert self.job_config.tools["longbar"][-1].destination == "dynamic"
+        assert self.job_config.tools["longbar"][-1].resources == "all"
+        assert "resources" not in self.job_config.tools["longbar"][-1].params
+
+    def test_handler_runner_plugins(self):
+        self._with_advanced_config()
+        assert self.job_config.handler_runner_plugins["sge_handler"] == ["sge"]
+        assert "special_handler1" not in self.job_config.handler_runner_plugins
+
+    def test_resource_groups(self):
+        self._with_advanced_config()
+        assert self.job_config.default_resource_group == "default"
+        assert self.job_config.resource_groups["memoryonly"] == ["memory"]
+
+
+class AdvancedJobConfYamlParserTestCase(AdvancedJobConfXmlParserTestCase):
+    extension = "yml"
+
+
+def test_yaml_advanced_validation():
+    schema = os.path.join(os.path.dirname(__file__), "..", "..", "..", "lib", "galaxy", "webapps", "galaxy", "job_config_schema.yml")
+    integration_tests_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test", "integration")
+    valid_files = [
+        ADVANCED_JOB_CONF_YAML,
+        os.path.join(integration_tests_dir, "delay_job_conf.yml"),
+        os.path.join(integration_tests_dir, "embedded_pulsar_metadata_job_conf.yml"),
+        os.path.join(integration_tests_dir, "io_injection_job_conf.yml"),
+        os.path.join(integration_tests_dir, "resubmission_job_conf.yml"),
+        os.path.join(integration_tests_dir, "resubmission_default_job_conf.yml"),
+    ]
+    for valid_file in valid_files:
+        c = Core(
+            source_file=valid_file,
+            schema_files=[schema],
+        )
+        c.validate()
+>>>>>>> refs/heads/release_21.01

@@ -12,17 +12,29 @@ from galaxy import (
 )
 from galaxy.datatypes import registry
 from galaxy.jobs.manager import NoopManager
+<<<<<<< HEAD
 from galaxy.managers import tags
 from galaxy.model import mapping
 from galaxy.tools.deps.containers import NullContainerFinder
+=======
+from galaxy.managers.users import UserManager
+from galaxy.model import mapping, tags
+from galaxy.security import idencoding
+from galaxy.tool_util.deps.containers import NullContainerFinder
+from galaxy.util import StructuredExecutionTimer
+>>>>>>> refs/heads/release_21.01
 from galaxy.util.bunch import Bunch
 from galaxy.util.dbkeys import GenomeBuilds
+<<<<<<< HEAD
 from galaxy.web import security
 from galaxy.web.stack import ApplicationStack
+=======
+from galaxy.web_stack import ApplicationStack
+>>>>>>> refs/heads/release_21.01
 
 
 # =============================================================================
-class OpenObject(object):
+class OpenObject:
     pass
 
 
@@ -54,7 +66,7 @@ def buildMockEnviron(**kwargs):
     return environ
 
 
-class MockApp(object):
+class MockApp:
 
     def __init__(self, config=None, **kwargs):
         self.config = config or MockAppConfig(**kwargs)
@@ -64,8 +76,13 @@ class MockApp(object):
         self.model = mapping.init("/tmp", "sqlite:///:memory:", create_tables=True, object_store=self.object_store)
         self.security_agent = self.model.security_agent
         self.visualizations_registry = MockVisualizationsRegistry()
+<<<<<<< HEAD
         self.tag_handler = tags.GalaxyTagManager(self.model.context)
         self.quota_agent = quota.QuotaAgent(self.model)
+=======
+        self.tag_handler = tags.GalaxyTagHandler(self.model.context)
+        self.quota_agent = quota.DatabaseQuotaAgent(self.model)
+>>>>>>> refs/heads/release_21.01
         self.init_datatypes()
         self.job_config = Bunch(
             dynamic_params=None,
@@ -78,6 +95,16 @@ class MockApp(object):
         self.genome_builds = GenomeBuilds(self)
         self.job_manager = NoopManager()
         self.application_stack = ApplicationStack()
+<<<<<<< HEAD
+=======
+        self.auth_manager = AuthManager(self)
+        self.user_manager = UserManager(self)
+        self.execution_timer_factory = Bunch(get_timer=StructuredExecutionTimer)
+
+        def url_for(*args, **kwds):
+            return "/mock/url"
+        self.url_for = url_for
+>>>>>>> refs/heads/release_21.01
 
     def init_datatypes(self):
         datatypes_registry = registry.Registry()
@@ -91,7 +118,7 @@ class MockApp(object):
         return True
 
 
-class MockLock(object):
+class MockLock:
     def __enter__(self):
         pass
 
@@ -101,19 +128,46 @@ class MockLock(object):
 
 class MockAppConfig(Bunch):
 
+    class MockSchema(Bunch):
+        pass
+
     def __init__(self, root=None, **kwargs):
         Bunch.__init__(self, **kwargs)
+<<<<<<< HEAD
         root = root or '/tmp'
         self.security = security.SecurityHelper(id_secret='6e46ed6483a833c100e68cc3f1d0dd76')
+=======
+        if not root:
+            root = tempfile.mkdtemp()
+            self._remove_root = True
+        else:
+            self._remove_root = False
+        self.schema = self.MockSchema()
+        self.security = idencoding.IdEncodingHelper(id_secret='6e46ed6483a833c100e68cc3f1d0dd76')
+        self.database_connection = kwargs.get('database_connection', "sqlite:///:memory:")
+>>>>>>> refs/heads/release_21.01
         self.use_remote_user = kwargs.get('use_remote_user', False)
+<<<<<<< HEAD
         self.file_path = '/tmp'
         self.jobs_directory = '/tmp'
         self.new_file_path = '/tmp'
         self.tool_data_path = '/tmp'
+=======
+        self.data_dir = os.path.join(root, 'database')
+        self.file_path = os.path.join(self.data_dir, 'files')
+        self.jobs_directory = os.path.join(self.data_dir, 'jobs_directory')
+        self.new_file_path = os.path.join(self.data_dir, 'tmp')
+        self.tool_data_path = os.path.join(root, 'tool-data')
+        self.tool_dependency_dir = None
+        self.metadata_strategy = 'legacy'
+>>>>>>> refs/heads/release_21.01
 
         self.object_store_config_file = ''
         self.object_store = 'disk'
         self.object_store_check_old_style = False
+        self.object_store_cache_path = '/tmp/cache'
+        self.umask = os.umask(0o77)
+        self.gid = os.getgid()
 
         self.user_activation_on = False
         self.new_user_dataset_access_role_default_private = False
@@ -131,23 +185,49 @@ class MockAppConfig(Bunch):
         self.len_file_path = os.path.join('tool-data', 'shared', 'ucsc', 'chrom')
         self.builds_file_path = os.path.join('tool-data', 'shared', 'ucsc', 'builds.txt.sample')
 
-        self.migrated_tools_config = "/tmp/migrated_tools_conf.xml"
+        self.shed_tool_config_file = "config/shed_tool_conf.xml"
+        self.shed_tool_config_file_set = False
+        self.enable_beta_edam_toolbox = False
         self.preserve_python_environment = "always"
         self.enable_beta_gdpr = False
-        self.legacy_eager_objectstore_initialization = True
+
+        self.version_major = "19.09"
 
         # set by MockDir
         self.root = root
+        self.enable_tool_document_cache = False
+        self.tool_cache_data_dir = os.path.join(root, 'tool_cache')
+        self.delay_tool_initialization = True
+        self.external_chown_script = None
+
+        self.config_file = None
+
+    @property
+    def config_dict(self):
+        return self.dict()
+
+    def __getattr__(self, name):
+        # Handle the automatic [option]_set options: for tests, assume none are set
+        if name == 'is_set':
+            return lambda x: False
+        # Handle the automatic config file _set options
+        if name.endswith('_file_set'):
+            return False
+        raise AttributeError(name)
+
+    def __del__(self):
+        if self._remove_root:
+            shutil.rmtree(self.root)
 
 
-class MockWebapp(object):
+class MockWebapp:
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name', 'galaxy')
         self.security = security.SecurityHelper(id_secret='6e46ed6483a833c100e68cc3f1d0dd76')
 
 
-class MockTrans(object):
+class MockTrans:
 
     def __init__(self, app=None, user=None, history=None, **kwargs):
         self.app = app or MockApp(**kwargs)
@@ -155,6 +235,13 @@ class MockTrans(object):
         self.webapp = MockWebapp(**kwargs)
         self.sa_session = self.app.model.session
         self.workflow_building_mode = False
+<<<<<<< HEAD
+=======
+        self.error_message = None
+        self.anonymous = False
+        self.debug = True
+        self.user_is_admin = True
+>>>>>>> refs/heads/release_21.01
 
         self.galaxy_session = None
         self.__user = user
@@ -192,14 +279,14 @@ class MockTrans(object):
         return template.render(**kwargs)
 
 
-class MockVisualizationsRegistry(object):
+class MockVisualizationsRegistry:
     BUILT_IN_VISUALIZATIONS = ['trackster']
 
     def get_visualizations(self, trans, target):
         return []
 
 
-class MockDir(object):
+class MockDir:
 
     def __init__(self, structure_dict, where=None):
         self.structure_dict = structure_dict
@@ -228,7 +315,7 @@ class MockDir(object):
         shutil.rmtree(self.root_path)
 
 
-class MockTemplateHelpers(object):
+class MockTemplateHelpers:
     def js(*js_files):
         pass
 

@@ -23,6 +23,8 @@
     ${h.css(
         'jquery.rating',
         'bootstrap-tour',
+    )}
+    ${h.dist_css(
         'base'
     )}
     <style type="text/css">
@@ -39,6 +41,7 @@
 
 ## Default javascripts
 <%def name="javascripts()">
+<<<<<<< HEAD
     ## Send errors to Sentry server if configured
     %if app.config.sentry_dsn:
         ${h.js( "libs/raven" )}
@@ -58,6 +61,14 @@
         'bundled/extended.bundled'
     )}
     
+=======
+    <!--- base/base_panels.mako javascripts() -->
+    ${h.dist_js(
+        'libs.chunk',
+        'base.chunk',
+        'generic.bundled'
+    )}
+>>>>>>> refs/heads/release_21.01
 </%def>
 
 <%def name="javascript_app()">
@@ -71,9 +82,29 @@
     ## the panels, but do not change layout
     <script type="text/javascript">
 
+<<<<<<< HEAD
     %if self.has_left_panel:
         var lp = new panels.LeftPanel({ el: '#left' });
         window.force_left_panel = function( x ) { lp.force_panel( x ) };
+=======
+        var panelConfig = {
+            left_panel: ${h.to_js_bool(self.has_left_panel)},
+            right_panel: ${h.to_js_bool(self.has_right_panel)},
+            rightPanelSelector: '#right',
+            leftPanelSelector: '#left'
+        };
+
+        // "late javascripts"
+        config.addInitialization(function() {
+            console.log("base/base_panels.mako, panel init");
+            window.bundleEntries.panelManagement(panelConfig);
+        });
+
+    </script>
+
+    %if t.webapp.name == 'galaxy' and app.config.ga_code:
+        ${galaxy_client.config_google_analytics(app.config.ga_code)}
+>>>>>>> refs/heads/release_21.01
     %endif
 
     %if self.has_right_panel:
@@ -176,7 +207,12 @@
                 </div>
             </noscript>
         %endif
+<<<<<<< HEAD
         <div id="everything" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+=======
+        <div id="everything">
+            
+>>>>>>> refs/heads/release_21.01
             ## Background displays first
             <div id="background"></div>
             ## Layer iframes over backgrounds
@@ -184,12 +220,12 @@
                 ${self.masthead()}
             </div>
             %if self.message_box_visible:
-                <div id="messagebox" class="panel-${app.config.message_box_class}-message" style="display:block">
+                <div id="messagebox" class="alert alert-${app.config.message_box_class} rounded-0 m-0 p-2">
                     ${app.config.message_box_content}
                 </div>
             %endif
             %if self.show_inactivity_warning:
-                <div id="inactivebox" class="panel-warning-message">
+                <div id="inactivebox" class="alert alert-warning rounded-0 m-0 p-2">
                     ${app.config.inactivity_box_content} <a href="${h.url_for( controller='user', action='resend_verification' )}">Resend verification.</a>
                 </div>
             %endif
@@ -199,7 +235,7 @@
                     <div id="left">
                         ${self.left_panel()}
                         <div class="unified-panel-footer">
-                            <div id="left-panel-collapse" class="panel-collapse"></div>
+                            <div id="left-panel-collapse" class="panel-collapse left"></div>
                             <div id="left-panel-drag" class="drag"></div>
                         </div>
                     </div><!--end left-->

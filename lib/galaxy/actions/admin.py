@@ -9,7 +9,7 @@ from galaxy.exceptions import ActionInputError
 log = logging.getLogger(__name__)
 
 
-class AdminActions(object):
+class AdminActions:
     """
     Mixin for controllers that provide administrative functionality.
     """
@@ -32,7 +32,7 @@ class AdminActions(object):
             raise ActionInputError("Unable to parse the provided amount.")
         elif params.operation not in self.app.model.Quota.valid_operations:
             raise ActionInputError("Enter a valid operation.")
-        elif params.default != 'no' and params.default not in self.app.model.DefaultQuotaAssociation.types.__dict__.values():
+        elif params.default != 'no' and params.default not in self.app.model.DefaultQuotaAssociation.types.__members__.values():
             raise ActionInputError("Enter a valid default type.")
         elif params.default != 'no' and params.operation != '=':
             raise ActionInputError("Operation for a default quota must be '='.")
@@ -45,7 +45,7 @@ class AdminActions(object):
             # If this is a default quota, create the DefaultQuotaAssociation
             if params.default != 'no':
                 self.app.quota_agent.set_default_quota(params.default, quota)
-                message = "Default quota '%s' has been created."
+                message = "Default quota '%s' has been created." % quota.name
             else:
                 # Create the UserQuotaAssociations
                 in_users = [self.sa_session.query(self.app.model.User).get(decode_id(x) if decode_id else x) for x in util.listify(params.in_users)]
@@ -76,7 +76,7 @@ class AdminActions(object):
             quota.description = params.description
             self.sa_session.add(quota)
             self.sa_session.flush()
-            message = "Quota '%s' has been renamed to '%s'." % (old_name, params.name)
+            message = f"Quota '{old_name}' has been renamed to '{params.name}'."
             return message
 
     def _manage_users_and_groups_for_quota(self, quota, params, decode_id=None):
@@ -100,7 +100,7 @@ class AdminActions(object):
         else:
             try:
                 new_amount = util.size_to_bytes(params.amount)
-            except AssertionError:
+            except (AssertionError, ValueError):
                 new_amount = False
         if not params.amount:
             raise ActionInputError('Enter a valid amount.')
@@ -113,19 +113,19 @@ class AdminActions(object):
             quota.operation = params.operation
             self.sa_session.add(quota)
             self.sa_session.flush()
-            message = "Quota '%s' is now '%s'." % (quota.name, quota.operation + quota.display_amount)
+            message = "Quota '{}' is now '{}'.".format(quota.name, quota.operation + quota.display_amount)
             return message
 
     def _set_quota_default(self, quota, params):
-        if params.default != 'no' and params.default not in self.app.model.DefaultQuotaAssociation.types.__dict__.values():
+        if params.default != 'no' and params.default not in self.app.model.DefaultQuotaAssociation.types.__members__.values():
             raise ActionInputError('Enter a valid default type.')
         else:
             if params.default != 'no':
                 self.app.quota_agent.set_default_quota(params.default, quota)
-                message = "Quota '%s' is now the default for %s users." % (quota.name, params.default)
+                message = f"Quota '{quota.name}' is now the default for {params.default} users."
             else:
                 if quota.default:
-                    message = "Quota '%s' is no longer the default for %s users." % (quota.name, quota.default[0].type)
+                    message = "Quota '{}' is no longer the default for {} users.".format(quota.name, quota.default[0].type)
                     for dqa in quota.default:
                         self.sa_session.delete(dqa)
                     self.sa_session.flush()
@@ -137,7 +137,7 @@ class AdminActions(object):
         if not quota.default:
             raise ActionInputError("Quota '%s' is not a default." % quota.name)
         else:
-            message = "Quota '%s' is no longer the default for %s users." % (quota.name, quota.default[0].type)
+            message = "Quota '{}' is no longer the default for {} users.".format(quota.name, quota.default[0].type)
             for dqa in quota.default:
                 self.sa_session.delete(dqa)
             self.sa_session.flush()

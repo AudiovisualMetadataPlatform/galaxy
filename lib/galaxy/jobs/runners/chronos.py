@@ -1,10 +1,9 @@
-from __future__ import absolute_import
-
 import functools
 import logging
 
 from galaxy import model
 from galaxy.jobs.runners import AsynchronousJobRunner, AsynchronousJobState
+from galaxy.util import unicodify
 
 CHRONOS_IMPORT_MSG = ('The Python \'chronos\' package is required to use '
                       'this feature, please install it or correct the '
@@ -20,7 +19,7 @@ try:
     )
 except ImportError as e:
     chronos = None
-    CHRONOS_IMPORT_MSG.format(msg=str(e))
+    CHRONOS_IMPORT_MSG.format(msg=unicodify(e))
 
 
 __all__ = ('ChronosJobRunner',)
@@ -40,7 +39,7 @@ def handle_exception_call(func):
         try:
             return func(*args, **kwargs)
         except chronos_exceptions as e:
-            LOGGER.error(str(e))
+            LOGGER.error(unicodify(e))
 
     return wrapper
 
@@ -116,7 +115,7 @@ class ChronosJobRunner(AsynchronousJobRunner):
         if self.RUNNER_PARAM_SPEC_KEY not in kwargs:
             kwargs[self.RUNNER_PARAM_SPEC_KEY] = {}
         kwargs[self.RUNNER_PARAM_SPEC_KEY].update(self.RUNNER_PARAM_SPEC)
-        super(ChronosJobRunner, self).__init__(app, nworkers, **kwargs)
+        super().__init__(app, nworkers, **kwargs)
         protocol = 'http' if self.runner_params.get('insecure', True) else 'https'
         self._chronos_client = chronos.connect(
             self.runner_params['chronos'],
@@ -167,10 +166,10 @@ class ChronosJobRunner(AsynchronousJobRunner):
         ajs.command_line = job.command_line
         ajs.job_wrapper = job_wrapper
         ajs.job_destination = job_wrapper.job_destination
-        if job.state == model.Job.states.RUNNING:
+        if job.state in (model.Job.states.RUNNING, model.Job.states.STOPPED):
             LOGGER.debug(msg.format(
                 name=job.id, runner=job.job_runner_external_id,
-                state='running'))
+                state=job.state))
             ajs.old_state = model.Job.states.RUNNING
             ajs.running = True
             self.monitor_queue.put(ajs)
@@ -186,6 +185,7 @@ class ChronosJobRunner(AsynchronousJobRunner):
     def check_watched_item(self, job_state):
         job_name = job_state.job_id
         job = self._retrieve_job(job_name)
+        # TODO: how can stopped GxIT jobs be handled here?
         if job:
             succeeded = job['successCount']
             errors = job['errorCount']
@@ -198,7 +198,7 @@ class ChronosJobRunner(AsynchronousJobRunner):
                 msg = 'Job {name!r} failed more than {retries!s} times'
                 reason = msg.format(name=job_name, retries=str(max_retries))
                 return self._mark_as_failed(job_state, reason)
-        reason = 'Job {name!r} not found'.format(name=job_name)
+        reason = f'Job {job_name!r} not found'
         return self._mark_as_failed(job_state, reason)
 
     def _mark_as_successful(self, job_state):
@@ -227,7 +227,7 @@ class ChronosJobRunner(AsynchronousJobRunner):
 
     @handle_exception_call
     def finish_job(self, job_state):
-        super(ChronosJobRunner, self).finish_job(job_state)
+        super().finish_job(job_state)
         self._chronos_client.delete(job_state.job_id)
 
     def parse_destination_params(self, params):
@@ -266,7 +266,7 @@ class ChronosJobRunner(AsynchronousJobRunner):
         jobs = self._chronos_client.list()
         job = [x for x in jobs if x['name'] == job_id]
         if len(job) > 1:
-            msg = 'Multiple jobs found with name {name!r}'.format(name=job_id)
+            msg = f'Multiple jobs found with name {job_id!r}'
             LOGGER.error(msg)
             raise ChronosRunnerException(msg)
         return job[0] if job else None

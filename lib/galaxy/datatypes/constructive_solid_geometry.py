@@ -1,6 +1,10 @@
+# TODO: revisit ignoring type and write some tests for this, the multi-inheritance in this
+# this file is challenging, it should be broken into true mixins.
+# type: ignore
 """
 Constructive Solid Geometry file formats.
 """
+
 import abc
 
 from galaxy import util
@@ -17,7 +21,7 @@ COLOR_OPTS = ['COLOR_SCALARS', 'red', 'green', 'blue']
 
 
 @build_sniff_from_prefix
-class Ply(object):
+class Ply:
     """
     The PLY format describes an object as a collection of vertices,
     faces and other elements, along with properties such as color and
@@ -103,7 +107,7 @@ class Ply(object):
     def set_peek(self, dataset, is_multi_byte=False):
         if not dataset.dataset.purged:
             dataset.peek = get_file_peek(dataset.file_name)
-            dataset.blurb = "Faces: %s, Vertices: %s" % (str(dataset.metadata.face), str(dataset.metadata.vertex))
+            dataset.blurb = "Faces: {}, Vertices: {}".format(str(dataset.metadata.face), str(dataset.metadata.vertex))
         else:
             dataset.peek = 'File does not exist'
             dataset.blurb = 'File purged from disc'
@@ -132,7 +136,7 @@ class PlyBinary(Ply, Binary):
 
 
 @build_sniff_from_prefix
-class Vtk(object):
+class Vtk:
     r"""
     The Visualization Toolkit provides a number of source and writer objects to
     read and write popular data file formats. The Visualization Toolkit also

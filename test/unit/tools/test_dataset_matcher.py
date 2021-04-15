@@ -1,12 +1,14 @@
 from unittest import TestCase
-from xml.etree.ElementTree import XML
 
 from galaxy import model
 from galaxy.tools.parameters import (
     basic,
     dataset_matcher
 )
-from galaxy.util import bunch
+from galaxy.util import (
+    bunch,
+    XML,
+)
 from .test_data_parameters import MockHistoryDatasetAssociation
 from ..tools_support import UsesApp
 
@@ -21,6 +23,7 @@ class DatasetMatcherTestCase(TestCase, UsesApp):
         # Datasets that don't match datatype are not valid.
         self.mock_hda.visible = True
         self.mock_hda.extension = 'data'
+        self.mock_hda.conversion_destination = (False, None, None)
         assert not self.test_context.hda_match(self.mock_hda)
 
     def test_valid_hda_direct_match(self):
@@ -40,7 +43,7 @@ class DatasetMatcherTestCase(TestCase, UsesApp):
         # dataset.
         self.mock_hda.extension = 'data'
         converted_hda = model.HistoryDatasetAssociation()
-        self.mock_hda.conversion_destination = ("tabular", converted_hda)
+        self.mock_hda.conversion_destination = (False, "tabular", converted_hda)
         hda_match = self.test_context.hda_match(self.mock_hda)
 
         assert hda_match
@@ -52,7 +55,7 @@ class DatasetMatcherTestCase(TestCase, UsesApp):
         # Find conversion returns a target extension to convert to, but not
         # a previously implicitly converted dataset.
         self.mock_hda.extension = 'data'
-        self.mock_hda.conversion_destination = ("tabular", None)
+        self.mock_hda.conversion_destination = (False, "tabular", None)
         hda_match = self.test_context.hda_match(self.mock_hda)
 
         assert hda_match
@@ -62,7 +65,7 @@ class DatasetMatcherTestCase(TestCase, UsesApp):
 
     def test_hda_match_properly_skips_conversion(self):
         self.mock_hda.extension = 'data'
-        self.mock_hda.conversion_destination = ("tabular", bunch.Bunch())
+        self.mock_hda.conversion_destination = (False, "tabular", bunch.Bunch())
         hda_match = self.test_context.hda_match(self.mock_hda, check_implicit_conversions=False)
         assert not hda_match
 
@@ -181,6 +184,6 @@ class DatasetMatcherTestCase(TestCase, UsesApp):
         return self._test_context
 
 
-class MockMetadata(object):
+class MockMetadata:
     def __init__(self):
         self.foo = None

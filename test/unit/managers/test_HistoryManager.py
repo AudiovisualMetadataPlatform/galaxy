@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 """
 import unittest
+from unittest import mock
 
-import mock
 import sqlalchemy
-from six import string_types
 from sqlalchemy import true
 
 from galaxy import (
@@ -34,7 +32,7 @@ user4_data = dict(email='user4@user4.user4', username='user4', password=default_
 class HistoryManagerTestCase(BaseTestCase):
 
     def set_up_managers(self):
-        super(HistoryManagerTestCase, self).set_up_managers()
+        super().set_up_managers()
         self.history_manager = HistoryManager(self.app)
         self.hda_manager = hdas.HDAManager(self.app)
 
@@ -87,14 +85,14 @@ class HistoryManagerTestCase(BaseTestCase):
 
         self.log("should be able to copy a history (and it's hdas)")
         history1 = self.history_manager.create(name='history1', user=user2)
-        tags = [u'tag-one']
-        annotation = u'history annotation'
+        tags = ['tag-one']
+        annotation = 'history annotation'
         self.history_manager.set_tags(history1, tags, user=user2)
         self.history_manager.annotate(history1, annotation, user=user2)
 
         hda = self.add_hda_to_history(history1, name='wat')
-        hda_tags = [u'tag-one', u'tag-two']
-        hda_annotation = u'annotation'
+        hda_tags = ['tag-one', 'tag-two']
+        hda_annotation = 'annotation'
         self.hda_manager.set_tags(hda, hda_tags, user=user2)
         self.hda_manager.annotate(hda, hda_annotation, user=user2)
 
@@ -261,7 +259,7 @@ class HistoryManagerTestCase(BaseTestCase):
             len(self.history_manager.get_share_assocs(item1)), 1)
         self.assertEqual(
             len(self.history_manager.get_share_assocs(item1, user=non_owner)), 1)
-        self.assertIsInstance(item1.slug, string_types)
+        self.assertIsInstance(item1.slug, str)
 
         self.log("should be able to unshare with specific users")
         share_assoc = self.history_manager.unshare_with(item1, non_owner)
@@ -389,7 +387,7 @@ class HistoryManagerTestCase(BaseTestCase):
 # =============================================================================
 # web.url_for doesn't work well in the framework
 def testable_url_for(*a, **k):
-    return '(fake url): %s, %s' % (a, k)
+    return f'(fake url): {a}, {k}'
 
 
 HistorySerializer.url_for = staticmethod(testable_url_for)
@@ -399,7 +397,7 @@ hdas.HDASerializer.url_for = staticmethod(testable_url_for)
 class HistorySerializerTestCase(BaseTestCase):
 
     def set_up_managers(self):
-        super(HistorySerializerTestCase, self).set_up_managers()
+        super().set_up_managers()
         self.history_manager = HistoryManager(self.app)
         self.hda_manager = hdas.HDAManager(self.app)
         self.history_serializer = HistorySerializer(self.app)
@@ -425,7 +423,7 @@ class HistorySerializerTestCase(BaseTestCase):
             instantiated_attribute = getattr(history1, key, None)
             if not ((key in self.history_serializer.serializers) or
                     (isinstance(instantiated_attribute, self.TYPES_NEEDING_NO_SERIALIZERS))):
-                self.fail('no serializer for: %s (%s)' % (key, instantiated_attribute))
+                self.fail(f'no serializer for: {key} ({instantiated_attribute})')
         else:
             self.assertTrue(True, 'all serializable keys have a serializer')
 
@@ -494,7 +492,7 @@ class HistorySerializerTestCase(BaseTestCase):
 
         self.log('everything serialized should be of the proper type')
         self.assertIsInstance(serialized['size'], int)
-        self.assertIsInstance(serialized['nice_size'], string_types)
+        self.assertIsInstance(serialized['nice_size'], str)
 
         self.log('serialized should jsonify well')
         self.assertIsJsonifyable(serialized)
@@ -581,7 +579,7 @@ class HistorySerializerTestCase(BaseTestCase):
         self.assertEqual(serialized['state_details']['ok'], 1)
         self.assertIsInstance(serialized['state_ids']['ok'], list)
         self.assertIsInstance(serialized['hdas'], list)
-        self.assertIsInstance(serialized['hdas'][0], string_types)
+        self.assertIsInstance(serialized['hdas'][0], str)
 
         serialized = self.history_serializer.serialize(history1, ['contents'])
         self.assertHasKeys(serialized['contents'][0], ['id', 'name', 'state', 'create_time'])
@@ -620,7 +618,7 @@ class HistorySerializerTestCase(BaseTestCase):
 class HistoryDeserializerTestCase(BaseTestCase):
 
     def set_up_managers(self):
-        super(HistoryDeserializerTestCase, self).set_up_managers()
+        super().set_up_managers()
         self.history_manager = HistoryManager(self.app)
         self.history_deserializer = HistoryDeserializer(self.app)
 
@@ -682,7 +680,7 @@ class HistoryDeserializerTestCase(BaseTestCase):
 class HistoryFiltersTestCase(BaseTestCase):
 
     def set_up_managers(self):
-        super(HistoryFiltersTestCase, self).set_up_managers()
+        super().set_up_managers()
         self.history_manager = HistoryManager(self.app)
         self.filter_parser = HistoryFilters(self.app)
 
@@ -704,11 +702,11 @@ class HistoryFiltersTestCase(BaseTestCase):
         self.assertRaises(exceptions.RequestParameterInvalidException, self.filter_parser.parse_filters, [
             ('merp', 'eq', 'wot'),
         ])
-        self.log('should error on non-whitelisted attr')
+        self.log('should error on non-allowlisted attr')
         self.assertRaises(exceptions.RequestParameterInvalidException, self.filter_parser.parse_filters, [
             ('user_id', 'eq', 'wot'),
         ])
-        self.log('should error on non-whitelisted op')
+        self.log('should error on non-allowlisted op')
         self.assertRaises(exceptions.RequestParameterInvalidException, self.filter_parser.parse_filters, [
             ('name', 'lt', 'wot'),
         ])

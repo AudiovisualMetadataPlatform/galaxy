@@ -41,19 +41,18 @@ The steps to install Galaxy mostly follow those of the [regular instructions](ht
 
 ### Disable the developer settings
 
-Two options are set in the sample `config/galaxy.yml` which should not be enabled on a production server. You should set both to `false`:
+Debugging options are set in the sample `config/galaxy.yml` which should not be enabled on a production server.  Check the following items:
 
 * `debug: false` - Disable middleware that loads the entire response in memory for displaying debugging information in the page.  If left enabled, the proxy server may timeout waiting for a response or your Galaxy process may run out of memory if it's serving large files.
-* `use_interactive: false` - Disables displaying and live debugging of tracebacks via the web.  Leaving it enabled will expose your configuration (database password, id_secret, etc.).
 * Disable `filter-with: gzip`.  Leaving the gzip filter enabled will cause UI failures because of the way templates are streamed once `debug` is set to `False`.  You will still be able (and are encouraged) to enable gzip in the proxy server.
 
 During deployment, you may run into problems with failed jobs.  By default, Galaxy removes files related to job execution. You can instruct Galaxy to keep files of failed jobs with: `cleanup_job: onsuccess`
 
-### Switching to a database server
+### Switching to PostgreSQL database server
 
 The most important recommendation is to switch to an actual database server.  By default, Galaxy will use [SQLite](http://www.sqlite.org/), which is a serverless simple file database engine.  Since it's serverless, all of the database processing occurs in the Galaxy process itself.  This has two downsides: it occupies the aforementioned GIL (meaning that the process is not free to do other tasks), and it is not nearly as efficient as a dedicated database server.  There are other drawbacks, too.  When load increases with multiple users, the risk of transactional locks also increases.  Locks will cause (among other things) timeouts and job errors.  If you start with SQLite and then later realize a need for a database server, you'll need to migrate your database or start over.  Galaxy does not provide an internal method to migrate data from SQLite, and although free conversion tools are available on the web, this process is non-trivial.
 
-For this reason, Galaxy also supports [PostgreSQL](https://www.postgresql.org/) and [MySQL](https://dev.mysql.com/). *PostgreSQL is much preferred since we've found it works better with our DB abstraction layer, [SQLAlchemy](https://www.sqlalchemy.org/).*
+For this reason, Galaxy also supports PostgreSQL through our DB abstraction layer, [SQLAlchemy](https://www.sqlalchemy.org/).
 
 To use an external database, you'll need to set one up. That process is outside the scope of this document, but is usually simple. For example, on Debian and Redhat-based Linux distributions, one may already be installed. If not, it should be an `apt-get install` or `yum install` away. On macOS, there are installers available from the [PostgreSQL](https://www.postgresql.org/) website.
 
@@ -61,29 +60,43 @@ Once installed, create a new database user and new database which the new user i
 
 To configure Galaxy, set `database_connection` in Galaxy's config file, `config/galaxy.yml`. The syntax for a database URL is explained in the [SQLAlchemy documentation](https://docs.sqlalchemy.org/en/latest/core/engines.html).
 
-Here follow two example database URLs with username and password:
+An example database URL with username and password:
 
 ```
 postgresql://username:password@localhost/mydatabase
-mysql://username:password@localhost/mydatabase
 ```
 
-
-It's worth noting that some platforms (for example, Debian/Ubuntu) store database sockets in a directory other than the database engine's default. If you're connecting to a database server on the same host as the Galaxy server and the socket is in a non-standard location, you'll need to use these custom arguments (these are the defaults for Debian/Ubuntu, change as necessary for your installation):
+It's worth noting that some platforms (for example, Debian/Ubuntu) store database sockets in a directory other than the database engine's default. If you're connecting to a database server on the same host as the Galaxy server and the socket is in a non-standard location, you'll need to use these custom arguments (this is the default for Debian/Ubuntu, change as necessary for your installation):
 
 ```
 postgresql:///mydatabase?host=/var/run/postgresql
-mysql:///mydatabase?unix_socket=/var/run/mysqld/mysqld.sock
 ```
-
 
 For more hints on available options for the database URL, see the [SQLAlchemy documentation](https://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls).
 
-If you are using [MySQL](https://dev.mysql.com/) and encounter the "MySQL server has gone away" error, please note the `database_engine_option_pool_recycle` option in `config/galaxy.yml`. If this does not solve your problem, see [this post](http://gmod.827538.n3.nabble.com/template/NamlServlet.jtp?macro=print_post&node=2354941) on the Galaxy Development [mailing list](https://galaxyproject.org/mailing-lists/).
+#### MySQL database server (unsupported)
 
-If you are using [MySQL](https://dev.mysql.com/), please make sure the database output is in UTF-8, otherwise you may encounter Python TypeErrors.
+Postgres database backend is far more used and better tested, please use it if you can.
 
-If you are using [MySQL](https://dev.mysql.com/) with [MyISAM](https://dev.mysql.com/doc/refman/8.0/en/myisam-storage-engine.html) table engine, when Galaxy is in multiprocess configuration, workflow steps will [get executed out of order](http://dev.list.galaxyproject.org/Job-execution-order-mixed-up-tt4662488.html) and fail. Use [InnoDB](https://dev.mysql.com/doc/refman/8.0/en/innodb-storage-engine.html) engine instead or switch to [PostgreSQL](https://www.postgresql.org/).
+In the past Galaxy supported [MySQL](https://dev.mysql.com/), but currently there may be nontrivial problems associated with it, so expect some amount of troubleshooting when using it.
+
+Connection string example:
+```
+mysql://username:password@localhost/mydatabase
+```
+
+Connecting using socket on a Debian/Ubuntu system:
+```
+mysql:///mydatabase?unix_socket=/var/run/mysqld/mysqld.sock
+```
+
+Some tips when using MySQL:
+
+* If you encounter the "MySQL server has gone away" error, please note the `database_engine_option_pool_recycle` option in `config/galaxy.yml`. If this does not solve your problem, see [this post](http://gmod.827538.n3.nabble.com/template/NamlServlet.jtp?macro=print_post&node=2354941) on the Galaxy Development [mailing list](https://galaxyproject.org/mailing-lists/).
+
+* Please make sure the database output is in UTF-8, otherwise you may encounter Python TypeErrors.
+
+* If you are using [MySQL](https://dev.mysql.com/) with [MyISAM](https://dev.mysql.com/doc/refman/8.0/en/myisam-storage-engine.html) table engine, when Galaxy is in multiprocess configuration, workflow steps will [get executed out of order](http://dev.list.galaxyproject.org/Job-execution-order-mixed-up-tt4662488.html) and fail. Use [InnoDB](https://dev.mysql.com/doc/refman/8.0/en/innodb-storage-engine.html) engine instead or switch to [PostgreSQL](https://www.postgresql.org/).
 
 ### Using a proxy server
 

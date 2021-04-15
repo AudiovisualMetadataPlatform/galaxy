@@ -3,23 +3,29 @@ This migration script adds a new column to 2 tables:
 1) a new boolean type column named 'submitted' to the 'request' table
 2) a new string type column named 'bar_code' to the 'sample' table
 """
-from __future__ import print_function
 
 import logging
-import sys
 
+<<<<<<< HEAD
 from sqlalchemy import Boolean, Column, MetaData, Table
+=======
+from sqlalchemy import (
+    Boolean,
+    Column,
+    MetaData
+)
+>>>>>>> refs/heads/release_21.01
 
 from galaxy.model.custom_types import TrimmedString
+<<<<<<< HEAD
+=======
+from galaxy.model.migrate.versions.util import (
+    add_column,
+    drop_column
+)
+>>>>>>> refs/heads/release_21.01
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-handler = logging.StreamHandler(sys.stdout)
-format = "%(name)s %(levelname)s %(asctime)s %(message)s"
-formatter = logging.Formatter(format)
-handler.setFormatter(formatter)
-log.addHandler(handler)
-
 metadata = MetaData()
 
 

@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import gzip
 import io
 import logging
@@ -50,20 +48,46 @@ def get_fileobj_raw(filename, mode="r", compressed_formats=None):
         compressed_format = 'bz2'
     elif 'zip' in compressed_formats and zipfile.is_zipfile(filename):
         # Return fileobj for the first file in a zip file.
+<<<<<<< HEAD
         with zipfile.ZipFile(filename, cmode) as zh:
             fh = zh.open(zh.namelist()[0], cmode)
+=======
+        # 'b' is not allowed in the ZipFile mode argument
+        # since it always opens files in binary mode.
+        # For emulating text mode, we will be returning the binary fh in a
+        # TextIOWrapper.
+        zf_mode = mode.replace('b', '')
+        with zipfile.ZipFile(filename, zf_mode) as zh:
+            fh = zh.open(zh.namelist()[0], zf_mode)
+>>>>>>> refs/heads/release_21.01
         compressed_format = 'zip'
     elif 'b' in mode:
         return compressed_format, open(filename, mode)
     else:
-        return compressed_format, io.open(filename, mode, encoding='utf-8')
+        return compressed_format, open(filename, mode, encoding='utf-8')
     if 'b' not in mode:
         return compressed_format, io.TextIOWrapper(fh, encoding='utf-8')
     else:
         return compressed_format, fh
 
 
-class CompressedFile(object):
+def file_iter(fname, sep=None):
+    """
+    This generator iterates over a file and yields its lines
+    splitted via the C{sep} parameter. Skips empty lines and lines starting with
+    the C{#} character.
+
+    >>> lines = [ line for line in file_iter(__file__) ]
+    >>> len(lines) !=  0
+    True
+    """
+    with get_fileobj(fname) as fh:
+        for line in fh:
+            if line and line[0] != '#':
+                yield line.split(sep)
+
+
+class CompressedFile:
 
     @staticmethod
     def can_decompress(file_path):
@@ -130,11 +154,20 @@ class CompressedFile(object):
         if self.file_type == "tar":
             for finfo in members:
                 if not safe_relpath(finfo.name):
+<<<<<<< HEAD
                     raise Exception(finfo.name + " is blocked (illegal path).")
                 elif (finfo.issym() or finfo.islnk()) and not safe_relpath(finfo.linkname):
                     raise Exception(finfo.name + " is blocked.")
                 else:
                     yield finfo
+=======
+                    raise Exception("Path '%s' is blocked (illegal path)." % finfo.name)
+                if finfo.issym() or finfo.islnk():
+                    link_target = os.path.join(os.path.dirname(finfo.name), finfo.linkname)
+                    if not safe_relpath(link_target) or not os.path.normpath(link_target).startswith(common_prefix_dir):
+                        raise Exception(f"Link '{finfo.name}' to '{finfo.linkname}' is blocked.")
+                yield finfo
+>>>>>>> refs/heads/release_21.01
         elif self.file_type == "zip":
             for name in members.namelist():
                 if not safe_relpath(name):

@@ -3,11 +3,15 @@ API operations allowing clients to determine datatype supported by Galaxy.
 """
 import logging
 
-from galaxy import exceptions
 from galaxy.datatypes.data import Data
 from galaxy.util import asbool
+<<<<<<< HEAD
 from galaxy.web import _future_expose_api_anonymous_and_sessionless as expose_api_anonymous_and_sessionless
 from galaxy.web.base.controller import BaseAPIController
+=======
+from galaxy.web import expose_api_anonymous_and_sessionless
+from galaxy.webapps.base.controller import BaseAPIController
+>>>>>>> refs/heads/release_21.01
 
 log = logging.getLogger(__name__)
 
@@ -20,28 +24,28 @@ class DatatypesController(BaseAPIController):
         GET /api/datatypes
         Return an object containing upload datatypes.
         """
-        datatypes_registry = self._datatypes_registry
         try:
-            extension_only = asbool(kwd.get('extension_only', True))
-            upload_only = asbool(kwd.get('upload_only', True))
-            if extension_only:
-                if upload_only:
-                    return datatypes_registry.upload_file_formats
-                else:
-                    return [ext for ext in datatypes_registry.datatypes_by_extension]
+            return self._index(trans, **kwd)
+        except Exception as e:
+            log.exception('Could not get datatypes')
+            raise e
+
+    def _index(self, trans, **kwd):
+        datatypes_registry = self._datatypes_registry
+        extension_only = asbool(kwd.get('extension_only', True))
+        upload_only = asbool(kwd.get('upload_only', True))
+        if extension_only:
+            if upload_only:
+                return datatypes_registry.upload_file_formats
             else:
-                rval = []
-                for datatype_info_dict in datatypes_registry.datatype_info_dicts:
-                    if not datatype_info_dict.get('display_in_upload') and upload_only:
-                        continue
-                    rval.append(datatype_info_dict)
-                return rval
-        except Exception as exception:
-            log.error('could not get datatypes: %s', str(exception), exc_info=True)
-            if not isinstance(exception, exceptions.MessageException):
-                raise exceptions.InternalServerError(str(exception))
-            else:
-                raise
+                return [ext for ext in datatypes_registry.datatypes_by_extension]
+        else:
+            rval = []
+            for datatype_info_dict in datatypes_registry.datatype_info_dicts:
+                if not datatype_info_dict.get('display_in_upload') and upload_only:
+                    continue
+                rval.append(datatype_info_dict)
+            return rval
 
     @expose_api_anonymous_and_sessionless
     def mapping(self, trans, **kwd):
@@ -50,32 +54,45 @@ class DatatypesController(BaseAPIController):
         Return a dictionary of class to class mappings.
         '''
         try:
-            ext_to_class_name = dict()
-            classes = []
-            for k, v in self._datatypes_registry.datatypes_by_extension.items():
-                c = v.__class__
-                ext_to_class_name[k] = c.__module__ + "." + c.__name__
-                classes.append(c)
-            class_to_classes = dict()
+            return self._mapping()
+        except Exception as e:
+            log.exception('Could not get datatype mapping')
+            raise e
 
-            def visit_bases(types, cls):
-                for base in cls.__bases__:
-                    if issubclass(base, Data):
-                        types.add(base.__module__ + "." + base.__name__)
-                    visit_bases(types, base)
-            for c in classes:
-                n = c.__module__ + "." + c.__name__
-                types = set([n])
-                visit_bases(types, c)
-                class_to_classes[n] = dict((t, True) for t in types)
-            return dict(ext_to_class_name=ext_to_class_name, class_to_classes=class_to_classes)
+    def _mapping(self):
+        ext_to_class_name = dict()
+        classes = []
+        for k, v in self._datatypes_registry.datatypes_by_extension.items():
+            c = v.__class__
+            ext_to_class_name[k] = c.__module__ + "." + c.__name__
+            classes.append(c)
+        class_to_classes = dict()
 
-        except Exception as exception:
-            log.error('could not get datatype mapping: %s', str(exception), exc_info=True)
-            if not isinstance(exception, exceptions.MessageException):
-                raise exceptions.InternalServerError(str(exception))
-            else:
-                raise
+        def visit_bases(types, cls):
+            for base in cls.__bases__:
+                if issubclass(base, Data):
+                    types.add(base.__module__ + "." + base.__name__)
+                visit_bases(types, base)
+        for c in classes:
+            n = c.__module__ + "." + c.__name__
+            types = {n}
+            visit_bases(types, c)
+            class_to_classes[n] = {t: True for t in types}
+        return dict(ext_to_class_name=ext_to_class_name, class_to_classes=class_to_classes)
+
+    @expose_api_anonymous_and_sessionless
+    def types_and_mapping(self, trans, **kwd):
+        """
+        GET /api/datatypes/types_and_mapping
+
+        Combine the datatype information from (/api/datatypes) and the
+        mapping information from (/api/datatypes/mapping) into a single
+        response.
+        """
+        return {
+            "datatypes": self._index(trans, **kwd),
+            "datatypes_mapping": self._mapping(),
+        }
 
     @expose_api_anonymous_and_sessionless
     def sniffers(self, trans, **kwd):
@@ -90,12 +107,9 @@ class DatatypesController(BaseAPIController):
                 if datatype is not None:
                     rval.append(datatype)
             return rval
-        except Exception as exception:
-            log.error('could not get datatypes: %s', str(exception), exc_info=True)
-            if not isinstance(exception, exceptions.MessageException):
-                raise exceptions.InternalServerError(str(exception))
-            else:
-                raise
+        except Exception as e:
+            log.exception('Could not get datatypes')
+            raise e
 
     @expose_api_anonymous_and_sessionless
     def converters(self, trans, **kwd):

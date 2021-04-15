@@ -1,8 +1,6 @@
-import json
-import logging
-import os
-import tempfile
+from galaxy.tool_shed.metadata.metadata_generator import MetadataGenerator
 
+<<<<<<< HEAD
 from sqlalchemy import and_
 
 from galaxy import util
@@ -1105,3 +1103,6 @@ class MetadataGenerator(object):
             else:
                 metadata['invalid_repository_dependencies'] = repository_dependencies_dict
         return metadata
+=======
+__all__ = ('MetadataGenerator', )
+>>>>>>> refs/heads/release_21.01

@@ -4,26 +4,17 @@ adds the same to the 'sample' table. This also adds a 'datatx' column to request
 to store the sequencer login information. Finally, this adds a 'dataset_files' column to
 the sample table.
 """
-from __future__ import print_function
 
 import datetime
 import logging
-import sys
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, MetaData, Table, TEXT
 from sqlalchemy.exc import NoSuchTableError
 
 from galaxy.model.custom_types import JSONType, TrimmedString
 
-now = datetime.datetime.utcnow
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-handler = logging.StreamHandler(sys.stdout)
-format = "%(name)s %(levelname)s %(asctime)s %(message)s"
-formatter = logging.Formatter(format)
-handler.setFormatter(formatter)
-log.addHandler(handler)
-
+now = datetime.datetime.utcnow
 metadata = MetaData()
 
 
@@ -32,6 +23,7 @@ def upgrade(migrate_engine):
     print(__doc__)
     # Load existing tables
     metadata.reflect()
+<<<<<<< HEAD
     # retuest_type table
     try:
         RequestType_table = Table("request_type", metadata, autoload=True)
@@ -144,8 +136,54 @@ def upgrade(migrate_engine):
                 assert col is Sample_table.c.folder_id
             except Exception:
                 log.exception("Adding column 'folder_id' to sample table failed.")
+=======
+
+    # Add the datatx_info column in 'request_type' table
+    col = Column("datatx_info", JSONType)
+    add_column(col, 'request_type', metadata)
+
+    # Delete the library_id column in 'request' table
+    Request_table = Table("request", metadata, autoload=True)
+    # TODO: Dropping a column used in a foreign key fails in MySQL, need to remove the FK first.
+    drop_column('library_id', Request_table)
+
+    # Delete the folder_id column in 'request' table
+    # TODO: Dropping a column used in a foreign key fails in MySQL, need to remove the FK first.
+    drop_column('folder_id', Request_table)
+
+    # Add the dataset_files column in 'sample' table
+    Sample_table = Table("sample", metadata, autoload=True)
+    col = Column("dataset_files", JSONType)
+    add_column(col, Sample_table, metadata)
+
+    # Add the library_id column in 'sample' table
+    col = Column("library_id", Integer, ForeignKey("library.id"), index=True)
+    add_column(col, Sample_table, metadata, index_name='ix_sample_library_id')
+
+    # Add the library_id column in 'sample' table
+    col = Column("folder_id", Integer, ForeignKey("library_folder.id"), index=True)
+    add_column(col, Sample_table, metadata, index_name='ix_sample_library_folder_id')
+>>>>>>> refs/heads/release_21.01
 
 
 def downgrade(migrate_engine):
     metadata.bind = migrate_engine
+<<<<<<< HEAD
     pass
+=======
+    metadata.reflect()
+
+    Sample_table = Table("sample", metadata, autoload=True)
+    drop_column('folder_id', Sample_table)
+    drop_column('library_id', Sample_table)
+    drop_column('dataset_files', Sample_table)
+
+    Request_table = Table("request", metadata, autoload=True)
+    col = Column('folder_id', Integer, ForeignKey('library_folder.id'), index=True)
+    add_column(col, Request_table, metadata, index_name='ix_request_folder_id')
+
+    col = Column('library_id', Integer, ForeignKey("library.id"), index=True)
+    add_column(col, Request_table, metadata, index_name='ix_request_library_id')
+
+    drop_column('datatx_info', 'request_type', metadata)
+>>>>>>> refs/heads/release_21.01

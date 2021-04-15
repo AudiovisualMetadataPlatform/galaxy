@@ -1,8 +1,7 @@
-galaxy\.visualization\.genome package
-=====================================
+galaxy.visualization.genome package
+===================================
 
 .. automodule:: galaxy.visualization.genome
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   :members:
+   :undoc-members:
+   :show-inheritance:

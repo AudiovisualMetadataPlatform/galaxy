@@ -3,6 +3,7 @@ import logging
 import os
 import tempfile
 
+<<<<<<< HEAD
 from galaxy.tools import (
     create_tool_from_source,
     get_tool_source,
@@ -12,6 +13,11 @@ from galaxy.tools import (
 from galaxy.tools.fetcher import ToolLocationFetcher
 from galaxy.tools.parameters import dynamic_options
 from tool_shed.tools.data_table_manager import ShedToolDataTableManager
+=======
+from galaxy.tool_shed.tools.tool_validator import ToolValidator as GalaxyToolValidator
+from galaxy.tools import Tool
+from galaxy.util import unicodify
+>>>>>>> refs/heads/release_21.01
 from tool_shed.util import (
     basic_util,
     hg_util,
@@ -23,11 +29,7 @@ from tool_shed.util import (
 log = logging.getLogger(__name__)
 
 
-class ToolValidator(object):
-
-    def __init__(self, app):
-        self.app = app
-        self.stdtm = ShedToolDataTableManager(self.app)
+class ToolValidator(GalaxyToolValidator):
 
     def can_use_tool_config_disk_file(self, repository, repo, file_path, changeset_revision):
         """
@@ -40,7 +42,7 @@ class ToolValidator(object):
             # The file no longer exists on disk, so it must have been deleted at some previous
             # point in the change log.
             return False
-        if changeset_revision == repository.tip(self.app):
+        if changeset_revision == repository.tip():
             return True
         file_name = basic_util.strip_path(file_path)
         latest_version_of_file = \
@@ -52,58 +54,10 @@ class ToolValidator(object):
             pass
         return can_use_disk_file
 
-    def check_tool_input_params(self, repo_dir, tool_config_name, tool, sample_files):
-        """
-        Check all of the tool's input parameters, looking for any that are dynamically
-        generated using external data files to make sure the files exist.
-        """
-        invalid_files_and_errors_tups = []
-        for input_param in tool.input_params:
-            if isinstance(input_param, parameters.basic.SelectToolParameter) and input_param.is_dynamic:
-                # If the tool refers to .loc files or requires an entry in the tool_data_table_conf.xml,
-                # make sure all requirements exist.
-                options = input_param.dynamic_options or input_param.options
-                if options and isinstance(options, dynamic_options.DynamicOptions):
-                    if options.tool_data_table or options.missing_tool_data_table_name:
-                        # Make sure the repository contains a tool_data_table_conf.xml.sample file.
-                        sample_tool_data_table_conf = hg_util.get_config_from_disk('tool_data_table_conf.xml.sample', repo_dir)
-                        if sample_tool_data_table_conf:
-                            error, correction_msg = \
-                                self.stdtm.handle_sample_tool_data_table_conf_file(sample_tool_data_table_conf,
-                                                                                  persist=False)
-                            if error:
-                                invalid_files_and_errors_tups.append(('tool_data_table_conf.xml.sample', correction_msg))
-                        else:
-                            correction_msg = "This file requires an entry in the tool_data_table_conf.xml file.  "
-                            correction_msg += "Upload a file named tool_data_table_conf.xml.sample to the repository "
-                            correction_msg += "that includes the required entry to correct this error.<br/>"
-                            invalid_tup = (tool_config_name, correction_msg)
-                            if invalid_tup not in invalid_files_and_errors_tups:
-                                invalid_files_and_errors_tups.append(invalid_tup)
-                    if options.index_file or options.tool_data_table and options.tool_data_table.missing_index_file:
-                        # Make sure the repository contains the required xxx.loc.sample file.
-                        index_file = options.index_file or options.tool_data_table.missing_index_file
-                        index_file_name = basic_util.strip_path(index_file)
-                        sample_found = False
-                        for sample_file in sample_files:
-                            sample_file_name = basic_util.strip_path(sample_file)
-                            if sample_file_name == '%s.sample' % index_file_name:
-                                options.index_file = index_file_name
-                                if options.tool_data_table:
-                                    options.tool_data_table.missing_index_file = None
-                                sample_found = True
-                                break
-                        if not sample_found:
-                            correction_msg = "This file refers to a file named <b>%s</b>.  " % str(index_file_name)
-                            correction_msg += "Upload a file named <b>%s.sample</b> to the repository to correct this error." % \
-                                str(index_file_name)
-                            invalid_files_and_errors_tups.append((tool_config_name, correction_msg))
-        return invalid_files_and_errors_tups
-
     def concat_messages(self, msg1, msg2):
         if msg1:
             if msg2:
-                message = '%s  %s' % (msg1, msg2)
+                message = f'{msg1}  {msg2}'
             else:
                 message = msg1
         elif msg2:
@@ -118,7 +72,7 @@ class ToolValidator(object):
         directory to which dest_path refers.
         """
         sample_files = []
-        for root, dirs, files in os.walk(repo_files_dir):
+        for root, _dirs, files in os.walk(repo_files_dir):
             if root.find('.hg') < 0:
                 for name in files:
                     if name.endswith('.sample'):
@@ -136,9 +90,9 @@ class ToolValidator(object):
         """
         stripped_filename = basic_util.strip_path(filename)
         for changeset in hg_util.reversed_upper_bounded_changelog(repo, changeset_revision):
-            manifest_ctx = repo.changectx(changeset)
+            manifest_ctx = repo[changeset]
             for ctx_file in manifest_ctx.files():
-                ctx_file_name = basic_util.strip_path(ctx_file)
+                ctx_file_name = basic_util.strip_path(unicodify(ctx_file))
                 if ctx_file_name == stripped_filename:
                     try:
                         fctx = manifest_ctx[ctx_file]
@@ -168,8 +122,9 @@ class ToolValidator(object):
         deleted_sample_files = []
         sample_files = []
         for changeset in hg_util.reversed_upper_bounded_changelog(repo, changeset_revision):
-            changeset_ctx = repo.changectx(changeset)
+            changeset_ctx = repo[changeset]
             for ctx_file in changeset_ctx.files():
+                ctx_file = unicodify(ctx_file)
                 ctx_file_name = basic_util.strip_path(ctx_file)
                 # If we decide in the future that files deleted later in the changelog should
                 # not be used, we can use the following if statement. if ctx_file_name.endswith( '.sample' )
@@ -190,9 +145,8 @@ class ToolValidator(object):
                     else:
                         sample_files.append(ctx_file_name)
                         tmp_ctx_file_name = os.path.join(dir, ctx_file_name.replace('.sample', ''))
-                        fh = open(tmp_ctx_file_name, 'wb')
-                        fh.write(fctx.data())
-                        fh.close()
+                        with open(tmp_ctx_file_name, 'wb') as fh:
+                            fh.write(fctx.data())
         return sample_files, deleted_sample_files
 
     def handle_sample_files_and_load_tool_from_disk(self, repo_files_dir, repository_id, tool_config_filepath, work_dir):
@@ -242,7 +196,7 @@ class ToolValidator(object):
         """
         repository = repository_util.get_repository_in_tool_shed(self.app, repository_id)
         repo_files_dir = repository.repo_path(self.app)
-        repo = hg_util.get_repo_for_repository(self.app, repo_path=repo_files_dir)
+        repo = repository.hg_repo
         tool_config_filepath = repository_util.get_absolute_path_to_file_in_repository(repo_files_dir, tool_config_filename)
         work_dir = tempfile.mkdtemp(prefix="tmp-toolshed-ltfcr")
         can_use_disk_file = self.can_use_tool_config_disk_file(repository,
@@ -281,6 +235,7 @@ class ToolValidator(object):
         self.stdtm.reset_tool_data_tables()
         return repository, tool, valid, message
 
+<<<<<<< HEAD
     def load_tool_from_config(self, repository_id, full_path):
         tool_source = get_tool_source(
             full_path,
@@ -303,6 +258,8 @@ class ToolValidator(object):
             error_message = str(e)
         return tool, valid, error_message
 
+=======
+>>>>>>> refs/heads/release_21.01
     def load_tool_from_tmp_config(self, repo, repository_id, ctx, ctx_file, work_dir):
         tool = None
         valid = False

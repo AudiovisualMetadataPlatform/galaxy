@@ -1,8 +1,7 @@
-galaxy\.jobs\.runners\.util\.condor package
-===========================================
+galaxy.jobs.runners.util.condor package
+=======================================
 
 .. automodule:: galaxy.jobs.runners.util.condor
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   :members:
+   :undoc-members:
+   :show-inheritance:

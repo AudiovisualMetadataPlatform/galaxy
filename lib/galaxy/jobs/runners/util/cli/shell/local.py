@@ -1,3 +1,4 @@
+import os
 from logging import getLogger
 from subprocess import (
     PIPE,
@@ -6,17 +7,17 @@ from subprocess import (
 from tempfile import TemporaryFile
 from time import sleep
 
-import six
 
-from ..shell import BaseShellExec
-from ....util import (
-    Bunch,
-    kill_pid
+from galaxy.util.bunch import Bunch
+from . import BaseShellExec
+from ....util.process_groups import (
+    check_pg,
+    kill_pg
 )
 
 log = getLogger(__name__)
 
-TIMEOUT_ERROR_MESSAGE = u'Execution timed out'
+TIMEOUT_ERROR_MESSAGE = 'Execution timed out'
 TIMEOUT_RETURN_CODE = -1
 DEFAULT_TIMEOUT = 60
 DEFAULT_TIMEOUT_CHECK_INTERVAL = 3
@@ -32,7 +33,9 @@ class LocalShell(BaseShellExec):
     True
     >>> exec_result.stdout.strip() == u'Hello World'
     True
-    >>> exec_result = exec_python("import time; time.sleep(90)", timeout=1, timeout_check_interval=.1)
+    >>> exec_result.returncode
+    0
+    >>> exec_result = exec_python("import time; time.sleep(10)", timeout=1, timeout_check_interval=.1)
     >>> exec_result.stdout == u''
     True
     >>> exec_result.stderr == 'Execution timed out'
@@ -47,21 +50,22 @@ class LocalShell(BaseShellExec):
         pass
 
     def execute(self, cmd, persist=False, timeout=DEFAULT_TIMEOUT, timeout_check_interval=DEFAULT_TIMEOUT_CHECK_INTERVAL, **kwds):
-        is_cmd_string = isinstance(cmd, six.string_types)
+        is_cmd_string = isinstance(cmd, str)
         outf = TemporaryFile()
-        p = Popen(cmd, stdin=None, stdout=outf, stderr=PIPE, shell=is_cmd_string)
-        # poll until timeout
+        p = Popen(cmd, stdin=None, stdout=outf, stderr=PIPE, shell=is_cmd_string, preexec_fn=os.setpgrp)
+        # check process group until timeout
 
-        for i in range(int(timeout / timeout_check_interval)):
+        for _ in range(int(timeout / timeout_check_interval)):
             sleep(0.1)  # For fast returning commands
-            r = p.poll()
-            if r is not None:
+            if not check_pg(p.pid):
                 break
             sleep(timeout_check_interval)
         else:
-            kill_pid(p.pid)
-            return Bunch(stdout=u'', stderr=TIMEOUT_ERROR_MESSAGE, returncode=TIMEOUT_RETURN_CODE)
+            kill_pg(p.pid)
+            return Bunch(stdout='', stderr=TIMEOUT_ERROR_MESSAGE, returncode=TIMEOUT_RETURN_CODE)
         outf.seek(0)
+        # Need to poll once to establish return code
+        p.poll()
         return Bunch(stdout=_read_str(outf), stderr=_read_str(p.stderr), returncode=p.returncode)
 
 

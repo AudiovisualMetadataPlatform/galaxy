@@ -38,7 +38,7 @@ class HistoryManager(sharable.SharableModelManager, deletable.PurgableManagerMix
     # TODO: incorporate imp/exp (or alias to)
 
     def __init__(self, app, *args, **kwargs):
-        super(HistoryManager, self).__init__(app, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
         self.hda_manager = hdas.HDAManager(app)
         self.contents_manager = history_contents.HistoryContentsManager(app)
         self.contents_filters = history_contents.HistoryContentsFilters(app)
@@ -59,7 +59,7 @@ class HistoryManager(sharable.SharableModelManager, deletable.PurgableManagerMix
         # handle default and/or anonymous user (which still may not have a history yet)
         if self.user_manager.is_anonymous(user):
             return [current_history] if current_history else []
-        return super(HistoryManager, self).by_user(user, **kwargs)
+        return super().by_user(user, **kwargs)
 
     def is_owner(self, history, user, current_history=None, **kwargs):
         """
@@ -70,7 +70,7 @@ class HistoryManager(sharable.SharableModelManager, deletable.PurgableManagerMix
             if current_history and history == current_history:
                 return True
             return False
-        return super(HistoryManager, self).is_owner(history, user)
+        return super().is_owner(history, user)
 
     # TODO: possibly to sharable or base
     def most_recent(self, user, filters=None, current_history=None, **kwargs):
@@ -99,7 +99,7 @@ class HistoryManager(sharable.SharableModelManager, deletable.PurgableManagerMix
                 self.hda_manager.purge(hda, flush=True)
 
         # Now mark the history as purged
-        super(HistoryManager, self).purge(history, flush=flush, **kwargs)
+        super().purge(history, flush=flush, **kwargs)
 
     # .... current
     # TODO: make something to bypass the anon user + current history permissions issue
@@ -169,6 +169,53 @@ class HistoryManager(sharable.SharableModelManager, deletable.PurgableManagerMix
         return jobs
 
 
+class HistoryExportView:
+
+    def __init__(self, app):
+        self.app = app
+
+    def get_exports(self, trans, history_id):
+        history = self._history(trans, history_id)
+        matching_exports = history.exports
+        return [self.serialize(trans, history_id, e) for e in matching_exports]
+
+    def serialize(self, trans, history_id, jeha):
+        rval = jeha.to_dict()
+        encoded_jeha_id = trans.security.encode_id(jeha.id)
+        api_url = self.app.url_for("history_archive_download", id=history_id, jeha_id=encoded_jeha_id)
+        # this URL is less likely to be blocked by a proxy and require an API key, so export
+        # older-style controller version for use with within the GUI and such.
+        external_url = self.app.url_for(controller='history', action="export_archive", id=history_id, qualified=True)
+        external_permanent_url = self.app.url_for(controller='history', action="export_archive", id=history_id, jeha_id=encoded_jeha_id, qualified=True)
+        rval["download_url"] = api_url
+        rval["external_download_latest_url"] = external_url
+        rval["external_download_permanent_url"] = external_permanent_url
+        rval = trans.security.encode_all_ids(rval)
+        return rval
+
+    def get_ready_jeha(self, trans, history_id, jeha_id="latest"):
+        history = self._history(trans, history_id)
+        matching_exports = history.exports
+        if jeha_id != "latest":
+            decoded_jeha_id = trans.security.decode_id(jeha_id)
+            matching_exports = [e for e in matching_exports if e.id == decoded_jeha_id]
+        if len(matching_exports) == 0:
+            raise glx_exceptions.ObjectNotFound("Failed to find target history export")
+
+        jeha = matching_exports[0]
+        if not jeha.ready:
+            raise glx_exceptions.MessageException("Export not available or not yet ready.")
+
+        return jeha
+
+    def _history(self, trans, history_id):
+        if history_id is not None:
+            history = self.app.history_manager.get_accessible(trans.security.decode_id(history_id), trans.user, current_history=trans.history)
+        else:
+            history = trans.history
+        return history
+
+
 class HistorySerializer(sharable.SharableModelSerializer, deletable.PurgableSerializerMixin):
     """
     Interface/service object for serializing histories into dictionaries.
@@ -177,7 +224,7 @@ class HistorySerializer(sharable.SharableModelSerializer, deletable.PurgableSeri
     SINGLE_CHAR_ABBR = 'h'
 
     def __init__(self, app, **kwargs):
-        super(HistorySerializer, self).__init__(app, **kwargs)
+        super().__init__(app, **kwargs)
 
         self.history_manager = self.manager
         self.hda_manager = hdas.HDAManager(app)
@@ -234,9 +281,36 @@ class HistorySerializer(sharable.SharableModelSerializer, deletable.PurgableSeri
             'hid_counter',
         ], include_keys_from='summary')
 
+        # beta web client fields, no summary/detailed/dev-detailed blah
+        self.add_view('betawebclient', [
+            'annotation',
+            'contents_active',
+            'contents_url',
+            'create_time',
+            'deleted',
+            'empty',
+            'genome_build',
+            'hid_counter',
+            'id',
+            'importable',
+            'name',
+            'nice_size',
+            'published',
+            'purged',
+            # 'shared',
+            'size',
+            'slug',
+            'state',
+            'tags',
+            'update_time',
+            'url',
+            'username_and_slug',
+            'user_id',
+        ])
+
     # assumes: outgoing to json.dumps and sanitized
     def add_serializers(self):
-        super(HistorySerializer, self).add_serializers()
+        super().add_serializers()
         deletable.PurgableSerializerMixin.add_serializers(self)
 
         self.serializers.update({
@@ -369,11 +443,11 @@ class HistoryDeserializer(sharable.SharableModelDeserializer, deletable.Purgable
     model_manager_class = HistoryManager
 
     def __init__(self, app):
-        super(HistoryDeserializer, self).__init__(app)
+        super().__init__(app)
         self.history_manager = self.manager
 
     def add_deserializers(self):
-        super(HistoryDeserializer, self).add_deserializers()
+        super().add_deserializers()
         deletable.PurgableDeserializerMixin.add_deserializers(self)
 
         self.deserializers.update({
@@ -387,10 +461,12 @@ class HistoryFilters(sharable.SharableModelFilters, deletable.PurgableFiltersMix
     model_manager_class = HistoryManager
 
     def _add_parsers(self):
-        super(HistoryFilters, self)._add_parsers()
+        super()._add_parsers()
         deletable.PurgableFiltersMixin._add_parsers(self)
         self.orm_filter_parsers.update({
             # history specific
             'name'          : {'op': ('eq', 'contains', 'like')},
             'genome_build'  : {'op': ('eq', 'contains', 'like')},
+            'create_time'   : {'op': ('le', 'ge', 'gt', 'lt'), 'val': self.parse_date},
+            'update_time'   : {'op': ('le', 'ge', 'gt', 'lt'), 'val': self.parse_date},
         })

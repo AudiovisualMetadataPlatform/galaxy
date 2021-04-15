@@ -6,7 +6,6 @@ The 'sequencer_type_id' column is renamed to 'external_service_type_id' in the r
 table 'external_service'. Finally, adds a foreign key to the external_service table in the
 sample_dataset table and populates it.
 """
-from __future__ import print_function
 
 import datetime
 import logging
@@ -25,11 +24,21 @@ metadata = MetaData()
 
 def nextval(migrate_engine, table, col='id'):
     if migrate_engine.name in ['postgres', 'postgresql']:
+<<<<<<< HEAD
         return "nextval('%s_%s_seq')" % (table, col)
     elif migrate_engine.name in ['mysql', 'sqlite']:
         return "null"
     else:
         raise Exception('Unable to convert data for unknown database type: %s' % migrate_engine.name)
+=======
+        cmd = "ALTER SEQUENCE sequencer_id_seq RENAME TO external_service_id_seq"
+        migrate_engine.execute(cmd)
+
+    # Add 'external_services_id' column to 'sample_dataset' table
+    SampleDataset_table = Table("sample_dataset", metadata, autoload=True)
+    col = Column("external_service_id", Integer, ForeignKey("external_service.id", name='sample_dataset_external_services_id_fk'), index=True)
+    add_column(col, SampleDataset_table, metadata, index_name="ix_sample_dataset_external_service_id")
+>>>>>>> refs/heads/release_21.01
 
 
 def upgrade(migrate_engine):
@@ -80,6 +89,7 @@ def upgrade(migrate_engine):
         migrate_engine.execute(cmd)
     # rename 'sequencer_type_id' column to 'external_service_type_id' in the table 'external_service'
     # create the column as 'external_service_type_id'
+<<<<<<< HEAD
     try:
         ExternalServices_table = Table("external_service", metadata, autoload=True)
         col = Column("external_service_type_id", TrimmedString(255))
@@ -87,6 +97,12 @@ def upgrade(migrate_engine):
         assert col is ExternalServices_table.c.external_service_type_id
     except Exception:
         log.exception("Creating column 'external_service_type_id' in the 'external_service' table failed.")
+=======
+    ExternalServices_table = Table("external_service", metadata, autoload=True)
+    col = Column("external_service_type_id", TrimmedString(255))
+    add_column(col, ExternalServices_table, metadata)
+
+>>>>>>> refs/heads/release_21.01
     # populate this new column
     cmd = "UPDATE external_service SET external_service_type_id=sequencer_type_id"
     migrate_engine.execute(cmd)
@@ -116,6 +132,7 @@ def upgrade(migrate_engine):
     result = migrate_engine.execute(cmd)
     results_list = result.fetchall()
     # Proceed only if request_types exists
+<<<<<<< HEAD
     if len(results_list):
         for row in results_list:
             request_type_id = row[0]
@@ -133,6 +150,21 @@ def upgrade(migrate_engine):
         RequestType_table.c.sequencer_id.drop()
     except Exception:
         log.exception("Deleting column 'sequencer_id' from the 'request_type' table failed.")
+=======
+    for row in results_list:
+        request_type_id = row[0]
+        sequencer_id = row[1]
+        if not sequencer_id:
+            sequencer_id = 'null'
+        cmd = "INSERT INTO request_type_external_service_association VALUES ( {}, {}, {} )".format(
+            nextval(migrate_engine, 'request_type_external_service_association'),
+            request_type_id,
+            sequencer_id)
+        migrate_engine.execute(cmd)
+
+    # TODO: Dropping a column used in a foreign key fails in MySQL, need to remove the FK first.
+    drop_column('sequencer_id', 'request_type', metadata)
+>>>>>>> refs/heads/release_21.01
 
 
 def downgrade(migrate_engine):
@@ -186,12 +218,19 @@ def downgrade(migrate_engine):
             log.exception("Deleting 'request_type_external_service_association' table failed.")
     # rename 'external_service_type_id' column to 'sequencer_type_id' in the table 'external_service'
     # create the column 'sequencer_type_id'
+<<<<<<< HEAD
     try:
         col = Column("sequencer_type_id", TrimmedString(255))
         col.create(ExternalServices_table)
         assert col is ExternalServices_table.c.sequencer_type_id
     except Exception:
         log.exception("Creating column 'sequencer_type_id' in the 'external_service' table failed.")
+=======
+    Sequencer_table = Table("sequencer", metadata, autoload=True)
+    col = Column("sequencer_type_id", TrimmedString(255))  # should also have nullable=False
+    add_column(col, Sequencer_table, metadata)
+
+>>>>>>> refs/heads/release_21.01
     # populate this new column
     cmd = "UPDATE external_service SET sequencer_type_id=external_service_type_id"
     migrate_engine.execute(cmd)

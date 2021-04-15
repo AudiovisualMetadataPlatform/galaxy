@@ -6,8 +6,13 @@ import os
 import re
 
 from galaxy import exceptions
+<<<<<<< HEAD
 from galaxy.web import expose_api_anonymous
 from galaxy.web.base.controller import BaseAPIController
+=======
+from galaxy.web import legacy_expose_api_anonymous
+from galaxy.webapps.base.controller import BaseAPIController
+>>>>>>> refs/heads/release_21.01
 
 log = logging.getLogger(__name__)
 

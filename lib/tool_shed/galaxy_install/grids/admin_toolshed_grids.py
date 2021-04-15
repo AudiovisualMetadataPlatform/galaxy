@@ -14,7 +14,7 @@ def generate_deprecated_repository_img_str(include_mouse_over=False):
         deprecated_tip_str = 'class="icon-button" title="This repository is deprecated in the Tool Shed"'
     else:
         deprecated_tip_str = ''
-    return '<img src="%s/images/icon_error_sml.gif" %s/>' % (url_for('/static'), deprecated_tip_str)
+    return '<img src="{}/images/icon_error_sml.gif" {}/>'.format(url_for('/static'), deprecated_tip_str)
 
 
 def generate_includes_workflows_img_str(include_mouse_over=False):
@@ -22,7 +22,7 @@ def generate_includes_workflows_img_str(include_mouse_over=False):
         deprecated_tip_str = 'class="icon-button" title="This repository contains exported workflows"'
     else:
         deprecated_tip_str = ''
-    return '<img src="%s/images/fugue/gear.png" %s/>' % (url_for('/static'), deprecated_tip_str)
+    return '<img src="{}/images/fugue/gear.png" {}/>'.format(url_for('/static'), deprecated_tip_str)
 
 
 def generate_latest_revision_img_str(include_mouse_over=False):
@@ -30,7 +30,7 @@ def generate_latest_revision_img_str(include_mouse_over=False):
         latest_revision_tip_str = 'class="icon-button" title="This is the latest installable revision of this repository"'
     else:
         latest_revision_tip_str = ''
-    return '<img src="%s/june_2007_style/blue/ok_small.png" %s/>' % (url_for('/static'), latest_revision_tip_str)
+    return '<img src="{}/style/ok_small.png" {}/>'.format(url_for('/static'), latest_revision_tip_str)
 
 
 def generate_revision_updates_img_str(include_mouse_over=False):
@@ -38,7 +38,7 @@ def generate_revision_updates_img_str(include_mouse_over=False):
         revision_updates_tip_str = 'class="icon-button" title="Updates are available in the Tool Shed for this revision"'
     else:
         revision_updates_tip_str = ''
-    return '<img src="%s/images/icon_warning_sml.gif" %s/>' % (url_for('/static'), revision_updates_tip_str)
+    return '<img src="{}/images/icon_warning_sml.gif" {}/>'.format(url_for('/static'), revision_updates_tip_str)
 
 
 def generate_revision_upgrades_img_str(include_mouse_over=False):
@@ -46,7 +46,7 @@ def generate_revision_upgrades_img_str(include_mouse_over=False):
         revision_upgrades_tip_str = 'class="icon-button" title="A newer installable revision is available for this repository"'
     else:
         revision_upgrades_tip_str = ''
-    return '<img src="%s/images/up.gif" %s/>' % (url_for('/static'), revision_upgrades_tip_str)
+    return '<img src="{}/images/up.gif" {}/>'.format(url_for('/static'), revision_upgrades_tip_str)
 
 
 def generate_unknown_img_str(include_mouse_over=False):
@@ -54,7 +54,7 @@ def generate_unknown_img_str(include_mouse_over=False):
         unknown_tip_str = 'class="icon-button" title="Unable to get information from the Tool Shed"'
     else:
         unknown_tip_str = ''
-    return '<img src="%s/june_2007_style/blue/question-octagon-frame.png" %s/>' % (url_for('/static'), unknown_tip_str)
+    return '<img src="{}/style/question-octagon-frame.png" {}/>'.format(url_for('/static'), unknown_tip_str)
 
 
 class InstalledRepositoryGrid(grids.Grid):
@@ -149,12 +149,6 @@ class InstalledRepositoryGrid(grids.Grid):
                                               key="free-text-search",
                                               visible=False,
                                               filterable="standard"))
-    global_actions = [
-        grids.GridAction(label="Update tool shed status",
-                         url_args=dict(controller='admin_toolshed',
-                                       action='update_tool_shed_status_for_installed_repository',
-                                       all_installed_repositories=True))
-    ]
     operations = [grids.GridOperation(label="Update tool shed status",
                                       condition=(lambda item: not item.deleted),
                                       allow_multiple=False),
@@ -192,14 +186,6 @@ class InstalledRepositoryGrid(grids.Grid):
                                       target="center",
                                       url_args=dict(controller='admin_toolshed',
                                                     action='deactivate_or_uninstall_repository')),
-                  grids.GridOperation(label="Reset to install",
-                                      condition=(lambda item:
-                                                 (item.status == tool_shed_install.ToolShedRepository.installation_status.ERROR)),
-                                      allow_multiple=False,
-                                      target='center',
-                                      url_args=dict(controller='admin_toolshed',
-                                                    action='reset_to_install',
-                                                    reset_repository=True)),
                   grids.GridOperation(label="Activate or reinstall",
                                       condition=(lambda item: item.deleted),
                                       allow_multiple=False,
@@ -212,7 +198,6 @@ class InstalledRepositoryGrid(grids.Grid):
                                       target='center',
                                       url_args=dict(controller='admin_toolshed',
                                                     action='purge_repository'))]
-    standard_filters = []
     default_filter = dict(deleted="False")
     num_rows_per_page = 50
     use_paging = False

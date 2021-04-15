@@ -10,17 +10,16 @@ set to the path of the dataset on which metadata is being set
 (output_filename_override could previously be left empty and the path would be
 constructed automatically).
 """
-import json
-import logging
+
 import os
 import sys
 
 # insert *this* galaxy before all others on sys.path
 sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)))
 
-from six.moves import cPickle
-from sqlalchemy.orm import clear_mappers
+from galaxy.metadata.set_metadata import set_metadata
 
+<<<<<<< HEAD
 import galaxy.model.mapping  # need to load this before we unpickle, in order to setup properties assigned by the mappers
 from galaxy.model.custom_types import total_size
 from galaxy.util import stringify_dictionary_keys
@@ -154,3 +153,6 @@ def set_metadata():
                 job_metadata_fh.write("%s\n" % (json.dumps(value)))
 
     clear_mappers()
+=======
+__all__ = ('set_metadata', )
+>>>>>>> refs/heads/release_21.01

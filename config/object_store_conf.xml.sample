@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version="1.0"?>
 <object_store type="hierarchical">
     <backends>
@@ -65,3 +66,6 @@
 
     </backends>
 </object_store>
+=======
+../lib/galaxy/config/sample/object_store_conf.xml.sample
+>>>>>>> refs/heads/release_21.01

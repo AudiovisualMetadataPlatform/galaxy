@@ -1,9 +1,7 @@
 """Return various facts for string formatting.
 """
 import socket
-from collections import MutableMapping
-
-from six import string_types
+from collections.abc import MutableMapping
 
 
 class Facts(MutableMapping):
@@ -31,7 +29,7 @@ class Facts(MutableMapping):
     def __set_config(self, config):
         if config is not None:
             for name in dir(config):
-                if not name.startswith('_') and isinstance(getattr(config, name), string_types):
+                if not name.startswith('_') and isinstance(getattr(config, name), str):
                     self.__dict__['config_' + name] = lambda name=name: getattr(config, name)
 
     def __getitem__(self, key):

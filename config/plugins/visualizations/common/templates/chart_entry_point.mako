@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 <%inherit file="visualization_base.mako"/>
 <%def name="stylesheets()">
-    ${h.css('jquery-ui/smoothness/jquery-ui')}
-    ${h.css('base')}
+    ${h.dist_css('base')}
     <%css_path = script_attributes.get("css") %>
     %if css_path is not None:
         <link rel="stylesheet" href="${static_url}${css_path}">
     %endif
 </%def>
 <%def name="javascripts()">
+<<<<<<< HEAD
     <script type="text/javascript">
         var Galaxy = Galaxy || parent.Galaxy || {
             root    : '${h.url_for( "/" )}',
@@ -23,6 +23,12 @@
            'bundled/libs.chunk',
            'bundled/base.chunk',
            'bundled/extended.bundled')}
+=======
+    ${h.dist_js(
+           'libs.chunk',
+           'base.chunk',
+           'generic.bundled')}
+>>>>>>> refs/heads/release_21.01
     <%src_path = script_attributes.get("src") %>
     <script type="text/javascript" src="${static_url}${src_path}"></script>
     <script type="text/javascript">

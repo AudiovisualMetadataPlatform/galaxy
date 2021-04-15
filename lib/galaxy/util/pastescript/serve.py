@@ -16,24 +16,27 @@
 # code here, stripping out uneeded functionality.
 
 # All top level imports from each package moved here and organized
-from __future__ import absolute_import
-from __future__ import print_function
 
 import atexit
+import configparser
 import errno
+import grp
 import logging
 import optparse
 import os
+import pwd
 import re
+import resource
 import signal
+import socket
 import subprocess
 import sys
 import textwrap
 import threading
 import time
+from gettext import gettext as _
 from logging.config import fileConfig
-
-from six.moves import configparser
+from typing import Optional
 
 from .loadwsgi import loadapp, loadserver
 
@@ -47,11 +50,6 @@ A subclass of ``optparse.OptionParser`` that allows boolean long
 options (like ``--verbose``) to also take arguments (like
 ``--verbose=true``).  Arguments *must* use ``=``.
 """
-
-try:
-    _ = optparse._
-except AttributeError:
-    from gettext import gettext as _
 
 
 class BoolOptionParser(optparse.OptionParser):
@@ -131,31 +129,31 @@ class BadCommand(Exception):
     message = property(_get_message, _set_message)
 
 
-class NoDefault(object):
+class NoDefault:
     pass
 
 
 # run and invoke methods moved below ServeCommand
-class Command(object):
+class Command:
 
     def __init__(self, name):
         self.command_name = name
 
     max_args = None
     max_args_error = 'You must provide no more than %(max_args)s arguments'
-    min_args = None
+    min_args: Optional[int] = None
     min_args_error = 'You must provide at least %(min_args)s arguments'
     required_args = None
     # If this command takes a configuration file, set this to 1 or -1
     # Then if invoked through #! the config file will be put into the positional
     # arguments -- at the beginning with 1, at the end with -1
-    takes_config_file = None
+    takes_config_file: Optional[int] = None
 
     # Grouped in help messages by this:
     group_name = ''
 
     required_args = ()
-    description = None
+    description: Optional[str] = None
     usage = ''
     hidden = False
     # This is the default verbosity level; --quiet subtracts,
@@ -234,7 +232,7 @@ class Command(object):
             usage = ' ' + self.usage
         else:
             usage = ''
-        self.parser.usage = "%%prog [options]%s\n%s" % (
+        self.parser.usage = "%prog [options]{}\n{}".format(
             usage, self.summary)
         self.parser.prog = self._prog_name()
         if self.description:
@@ -244,7 +242,7 @@ class Command(object):
         self.options, self.args = self.parser.parse_args(args)
 
     def _prog_name(self):
-        return '%s %s' % (os.path.basename(sys.argv[0]), self.command_name)
+        return '{} {}'.format(os.path.basename(sys.argv[0]), self.command_name)
 
     ########################################
     # Utility methods
@@ -258,7 +256,7 @@ class Command(object):
         else:
             return ' ' * (length - len(s)) + s
 
-    def standard_parser(cls, verbose=True,
+    def _standard_parser(cls, verbose=True,
                         interactive=False,
                         no_interactive=False,
                         simulate=False,
@@ -308,7 +306,7 @@ class Command(object):
                               help="Overwrite files (warnings will be emitted for non-matching files otherwise)")
         return parser
 
-    standard_parser = classmethod(standard_parser)
+    standard_parser = classmethod(_standard_parser)
 
     def quote_first_command_arg(self, arg):
         """
@@ -376,7 +374,7 @@ class NotFoundCommand(Command):
         print('Known commands:')
         longest = max([len(n) for n, c in commands])
         for name, command in commands:
-            print('  %s  %s' % (self.pad(name, length=longest),
+            print('  {}  {}'.format(self.pad(name, length=longest),
                                 command.load().summary))
         return 2
 
@@ -398,7 +396,7 @@ class ServeCommand(Command):
     usage = 'CONFIG_FILE [start|stop|restart|status] [var=value]'
     takes_config_file = 1
     summary = "Serve the described application"
-    description = """\
+    description: Optional[str] = """\
     This command serves a web application that uses a paste.deploy
     configuration file for the server and application.
 
@@ -593,7 +591,7 @@ class ServeCommand(Command):
         if self.options.log_file:
             try:
                 writeable_log_file = open(self.options.log_file, 'a')
-            except IOError as ioe:
+            except OSError as ioe:
                 msg = 'Error: Unable to write to log file: %s' % ioe
                 raise BadCommand(msg)
             writeable_log_file.close()
@@ -602,7 +600,7 @@ class ServeCommand(Command):
         if self.options.pid_file:
             try:
                 writeable_pid_file = open(self.options.pid_file, 'a')
-            except IOError as ioe:
+            except OSError as ioe:
                 msg = 'Error: Unable to write to pid file: %s' % ioe
                 raise BadCommand(msg)
             writeable_pid_file.close()
@@ -662,8 +660,7 @@ class ServeCommand(Command):
             except AttributeError as e:
                 # Capturing bad error response from paste
                 if str(e) == "'WSGIThreadPoolServer' object has no attribute 'thread_pool'":
-                    import socket
-                    raise socket.error(98, 'Address already in use')
+                    raise OSError(98, 'Address already in use')
                 else:
                     raise AttributeError(e)
 
@@ -699,7 +696,6 @@ class ServeCommand(Command):
 
         # @@: Should we set the umask and cwd now?
 
-        import resource  # Resource usage information.
         maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
         if maxfd == resource.RLIM_INFINITY:
             maxfd = MAXFD
@@ -722,7 +718,7 @@ class ServeCommand(Command):
     def record_pid(self, pid_file):
         pid = os.getpid()
         if self.verbose > 1:
-            print('Writing PID %s to %s' % (pid, pid_file))
+            print(f'Writing PID {pid} to {pid_file}')
         f = open(pid_file, 'w')
         f.write(str(pid))
         f.close()
@@ -742,11 +738,11 @@ class ServeCommand(Command):
             print("PID in %s is not valid (deleting)" % pid_file)
             try:
                 os.unlink(pid_file)
-            except (OSError, IOError) as e:
+            except OSError as e:
                 print("Could not delete: %s" % e)
                 return 2
             return 1
-        for j in range(10):
+        for _i in range(10):
             if not live_pidfile(pid_file):
                 break
             os.kill(pid, signal.SIGTERM)
@@ -769,7 +765,7 @@ class ServeCommand(Command):
             return 1
         pid = live_pidfile(pid_file)
         if not pid:
-            print('PID %s in %s is not running' % (pid, pid_file))
+            print(f'PID {pid} in {pid_file} is not running')
             return 1
         print('Server running in PID %s' % pid)
         return 0
@@ -806,7 +802,7 @@ class ServeCommand(Command):
                 if proc is not None and hasattr(os, 'kill'):
                     try:
                         os.kill(proc.pid, signal.SIGTERM)
-                    except (OSError, IOError):
+                    except OSError:
                         pass
 
             if reloader:
@@ -820,15 +816,12 @@ class ServeCommand(Command):
     def change_user_group(self, user, group):
         if not user and not group:
             return
-        import pwd
-        import grp
         uid = gid = None
         if group:
             try:
                 gid = int(group)
                 group = grp.getgrgid(gid).gr_name
             except ValueError:
-                import grp
                 try:
                     entry = grp.getgrnam(group)
                 except KeyError:
@@ -848,7 +841,7 @@ class ServeCommand(Command):
                 gid = entry.pw_gid
             uid = entry.pw_uid
         if self.verbose > 0:
-            print('Changing user to %s:%s (%s:%s)' % (
+            print('Changing user to {}:{} ({}:{})'.format(
                 user, group or '(unknown)', uid, gid))
         if hasattr(os, 'initgroups'):
             os.initgroups(user, gid)
@@ -861,7 +854,7 @@ class ServeCommand(Command):
             os.setuid(uid)
 
 
-class LazyWriter(object):
+class LazyWriter:
 
     """
     File-like object that opens a file lazily when it is first written
@@ -922,7 +915,7 @@ def read_pidfile(filename):
             content = f.read()
             f.close()
             return int(content.strip())
-        except (ValueError, IOError):
+        except (ValueError, OSError):
             return None
     else:
         return None
@@ -945,7 +938,7 @@ def _remove_pid_file(written_pid, filename, verbosity):
         pass
     else:
         if pid_in_file != current_pid:
-            print("PID file %s contains %s, not expected PID %s" % (
+            print("PID file {} contains {}, not expected PID {}".format(
                 filename, pid_in_file, current_pid))
             return
     if verbosity > 0:
@@ -962,7 +955,7 @@ def _remove_pid_file(written_pid, filename, verbosity):
         f.write('')
         f.close()
     except OSError as e:
-        print('Stale PID left in file: %s (%e)' % (filename, e))
+        print(f'Stale PID left in file: {filename} ({e:e})')
     else:
         print('Stale PID removed')
 
@@ -983,15 +976,13 @@ def ensure_port_cleanup(bound_addresses, maxtries=30, sleeptime=2):
 
 def _cleanup_ports(bound_addresses, maxtries=30, sleeptime=2):
     # Wait for the server to bind to the port.
-    import socket
-    import errno
     for bound_address in bound_addresses:
-        for attempt in range(maxtries):
+        for _i in range(maxtries):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
                 sock.connect(bound_address)
-            except socket.error as e:
-                if e.args[0] != errno.ECONNREFUSED:
+            except OSError as e:
+                if e.errno != errno.ECONNREFUSED:
                     raise
                 break
             else:

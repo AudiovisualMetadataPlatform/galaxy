@@ -12,8 +12,13 @@ def main():
     parser.add_argument('target', metavar='FILE', type=str,
                         help='file describing data library to fetch')
     args = parser.parse_args()
+<<<<<<< HEAD
     with open(args.target, "r") as f:
         target = yaml.load(f)
+=======
+    with open(args.target) as f:
+        target = yaml.safe_load(f)
+>>>>>>> refs/heads/release_21.01
 
     histories_url = args.url + "/api/histories"
     new_history_response = requests.post(histories_url, data={'key': args.api_key})

@@ -1,7 +1,9 @@
 # A simple CLI runner for slurm that can be used when running Galaxy from a
 # non-submit host and using a Slurm cluster.
 from logging import getLogger
+from os import path
 
+<<<<<<< HEAD
 try:
     from galaxy.model import Job
     job_states = Job.states
@@ -11,6 +13,10 @@ except ImportError:
     job_states = enum(RUNNING='running', OK='complete', QUEUED='queued', ERROR="failed")
 
 from ..job import BaseJobExec
+=======
+from galaxy.jobs import JobState
+from ..job import BaseJobExec, job_states
+>>>>>>> refs/heads/release_21.01
 
 log = getLogger(__name__)
 
@@ -36,7 +42,7 @@ class LSF(BaseJobExec):
 
         # Map arguments using argmap.
         for k, v in self.params.items():
-            if k == 'plugin':
+            if k == 'plugin' or k == 'excluded_hosts':
                 continue
             try:
                 if k == 'memory':
@@ -51,7 +57,10 @@ class LSF(BaseJobExec):
         # Generated template.
         template_scriptargs = ''
         for k, v in scriptargs.items():
-            template_scriptargs += '#BSUB %s %s\n' % (k, v)
+            template_scriptargs += f'#BSUB {k} {v}\n'
+        # Excluded hosts use the same -R option already in use for mem, so easier adding here.
+        for host in self._get_excluded_hosts():
+            template_scriptargs += f'#BSUB -R \"select[hname!=\'{host}\']\"\n'
         return dict(headers=template_scriptargs)
 
     def submit(self, script_file):
@@ -111,6 +120,31 @@ class LSF(BaseJobExec):
             }.get(state)
         except KeyError:
             raise KeyError("Failed to map LSF status code [%s] to job state." % state)
+
+    def _get_excluded_hosts(self):
+        """
+        Reads a file in the set path with one node name per line. All these nodes will be added
+        to the exclusion list for execution.
+
+        The path can be added to destinations like this:
+
+        <destination id="lsf_8cpu_16GbRam" runner="cli">
+            <param id="shell_plugin">LocalShell</param>
+            <param id="job_plugin">LSF</param>
+            <param id="job_memory">16000</param>
+            <param id="job_cores">7</param>
+            <param id="job_excluded_hosts">/path/to/file/with/hosts/to/exclude/one/per/line.txt</param>
+        </destination>
+
+        :param pathExcludedNodes:
+        :return: list with node names
+        """
+        if "excluded_hosts" in self.params:
+            path_excluded = self.params["excluded_hosts"]
+            if path.isfile(path_excluded):
+                with open(path_excluded) as f:
+                    return f.read().splitlines()
+        return []
 
 
 __all__ = ('LSF',)

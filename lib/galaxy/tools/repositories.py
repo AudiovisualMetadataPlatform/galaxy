@@ -9,7 +9,7 @@ from galaxy.util.bunch import Bunch
 from galaxy.util.dbkeys import GenomeBuilds
 
 
-class ValidationContext(object):
+class ValidationContext:
     """Minimal App object for tool validation."""
 
     def __init__(self, app_name,
@@ -29,6 +29,7 @@ class ValidationContext(object):
         self.temporary_path = tempfile.mkdtemp(prefix='tool_validation_')
         self.config.tool_data_table_config = os.path.join(self.temporary_path, 'tool_data_table_conf.xml')
         self.config.shed_tool_data_table_config = os.path.join(self.temporary_path, 'shed_tool_data_table_conf.xml')
+        self.config.interactivetools_enable = True
         self.tool_data_tables = tool_data_tables
         self.datatypes_registry = registry
         self.hgweb_config_manager = hgweb_config_manager

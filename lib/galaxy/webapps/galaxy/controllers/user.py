@@ -6,8 +6,10 @@ import logging
 import random
 import socket
 from datetime import datetime, timedelta
+from urllib.parse import unquote
 
 from markupsafe import escape
+<<<<<<< HEAD
 from six.moves.urllib.parse import unquote
 from sqlalchemy import (
     and_,
@@ -15,6 +17,8 @@ from sqlalchemy import (
     or_,
     true
 )
+=======
+>>>>>>> refs/heads/release_21.01
 from sqlalchemy.orm.exc import NoResultFound
 
 from galaxy import (
@@ -22,16 +26,20 @@ from galaxy import (
     util,
     web
 )
+<<<<<<< HEAD
+=======
+from galaxy.exceptions import Conflict
+from galaxy.managers import users
+>>>>>>> refs/heads/release_21.01
 from galaxy.queue_worker import send_local_control_task
 from galaxy.security.validate_user_input import (
     transform_publicname,
     validate_email,
-    validate_password,
     validate_publicname
 )
 from galaxy.util import biostar, hash_util
 from galaxy.web import url_for
-from galaxy.web.base.controller import (
+from galaxy.webapps.base.controller import (
     BaseUIController,
     CreatesApiKeysMixin,
     CreatesUsersMixin,
@@ -86,6 +94,7 @@ class User(BaseUIController, UsesFormDefinitionsMixin, CreatesUsersMixin, Create
     user_openid_grid = UserOpenIDGrid()
     installed_len_files = None
 
+<<<<<<< HEAD
     @web.expose
     def openid_auth(self, trans, **kwd):
         '''Handles user request to access an OpenID provider'''
@@ -485,6 +494,11 @@ class User(BaseUIController, UsesFormDefinitionsMixin, CreatesUsersMixin, Create
                                    openid_providers=trans.app.openid_providers,
                                    form_input_auto_focus=True,
                                    active_view="user")
+=======
+    def __init__(self, app):
+        super().__init__(app)
+        self.user_manager = users.UserManager(app)
+>>>>>>> refs/heads/release_21.01
 
     def __handle_role_and_group_auto_creation(self, trans, user, roles, auto_create_roles=False,
                                               auto_create_groups=False, auto_assign_roles_to_groups_only=False):
@@ -525,15 +539,29 @@ class User(BaseUIController, UsesFormDefinitionsMixin, CreatesUsersMixin, Create
         """
         Does the autoregistration if enabled. Returns a message
         """
+<<<<<<< HEAD
         skip_login_handling = cntrller == 'admin' and trans.user_is_admin
         autoreg = trans.app.auth_manager.check_auto_registration(trans, login, password, no_password_check=no_password_check)
+=======
+        try:
+            autoreg = trans.app.auth_manager.check_auto_registration(trans, login, password)
+        except Conflict as conflict:
+            return f"Auto-registration failed, {conflict}", None
+>>>>>>> refs/heads/release_21.01
         user = None
         success = False
         if autoreg["auto_reg"]:
+<<<<<<< HEAD
             kwd['email'] = autoreg["email"]
             kwd['username'] = autoreg["username"]
             message = " ".join([validate_email(trans, kwd['email'], allow_empty=True),
                                 validate_publicname(trans, kwd['username'])]).rstrip()
+=======
+            email = autoreg["email"]
+            username = autoreg["username"]
+            message = " ".join((validate_email(trans, email, allow_empty=True),
+                                validate_publicname(trans, username))).rstrip()
+>>>>>>> refs/heads/release_21.01
             if not message:
                 message, status, user, success = self.__register(trans, cntrller, False, no_redirect=skip_login_handling, **kwd)
                 if success:
@@ -557,6 +585,7 @@ class User(BaseUIController, UsesFormDefinitionsMixin, CreatesUsersMixin, Create
             message = "No such user or invalid password"
         return message, status, user, success
 
+<<<<<<< HEAD
     def __validate_login(self, trans, **kwd):
         """Validates numerous cases that might happen during the login time."""
         status = kwd.get('status', 'error')
@@ -569,6 +598,27 @@ class User(BaseUIController, UsesFormDefinitionsMixin, CreatesUsersMixin, Create
             trans.app.model.User.table.c.email == login,
             trans.app.model.User.table.c.username == login
         )).first()
+=======
+    @expose_api_anonymous_and_sessionless
+    def login(self, trans, payload=None, **kwd):
+        payload = payload or {}
+        return self.__validate_login(trans, payload, **kwd)
+
+    def __validate_login(self, trans, payload=None, **kwd):
+        '''Handle Galaxy Log in'''
+        if not payload:
+            payload = kwd
+        message = trans.check_csrf_token(payload)
+        if message:
+            return self.message_exception(trans, message)
+        login = payload.get("login")
+        password = payload.get("password")
+        redirect = payload.get("redirect")
+        status = None
+        if not login or not password:
+            return self.message_exception(trans, "Please specify a username and password.")
+        user = self.user_manager.get_user_by_identity(login)
+>>>>>>> refs/heads/release_21.01
         log.debug("trans.app.config.auth_config_file: %s" % trans.app.config.auth_config_file)
         if not user:
             message, status, user, success = self.__autoregistration(trans, login, password, status, kwd)
@@ -640,13 +690,19 @@ class User(BaseUIController, UsesFormDefinitionsMixin, CreatesUsersMixin, Create
         Function resends the verification email in case user wants to log in with an inactive account or he clicks the resend link.
         """
         if email is None:  # User is coming from outside registration form, load email from trans
+            if not trans.user:
+                return "No session found, cannot send activation email.", None
             email = trans.user.email
         if username is None:  # User is coming from outside registration form, load email from trans
             username = trans.user.username
         is_activation_sent = self.send_verification_email(trans, email, username)
         if is_activation_sent:
+<<<<<<< HEAD
             message = 'This account has not been activated yet. The activation link has been sent again. Please check your email address <b>%s</b> including the spam/trash folder.<br><a target="_top" href="%s">Return to the home page</a>.' % (escape(email), url_for('/'))
             status = 'error'
+=======
+            message = 'This account has not been activated yet. The activation link has been sent again. Please check your email address <b>{}</b> including the spam/trash folder. <a target="_top" href="{}">Return to the home page</a>.'.format(escape(email), url_for('/'))
+>>>>>>> refs/heads/release_21.01
         else:
             message = 'This account has not been activated yet but we are unable to send the activation link. Please contact your local Galaxy administrator.<br><a target="_top" href="%s">Return to the home page</a>.' % url_for('/')
             status = 'error'
@@ -665,12 +721,33 @@ class User(BaseUIController, UsesFormDefinitionsMixin, CreatesUsersMixin, Create
         return (time_difference > delta or activation_grace_period == 0)
 
     @web.expose
+    @web.json
     def logout(self, trans, logout_all=False, **kwd):
+<<<<<<< HEAD
         if trans.webapp.name == 'galaxy':
             csrf_check = trans.check_csrf_token()
             if csrf_check:
                 return csrf_check
+=======
+        message = trans.check_csrf_token(kwd)
+        if message:
+            return self.message_exception(trans, message)
+        if trans.user:
+            # Queue a quota recalculation (async) task -- this takes a
+            # while sometimes, so we don't want to block on logout.
+            send_local_control_task(trans.app,
+                                    "recalculate_user_disk_usage",
+                                    kwargs={"user_id": trans.security.encode_id(trans.user.id)})
+        # Since logging an event requires a session, we'll log prior to ending the session
+        trans.log_event("User logged out")
+        trans.handle_user_logout(logout_all=logout_all)
+        success_response = {"message": "Success."}  # This is a little weird as a response.
+        if trans.app.config.use_remote_user and trans.app.config.remote_user_logout_href:
+            success_response["redirect_uri"] = trans.app.config.remote_user_logout_href
+        return success_response
+>>>>>>> refs/heads/release_21.01
 
+<<<<<<< HEAD
             if trans.app.config.require_login:
                 refresh_frames = ['masthead', 'history', 'tools']
             else:
@@ -917,6 +994,23 @@ class User(BaseUIController, UsesFormDefinitionsMixin, CreatesUsersMixin, Create
             trans.sa_session.add(user)
             trans.sa_session.flush()
         return activation_token
+=======
+    @expose_api_anonymous_and_sessionless
+    def create(self, trans, payload=None, **kwd):
+        if not payload:
+            payload = kwd
+        message = trans.check_csrf_token(payload)
+        if message:
+            return self.message_exception(trans, message)
+        user, message = self.user_manager.register(trans, **_filtered_registration_params_dict(payload))
+        if message:
+            return self.message_exception(trans, message, sanitize=False)
+        elif user and not trans.user_is_admin:
+            trans.handle_user_login(user)
+            trans.log_event("User created a new account")
+            trans.log_event("User logged in")
+        return {"message": "Success."}
+>>>>>>> refs/heads/release_21.01
 
     @web.expose
     def activate(self, trans, **kwd):
@@ -943,18 +1037,42 @@ class User(BaseUIController, UsesFormDefinitionsMixin, CreatesUsersMixin, Create
                 return trans.show_ok_message("Your account is already active. Nothing has changed. <br><a href='%s'>Go to login page.</a>") % web.url_for(controller='root', action='index')
             if user.activation_token == activation_token:
                 user.activation_token = None
-                user.active = True
-                trans.sa_session.add(user)
-                trans.sa_session.flush()
+                self.user_manager.activate(user)
                 return trans.show_ok_message("Your account has been successfully activated! <br><a href='%s'>Go to login page.</a>") % web.url_for(controller='root', action='index')
             else:
                 #  Tokens don't match. Activation is denied.
                 return trans.show_error_message("You are using an invalid activation link. Try to log in and we will send you a new activation email. <br><a href='%s'>Go to login page.</a>") % web.url_for(controller='root', action='index')
         return
 
+<<<<<<< HEAD
     @web.expose
     def reset_password(self, trans, email=None, **kwd):
+=======
+    @expose_api_anonymous_and_sessionless
+    def change_password(self, trans, payload=None, **kwd):
+        """
+        Allows to change own password.
+
+        :type   payload: dict
+        :param  payload: dictionary structure containing:
+            * id:               encoded user id
+            * current:          current user password
+            * token:            temporary token to change password (instead of id and current)
+            * password:         new password
+            * confirm:          new password (confirmation)
+        """
+        payload = payload or {}
+        user, message = self.user_manager.change_password(trans, **payload)
+        if user is None:
+            return self.message_exception(trans, message)
+        trans.handle_user_login(user)
+        return {"message": "Password has been changed."}
+
+    @expose_api_anonymous_and_sessionless
+    def reset_password(self, trans, payload=None, **kwd):
+>>>>>>> refs/heads/release_21.01
         """Reset the user's password. Send an email with token that allows a password change."""
+<<<<<<< HEAD
         if trans.app.config.smtp_server is None:
             return trans.show_error_message("Mail is not configured for this Galaxy instance "
                                             "and password reset information cannot be sent. "
@@ -996,7 +1114,15 @@ class User(BaseUIController, UsesFormDefinitionsMixin, CreatesUsersMixin, Create
         return trans.fill_template('/user/reset_password.mako',
                                    message=message,
                                    status=status)
+=======
+        payload = payload or {}
+        message = self.user_manager.send_reset_email(trans, payload)
+        if message:
+            return self.message_exception(trans, message)
+        return {"message": "Reset link has been sent to your email."}
+>>>>>>> refs/heads/release_21.01
 
+<<<<<<< HEAD
     def __validate(self, trans, params, email, password, confirm, username):
         # If coming from the tool shed webapp, we'll require a public user name
         if trans.webapp.name == 'tool_shed':
@@ -1045,6 +1171,8 @@ class User(BaseUIController, UsesFormDefinitionsMixin, CreatesUsersMixin, Create
         if trans.user:
             trans.log_action(trans.get_user(), action, context, params)
 
+=======
+>>>>>>> refs/heads/release_21.01
     def __get_redirect_url(self, redirect):
         root_url = url_for('/', qualified=True)
         # compare urls, to prevent a redirect from pointing (directly) outside of galaxy

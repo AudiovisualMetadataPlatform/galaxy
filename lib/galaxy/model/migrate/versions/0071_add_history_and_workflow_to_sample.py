@@ -1,7 +1,6 @@
 """
 Migration script to add 'workflow' and 'history' columns for a sample.
 """
-from __future__ import print_function
 
 import logging
 
@@ -17,6 +16,7 @@ def upgrade(migrate_engine):
     metadata.bind = migrate_engine
     print(__doc__)
     metadata.reflect()
+<<<<<<< HEAD
     try:
         Sample_table = Table("sample", metadata, autoload=True)
         c1 = Column("workflow", JSONType, nullable=True)
@@ -27,6 +27,15 @@ def upgrade(migrate_engine):
         assert c2 is Sample_table.c.history_id
     except Exception:
         log.exception("Adding history and workflow columns to sample table failed.")
+=======
+
+    Sample_table = Table("sample", metadata, autoload=True)
+    c1 = Column("workflow", JSONType, nullable=True)
+    add_column(c1, Sample_table, metadata)
+
+    c2 = Column("history_id", Integer, ForeignKey("history.id"), nullable=True)
+    add_column(c2, Sample_table, metadata)
+>>>>>>> refs/heads/release_21.01
 
 
 def downgrade(migrate_engine):

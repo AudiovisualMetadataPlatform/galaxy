@@ -1,7 +1,6 @@
 """
 Migration script for workflow paths.
 """
-from __future__ import print_function
 
 import logging
 
@@ -12,10 +11,16 @@ from sqlalchemy import (
     TEXT,
 )
 
+<<<<<<< HEAD
+=======
+from galaxy.model.migrate.versions.util import (
+    add_column,
+    drop_column
+)
+
+>>>>>>> refs/heads/release_21.01
 log = logging.getLogger(__name__)
 metadata = MetaData()
-
-from_path_column = Column("from_path", TEXT, nullable=True)
 
 
 def upgrade(migrate_engine):
@@ -23,7 +28,12 @@ def upgrade(migrate_engine):
     print(__doc__)
     metadata.reflect()
 
+<<<<<<< HEAD
     _add_column(from_path_column, "stored_workflow", metadata)
+=======
+    from_path_column = Column("from_path", TEXT)
+    add_column(from_path_column, "stored_workflow", metadata)
+>>>>>>> refs/heads/release_21.01
 
 
 def downgrade(migrate_engine):

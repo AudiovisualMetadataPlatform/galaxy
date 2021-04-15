@@ -1,15 +1,15 @@
 from contextlib import contextmanager
 from os.path import join
 
+from galaxy.tool_shed.galaxy_install.tool_dependencies.env_manager import EnvManager
+from galaxy.tool_shed.galaxy_install.tool_dependencies.recipe.env_file_builder import EnvFileBuilder
 from galaxy.util import parse_xml_string
-from tool_shed.galaxy_install.tool_dependencies.env_manager import EnvManager
-from tool_shed.galaxy_install.tool_dependencies.recipe.env_file_builder import EnvFileBuilder
 
 TEST_DEPENDENCIES_DIR = "/opt/galaxy/dependencies"
 TEST_INSTALL_DIR = "%s/test_install_dir" % TEST_DEPENDENCIES_DIR
 
 
-class MockApp(object):
+class MockApp:
 
     def __init__(self):
         pass

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version="1.0"?>
 <OIDC>
     <provider name="Google">
@@ -23,3 +24,6 @@
         -->
     </provider>
 </OIDC>
+=======
+../lib/galaxy/config/sample/oidc_backends_config.xml.sample
+>>>>>>> refs/heads/release_21.01

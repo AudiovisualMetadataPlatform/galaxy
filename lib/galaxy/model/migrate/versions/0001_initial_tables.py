@@ -1,13 +1,28 @@
 import datetime
 import logging
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, MetaData, Numeric, String, Table, TEXT
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    MetaData,
+    Numeric,
+    String,
+    Table,
+    TEXT
+)
 
 # Need our custom types, but don't import anything else from model
-from galaxy.model.custom_types import JSONType, MetadataType, TrimmedString
+from galaxy.model.custom_types import (
+    JSONType,
+    MetadataType,
+    TrimmedString
+)
 
-now = datetime.datetime.utcnow
 log = logging.getLogger(__name__)
+now = datetime.datetime.utcnow
 metadata = MetaData()
 
 # Tables as of changeset 1464:c7acaa1bb88f
@@ -43,7 +58,7 @@ HistoryDatasetAssociation_table = Table("history_dataset_association", metadata,
     Column("blurb", TrimmedString(255)),
     Column("peek", TEXT),
     Column("extension", TrimmedString(64)),
-    Column("metadata", MetadataType(), key="_metadata"),
+    Column("metadata", MetadataType, key="_metadata"),
     Column("parent_id", Integer, ForeignKey("history_dataset_association.id"), nullable=True),
     Column("designation", TrimmedString(255)),
     Column("deleted", Boolean, index=True, default=False),
@@ -197,5 +212,6 @@ StoredWorkflowMenuEntry_table = Table("stored_workflow_menu_entry", metadata,
 
 
 def upgrade(migrate_engine):
+    print(__doc__)
     metadata.bind = migrate_engine
     metadata.create_all()

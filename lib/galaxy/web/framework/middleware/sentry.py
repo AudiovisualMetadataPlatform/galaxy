@@ -13,14 +13,14 @@ try:
 except ImportError:
     Client = None
 
-from galaxy.web.stack import register_postfork_function
+from galaxy.web_stack import register_postfork_function
 
 
 RAVEN_IMPORT_MESSAGE = ('The Python raven package is required to use this '
                         'feature, please install it')
 
 
-class Sentry(object):
+class Sentry:
     """
     A WSGI middleware which will attempt to capture any
     uncaught exceptions and send them to Sentry.
@@ -49,8 +49,7 @@ class Sentry(object):
             raise
 
         try:
-            for event in iterable:
-                yield event
+            yield from iterable
         except Exception:
             self.handle_exception(environ)
             raise

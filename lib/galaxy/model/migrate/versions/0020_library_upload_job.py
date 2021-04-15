@@ -5,23 +5,14 @@ added to the job table, and library_folder/output_library_datasets relations
 are added to the Job object.  An index is also added to the dataset.state
 column.
 """
-from __future__ import print_function
 
 import logging
-import sys
 
 from migrate import ForeignKeyConstraint
 from sqlalchemy import Column, ForeignKey, Index, Integer, MetaData, String, Table
 from sqlalchemy.exc import NoSuchTableError
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-handler = logging.StreamHandler(sys.stdout)
-format = "%(name)s %(levelname)s %(asctime)s %(message)s"
-formatter = logging.Formatter(format)
-handler.setFormatter(formatter)
-log.addHandler(handler)
-
 metadata = MetaData()
 
 JobToOutputLibraryDatasetAssociation_table = Table("job_to_output_library_dataset", metadata,
@@ -42,6 +33,7 @@ def upgrade(migrate_engine):
     except Exception:
         log.exception("Creating job_to_output_library_dataset table failed.")
     # Create the library_folder_id column
+<<<<<<< HEAD
     try:
         Job_table = Table("job", metadata, autoload=True)
     except NoSuchTableError:
@@ -71,6 +63,11 @@ def upgrade(migrate_engine):
                     cons.create()
                 except Exception:
                     log.exception("Adding foreign key constraint 'job_library_folder_id_fk' to table 'library_folder' failed.")
+=======
+    col = Column("library_folder_id", Integer, ForeignKey('library_folder.id', name='job_library_folder_id_fk'), index=True)
+    add_column(col, 'job', metadata, index_name='ix_job_library_folder_id')
+
+>>>>>>> refs/heads/release_21.01
     # Create the ix_dataset_state index
     try:
         Dataset_table = Table("dataset", metadata, autoload=True)

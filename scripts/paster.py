@@ -4,7 +4,6 @@ Bootstrap the Galaxy framework.
 This should not be called directly!  Use the run.sh script in Galaxy's
 top level directly.
 """
-from __future__ import absolute_import
 
 import os
 import sys
@@ -19,9 +18,5 @@ try:
     check_python()
 except Exception:
     sys.exit(1)
-
-if 'LOG_TEMPFILES' in os.environ:
-    from log_tempfile import TempFile
-    _log_tempfile = TempFile()
 
 serve.run()

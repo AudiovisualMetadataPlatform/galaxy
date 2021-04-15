@@ -1,14 +1,10 @@
 import imp
 import logging
 import os
-import time
 from datetime import datetime, timedelta
-from string import punctuation as PUNCTUATION
 
-import six
 from sqlalchemy import and_, false, or_
 
-import galaxy.queue_worker
 from galaxy import (
     model,
     util,
@@ -17,28 +13,23 @@ from galaxy import (
 from galaxy.actions.admin import AdminActions
 from galaxy.exceptions import ActionInputError, MessageException
 from galaxy.model import tool_shed_install as install_model
+from galaxy.security.validate_user_input import validate_password
+from galaxy.tool_shed.util.repository_util import get_ids_of_tool_shed_repositories_being_installed
 from galaxy.util import (
     nice_size,
     sanitize_text,
     url_get
 )
-from galaxy.util.hash_util import new_secure_hash
-from galaxy.util.odict import odict
+from galaxy.util.tool_shed import common_util, encoding_util
 from galaxy.web import url_for
-from galaxy.web.base import controller
-from galaxy.web.base.controller import UsesQuotaMixin
 from galaxy.web.framework.helpers import grids, time_ago
 from galaxy.web.params import QuotaParamParser
-from tool_shed.util import (
-    common_util,
-    encoding_util,
-    repository_util
-)
+from galaxy.webapps.base import controller
+from galaxy.webapps.base.controller import UsesQuotaMixin
 from tool_shed.util.web_util import escape
 
 
 log = logging.getLogger(__name__)
-compliance_log = logging.getLogger('COMPLIANCE')
 
 
 class UserListGrid(grids.Grid):
@@ -96,12 +87,9 @@ class UserListGrid(grids.Grid):
             else:
                 return 'N'
 
-    class APIKeyColumn(grids.GridColumn):
+    class DiskUsageColumn(grids.GridColumn):
         def get_value(self, trans, grid, user):
-            if user.api_keys:
-                return user.api_keys[0].key
-            else:
-                return ""
+            return user.get_disk_usage(nice_size=True)
 
     # Grid definition
     title = "Users"
@@ -111,26 +99,25 @@ class UserListGrid(grids.Grid):
     columns = [
         EmailColumn("Email",
                     key="email",
-                    model_class=model.User,
                     link=(lambda item: dict(controller="user", action="information", id=item.id, webapp="galaxy")),
                     attach_popup=True,
                     filterable="advanced",
                     target="top"),
         UserNameColumn("User Name",
                        key="username",
-                       model_class=model.User,
                        attach_popup=False,
                        filterable="advanced"),
-        GroupsColumn("Groups", attach_popup=False),
-        RolesColumn("Roles", attach_popup=False),
-        ExternalColumn("External", attach_popup=False),
         LastLoginColumn("Last Login", format=time_ago),
+        DiskUsageColumn("Disk Usage", key="disk_usage", attach_popup=False),
         StatusColumn("Status", attach_popup=False),
         TimeCreatedColumn("Created", attach_popup=False),
         ActivatedColumn("Activated", attach_popup=False),
-        APIKeyColumn("API Key", attach_popup=False),
+        GroupsColumn("Groups", attach_popup=False),
+        RolesColumn("Roles", attach_popup=False),
+        ExternalColumn("External", attach_popup=False),
         # Columns that are valid for filtering but are not visible.
-        grids.DeletedColumn("Deleted", key="deleted", visible=False, filterable="advanced")
+        grids.DeletedColumn("Deleted", key="deleted", visible=False, filterable="advanced"),
+        grids.PurgedColumn("Purged", key="purged", visible=False, filterable="advanced")
     ]
     columns.append(grids.MulticolFilterColumn("Search",
                                               cols_to_filter=[columns[0], columns[1]],
@@ -160,8 +147,8 @@ class UserListGrid(grids.Grid):
         grids.GridOperation("Generate New API Key",
                             allow_multiple=False,
                             async_compatible=True)
-
     ]
+
     standard_filters = [
         grids.GridColumnFilter("Active", args=dict(deleted=False)),
         grids.GridColumnFilter("Deleted", args=dict(deleted=True, purged=False)),
@@ -170,6 +157,8 @@ class UserListGrid(grids.Grid):
     ]
     num_rows_per_page = 50
     use_paging = True
+    default_filter = dict(purged="False")
+    use_default_filter = True
 
     def get_current_item(self, trans, **kwargs):
         return trans.user
@@ -458,6 +447,7 @@ class QuotaListGrid(grids.Grid):
     standard_filters = [
         grids.GridColumnFilter("Active", args=dict(deleted=False)),
         grids.GridColumnFilter("Deleted", args=dict(deleted=True)),
+        grids.GridColumnFilter("Purged", args=dict(purged=True)),
         grids.GridColumnFilter("All", args=dict(deleted='All'))
     ]
     num_rows_per_page = 50
@@ -472,7 +462,7 @@ class ToolVersionListGrid(grids.Grid):
             if toolbox.has_tool(tool_version.tool_id, exact=True):
                 link = url_for(controller='tool_runner', tool_id=tool_version.tool_id)
                 link_str = '<a target="_blank" href="%s">' % link
-                return '<div class="count-box state-color-ok">%s%s</a></div>' % (link_str, tool_version.tool_id)
+                return f'<div class="count-box state-color-ok">{link_str}{tool_version.tool_id}</a></div>'
             return tool_version.tool_id
 
     class ToolVersionsColumn(grids.TextColumn):
@@ -485,7 +475,7 @@ class ToolVersionListGrid(grids.Grid):
                     if toolbox.has_tool(tool_id, exact=True):
                         link = url_for(controller='tool_runner', tool_id=tool_id)
                         link_str = '<a target="_blank" href="%s">' % link
-                        tool_ids_str += '<div class="count-box state-color-ok">%s%s</a></div><br/>' % (link_str, tool_id)
+                        tool_ids_str += f'<div class="count-box state-color-ok">{link_str}{tool_id}</a></div><br/>'
                     else:
                         tool_ids_str += '%s<br/>' % tool_version.tool_id
             else:
@@ -507,10 +497,6 @@ class ToolVersionListGrid(grids.Grid):
                                               key="free-text-search",
                                               visible=False,
                                               filterable="standard"))
-    global_actions = []
-    operations = []
-    standard_filters = []
-    default_filter = {}
     num_rows_per_page = 50
     use_paging = True
 
@@ -525,14 +511,17 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
     group_list_grid = GroupListGrid()
     quota_list_grid = QuotaListGrid()
     tool_version_list_grid = ToolVersionListGrid()
-    delete_operation = grids.GridOperation("Delete", condition=(lambda item: not item.deleted), allow_multiple=True)
+    delete_operation = grids.GridOperation("Delete", condition=(lambda item: not item.deleted and not item.purged), allow_multiple=True)
     undelete_operation = grids.GridOperation("Undelete", condition=(lambda item: item.deleted and not item.purged), allow_multiple=True)
     purge_operation = grids.GridOperation("Purge", condition=(lambda item: item.deleted and not item.purged), allow_multiple=True)
     impersonate_operation = grids.GridOperation(
         "Impersonate",
         url_args=dict(controller="admin", action="impersonate"),
+        condition=(lambda item: not item.deleted and not item.purged),
         allow_multiple=False
     )
+    activate_operation = grids.GridOperation("Activate User", condition=(lambda item: not item.active), allow_multiple=False)
+    resend_activation_email = grids.GridOperation("Resend Activation Email", condition=(lambda item: not item.active), allow_multiple=False)
 
     @web.expose
     @web.require_admin
@@ -540,9 +529,15 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
         message = escape(kwd.get('message', ''))
         status = kwd.get('status', 'done')
         settings = {
+<<<<<<< HEAD
             'is_repo_installed'          : trans.install_model.context.query(trans.install_model.ToolShedRepository).first() is not None,
             'installing_repository_ids'  : repository_util.get_ids_of_tool_shed_repositories_being_installed(trans.app, as_string=True),
             'is_tool_shed_installed'     : bool(trans.app.tool_shed_registry and trans.app.tool_shed_registry.tool_sheds)
+=======
+            'is_repo_installed': trans.install_model.context.query(trans.install_model.ToolShedRepository).first() is not None,
+            'installing_repository_ids': get_ids_of_tool_shed_repositories_being_installed(trans.app, as_string=True),
+            'is_tool_shed_installed': bool(trans.app.tool_shed_registry and trans.app.tool_shed_registry.tool_sheds)
+>>>>>>> refs/heads/release_21.01
         }
         return self.template(trans, 'admin', settings=settings, message=message, status=status)
 
@@ -557,8 +552,8 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
             trans.app.tool_data_tables.get_tables().items()
         )
 
-        for data_table_elem_name, data_table in sorted_data_tables:
-            for filename, file_dict in data_table.filenames.iteritems():
+        for _data_table_elem_name, data_table in sorted_data_tables:
+            for filename, file_dict in data_table.filenames.items():
                 file_missing = ['file missing'] \
                     if not file_dict.get('found') else []
                 data.append({
@@ -582,8 +577,9 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
         status = kwd.get('status', 'done')
         for dtype in sorted(trans.app.datatypes_registry.datatype_elems,
                            key=lambda dtype: dtype.get('extension')):
-            datatypes.append(dtype.attrib)
-            keys |= set(dtype.attrib)
+            attrib = dict(dtype.attrib)
+            datatypes.append(attrib)
+            keys |= set(attrib.keys())
         return {'keys': list(keys), 'data': datatypes, 'message': message, 'status': status}
 
     @web.expose
@@ -608,6 +604,13 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                 message, status = self._recalculate_user(trans, id)
             elif operation == 'generate new api key':
                 message, status = self._new_user_apikey(trans, id)
+            elif operation == 'activate user':
+                message, status = self._activate_user(trans, id)
+            elif operation == 'resend activation email':
+                message, status = self._resend_activation_email(trans, id)
+        if message and status:
+            kwd['message'] = util.sanitize_text(message)
+            kwd['status'] = status
         if trans.app.config.allow_user_deletion:
             if self.delete_operation not in self.user_list_grid.operations:
                 self.user_list_grid.operations.append(self.delete_operation)
@@ -618,9 +621,10 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
         if trans.app.config.allow_user_impersonation:
             if self.impersonate_operation not in self.user_list_grid.operations:
                 self.user_list_grid.operations.append(self.impersonate_operation)
-        if message and status:
-            kwd['message'] = util.sanitize_text(message)
-            kwd['status'] = status
+        if trans.app.config.user_activation_on:
+            if self.activate_operation not in self.user_list_grid.operations:
+                self.user_list_grid.operations.append(self.activate_operation)
+                self.user_list_grid.operations.append(self.resend_activation_email)
         return self.user_list_grid(trans, **kwd)
 
     @web.expose_api
@@ -637,7 +641,7 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                 try:
                     quotas.append(get_quota(trans, quota_id))
                 except MessageException as e:
-                    return self.message_exception(trans, str(e))
+                    return self.message_exception(trans, util.unicodify(e))
             operation = kwargs.pop('operation').lower()
             try:
                 if operation == 'delete':
@@ -670,29 +674,29 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                                          .order_by(trans.app.model.Group.table.c.name):
                 all_groups.append((group.name, trans.security.encode_id(group.id)))
             default_options = [('No', 'no')]
-            for typ in trans.app.model.DefaultQuotaAssociation.types.__dict__.values():
-                default_options.append(('Yes, ' + typ, typ))
-            return {'title'  : 'Create Quota',
-                    'inputs' : [
+            for type_ in trans.app.model.DefaultQuotaAssociation.types:
+                default_options.append(('Yes, ' + type_, type_))
+            return {'title': 'Create Quota',
+                    'inputs': [
                         {
-                            'name'    : 'name',
-                            'label'   : 'Name'
+                            'name': 'name',
+                            'label': 'Name'
                         }, {
-                            'name'    : 'description',
-                            'label'   : 'Description'
+                            'name': 'description',
+                            'label': 'Description'
                         }, {
-                            'name'    : 'amount',
-                            'label'   : 'Amount',
-                            'help'    : 'Examples: "10000MB", "99 gb", "0.2T", "unlimited"'
+                            'name': 'amount',
+                            'label': 'Amount',
+                            'help': 'Examples: "10000MB", "99 gb", "0.2T", "unlimited"'
                         }, {
-                            'name'    : 'operation',
-                            'label'   : 'Assign, increase by amount, or decrease by amount?',
-                            'options' : [('=', '='), ('+', '+'), ('-', '-')]
+                            'name': 'operation',
+                            'label': 'Assign, increase by amount, or decrease by amount?',
+                            'options': [('=', '='), ('+', '+'), ('-', '-')]
                         }, {
-                            'name'    : 'default',
-                            'label'   : 'Is this quota a default for a class of users (if yes, what type)?',
-                            'options' : default_options,
-                            'help'    : 'Warning: Any users or groups associated with this quota will be disassociated.'
+                            'name': 'default',
+                            'label': 'Is this quota a default for a class of users (if yes, what type)?',
+                            'options': default_options,
+                            'help': 'Warning: Any users or groups associated with this quota will be disassociated.'
                         },
                         build_select_input('in_groups', 'Groups', all_groups, []),
                         build_select_input('in_users', 'Users', all_users, [])]}
@@ -712,15 +716,15 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
         quota = get_quota(trans, id)
         if trans.request.method == 'GET':
             return {
-                'title'  : 'Change quota name and description for \'%s\'' % util.sanitize_text(quota.name),
-                'inputs' : [{
-                    'name'  : 'name',
-                    'label' : 'Name',
-                    'value' : quota.name
+                'title': 'Change quota name and description for \'%s\'' % util.sanitize_text(quota.name),
+                'inputs': [{
+                    'name': 'name',
+                    'label': 'Name',
+                    'value': quota.name
                 }, {
-                    'name'  : 'description',
-                    'label' : 'Description',
-                    'value' : quota.description
+                    'name': 'description',
+                    'label': 'Description',
+                    'value': quota.description
                 }]
             }
         else:
@@ -753,12 +757,12 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                 if group in [x.group for x in quota.groups]:
                     in_groups.append(trans.security.encode_id(group.id))
                 all_groups.append((group.name, trans.security.encode_id(group.id)))
-            return {'title'  : 'Quota \'%s\'' % quota.name,
+            return {'title': 'Quota \'%s\'' % quota.name,
                     'message': 'Quota \'%s\' is currently associated with %d user(s) and %d group(s).' %
                     (quota.name, len(in_users), len(in_groups)),
-                    'status' : 'info',
-                    'inputs' : [build_select_input('in_groups', 'Groups', all_groups, in_groups),
-                                build_select_input('in_users', 'Users', all_users, in_users)]}
+                    'status': 'info',
+                    'inputs': [build_select_input('in_groups', 'Groups', all_groups, in_groups),
+                              build_select_input('in_users', 'Users', all_users, in_users)]}
         else:
             try:
                 return {'message': self._manage_users_and_groups_for_quota(quota, util.Params(payload), decode_id=trans.security.decode_id)}
@@ -774,17 +778,17 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
         quota = get_quota(trans, id)
         if trans.request.method == 'GET':
             return {
-                'title'  : 'Edit quota size for \'%s\'' % util.sanitize_text(quota.name),
-                'inputs' : [{
-                    'name'    : 'amount',
-                    'label'   : 'Amount',
-                    'value'   : quota.display_amount,
-                    'help'    : 'Examples: "10000MB", "99 gb", "0.2T", "unlimited"'
+                'title': 'Edit quota size for \'%s\'' % util.sanitize_text(quota.name),
+                'inputs': [{
+                    'name': 'amount',
+                    'label': 'Amount',
+                    'value': quota.display_amount,
+                    'help': 'Examples: "10000MB", "99 gb", "0.2T", "unlimited"'
                 }, {
-                    'name'    : 'operation',
-                    'label'   : 'Assign, increase by amount, or decrease by amount?',
-                    'options' : [('=', '='), ('+', '+'), ('-', '-')],
-                    'value'   : quota.operation
+                    'name': 'operation',
+                    'label': 'Assign, increase by amount, or decrease by amount?',
+                    'options': [('=', '='), ('+', '+'), ('-', '-')],
+                    'value': quota.operation
                 }]
             }
         else:
@@ -803,16 +807,16 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
         if trans.request.method == 'GET':
             default_value = quota.default[0].type if quota.default else 'no'
             default_options = [('No', 'no')]
-            for typ in trans.app.model.DefaultQuotaAssociation.types.__dict__.values():
+            for typ in trans.app.model.DefaultQuotaAssociation.types.__members__.values():
                 default_options.append(('Yes, ' + typ, typ))
             return {
-                'title'  : 'Set quota default for \'%s\'' % util.sanitize_text(quota.name),
-                'inputs' : [{
-                    'name'    : 'default',
-                    'label'   : 'Assign, increase by amount, or decrease by amount?',
-                    'options' : default_options,
-                    'value'   : default_value,
-                    'help'    : 'Warning: Any users or groups associated with this quota will be disassociated.'
+                'title': 'Set quota default for \'%s\'' % util.sanitize_text(quota.name),
+                'inputs': [{
+                    'name': 'default',
+                    'label': 'Assign, increase by amount, or decrease by amount?',
+                    'options': default_options,
+                    'value': default_value,
+                    'help': 'Warning: Any users or groups associated with this quota will be disassociated.'
                 }]
             }
         else:
@@ -834,7 +838,7 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                 if user:
                     trans.handle_user_logout()
                     trans.handle_user_login(user)
-                    return trans.show_message('You are now logged in as %s, <a target="_top" href="%s">return to the home page</a>' % (user.email, url_for(controller='root')), use_panels=True)
+                    return trans.show_message('You are now logged in as {}, <a target="_top" href="{}">return to the home page</a>'.format(user.email, url_for(controller='root')), use_panels=True)
             except Exception:
                 log.exception("Error fetching user for impersonation")
         return trans.response.send_redirect(web.url_for(controller='admin',
@@ -843,7 +847,7 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
 
     def check_for_tool_dependencies(self, trans, migration_stage):
         # Get the 000x_tools.xml file associated with migration_stage.
-        tools_xml_file_path = os.path.abspath(os.path.join(trans.app.config.root, 'scripts', 'migrate_tools', '%04d_tools.xml' % migration_stage))
+        tools_xml_file_path = os.path.abspath(os.path.join(common_util.TOOL_MIGRATION_SCRIPTS_DIR, '%04d_tools.xml' % migration_stage))
         tree = util.parse_xml(tools_xml_file_path)
         root = tree.getroot()
         tool_shed = root.get('name')
@@ -858,10 +862,10 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                     changeset_revision = elem.get('changeset_revision')
                     params = dict(name=repository_name, owner='devteam', changeset_revision=changeset_revision)
                     pathspec = ['repository', 'get_tool_dependencies']
-                    text = url_get(shed_url, password_mgr=self.app.tool_shed_registry.url_auth(shed_url), pathspec=pathspec, params=params)
+                    text = url_get(shed_url, auth=self.app.tool_shed_registry.url_auth(shed_url), pathspec=pathspec, params=params)
                     if text:
                         tool_dependencies_dict = encoding_util.tool_shed_decode(text)
-                        for dependency_key, requirements_dict in tool_dependencies_dict.items():
+                        for requirements_dict in tool_dependencies_dict.values():
                             tool_dependency_name = requirements_dict['name']
                             tool_dependency_version = requirements_dict['version']
                             tool_dependency_type = requirements_dict['type']
@@ -875,6 +879,7 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
     def review_tool_migration_stages(self, trans, **kwd):
         message = escape(util.restore_text(kwd.get('message', '')))
         status = util.restore_text(kwd.get('status', 'done'))
+<<<<<<< HEAD
         migration_stages_dict = odict()
         migration_modules = []
         migration_scripts_dir = os.path.abspath(os.path.join(trans.app.config.root, 'lib', 'tool_shed', 'galaxy_install', 'migrate', 'versions'))
@@ -891,6 +896,19 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
             migration_modules.reverse()
         for migration_module in migration_modules:
             migration_stage = int(migration_module.replace('_tools', ''))
+=======
+        migration_stages_dict = {}
+        # FIXME: this isn't valid in an installed context
+        migration_scripts_dir = os.path.abspath(os.path.join(trans.app.config.root, 'lib', 'galaxy', 'tool_shed', 'galaxy_install', 'migrate', 'versions'))
+        modules = os.listdir(migration_scripts_dir)
+        modules.sort()
+        modules.reverse()
+        for item in modules:
+            if not item.endswith('_tools.py') or item.startswith('0001_tools'):
+                continue
+            module = item.replace('.py', '')
+            migration_stage = int(module.replace('_tools', ''))
+>>>>>>> refs/heads/release_21.01
             repo_name_dependency_tups = self.check_for_tool_dependencies(trans, migration_stage)
             open_file_obj, file_name, description = imp.find_module(migration_module, [migration_scripts_dir])
             imported_module = imp.load_module('upgrade', open_file_obj, file_name, description)
@@ -902,6 +920,7 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                                    message=message,
                                    status=status)
 
+<<<<<<< HEAD
     @web.expose
     @web.require_admin
     def center(self, trans, **kwd):
@@ -916,6 +935,9 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                                    status=status)
 
     @web.expose_api
+=======
+    @web.legacy_expose_api
+>>>>>>> refs/heads/release_21.01
     @web.require_admin
     def tool_versions_list(self, trans, **kwd):
         return self.tool_version_list_grid(trans, **kwd)
@@ -958,19 +980,19 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                                          .order_by(trans.app.model.Group.table.c.name):
                 all_groups.append((group.name, trans.security.encode_id(group.id)))
             return {
-                'title'  : 'Create Role',
-                'inputs' : [{
-                    'name'  : 'name',
-                    'label' : 'Name'
+                'title': 'Create Role',
+                'inputs': [{
+                    'name': 'name',
+                    'label': 'Name'
                 }, {
-                    'name'  : 'description',
-                    'label' : 'Description'
+                    'name': 'description',
+                    'label': 'Description'
                 },
                     build_select_input('in_groups', 'Groups', all_groups, []),
                     build_select_input('in_users', 'Users', all_users, []), {
-                    'name'  : 'auto_create',
-                    'label' : 'Create a new group of the same name for this role:',
-                    'type'  : 'boolean'
+                    'name': 'auto_create',
+                    'label': 'Create a new group of the same name for this role:',
+                    'type': 'boolean'
                 }]}
         else:
             name = util.restore_text(payload.get('name', ''))
@@ -1010,10 +1032,10 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                 else:
                     num_in_groups = len(in_groups)
                 trans.sa_session.flush()
-                message = 'Role \'%s\' has been created with %d associated users and %d associated groups.' % (role.name, len(in_users), num_in_groups)
+                message = f"Role '{role.name}' has been created with {len(in_users)} associated users and {num_in_groups} associated groups."
                 if auto_create_checked:
                     message += 'One of the groups associated with this role is the newly created group with the same name.'
-                return {'message' : message}
+                return {'message': message}
 
     @web.expose_api
     @web.require_admin
@@ -1024,15 +1046,15 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
         role = get_role(trans, id)
         if trans.request.method == 'GET':
             return {
-                'title'  : 'Change role name and description for \'%s\'' % util.sanitize_text(role.name),
-                'inputs' : [{
-                    'name'  : 'name',
-                    'label' : 'Name',
-                    'value' : role.name
+                'title': 'Change role name and description for \'%s\'' % util.sanitize_text(role.name),
+                'inputs': [{
+                    'name': 'name',
+                    'label': 'Name',
+                    'value': role.name
                 }, {
-                    'name'  : 'description',
-                    'label' : 'Description',
-                    'value' : role.description
+                    'name': 'description',
+                    'label': 'Description',
+                    'value': role.description
                 }]
             }
         else:
@@ -1051,7 +1073,7 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                         role.description = new_description
                         trans.sa_session.add(role)
                         trans.sa_session.flush()
-            return {'message': 'Role \'%s\' has been renamed to \'%s\'.' % (old_name, new_name)}
+            return {'message': f'Role \'{old_name}\' has been renamed to \'{new_name}\'.'}
 
     @web.expose_api
     @web.require_admin
@@ -1077,12 +1099,12 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                 if group in [x.group for x in role.groups]:
                     in_groups.append(trans.security.encode_id(group.id))
                 all_groups.append((group.name, trans.security.encode_id(group.id)))
-            return {'title'  : 'Role \'%s\'' % role.name,
+            return {'title': 'Role \'%s\'' % role.name,
                     'message': 'Role \'%s\' is currently associated with %d user(s) and %d group(s).' %
                     (role.name, len(in_users), len(in_groups)),
-                    'status' : 'info',
-                    'inputs' : [build_select_input('in_groups', 'Groups', all_groups, in_groups),
-                                build_select_input('in_users', 'Users', all_users, in_users)]}
+                    'status': 'info',
+                    'inputs': [build_select_input('in_groups', 'Groups', all_groups, in_groups),
+                              build_select_input('in_users', 'Users', all_users, in_users)]}
         else:
             in_users = [trans.sa_session.query(trans.app.model.User).get(trans.security.decode_id(x)) for x in util.listify(payload.get('in_users'))]
             in_groups = [trans.sa_session.query(trans.app.model.Group).get(trans.security.decode_id(x)) for x in util.listify(payload.get('in_groups'))]
@@ -1103,7 +1125,7 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                     trans.sa_session.flush()
             trans.app.security_agent.set_entity_role_associations(roles=[role], users=in_users, groups=in_groups)
             trans.sa_session.refresh(role)
-            return {'message' : 'Role \'%s\' has been updated with %d associated users and %d associated groups.' % (role.name, len(in_users), len(in_groups))}
+            return {'message': f"Role '{role.name}' has been updated with {len(in_users)} associated users and {len(in_groups)} associated groups."}
 
     def _delete_role(self, trans, ids):
         message = 'Deleted %d roles: ' % len(ids)
@@ -1196,11 +1218,11 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
         group = get_group(trans, id)
         if trans.request.method == 'GET':
             return {
-                'title'  : 'Change group name for \'%s\'' % util.sanitize_text(group.name),
-                'inputs' : [{
-                    'name'  : 'name',
-                    'label' : 'Name',
-                    'value' : group.name
+                'title': 'Change group name for \'%s\'' % util.sanitize_text(group.name),
+                'inputs': [{
+                    'name': 'name',
+                    'label': 'Name',
+                    'value': group.name
                 }]
             }
         else:
@@ -1217,7 +1239,7 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                         group.name = new_name
                         trans.sa_session.add(group)
                         trans.sa_session.flush()
-            return {'message': 'Group \'%s\' has been renamed to \'%s\'.' % (old_name, new_name)}
+            return {'message': f'Group \'{old_name}\' has been renamed to \'{new_name}\'.'}
 
     @web.expose_api
     @web.require_admin
@@ -1243,12 +1265,12 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                 if role in [x.role for x in group.roles]:
                     in_roles.append(trans.security.encode_id(role.id))
                 all_roles.append((role.name, trans.security.encode_id(role.id)))
-            return {'title'  : 'Group \'%s\'' % group.name,
+            return {'title': 'Group \'%s\'' % group.name,
                     'message': 'Group \'%s\' is currently associated with %d user(s) and %d role(s).' %
                     (group.name, len(in_users), len(in_roles)),
-                    'status' : 'info',
-                    'inputs' : [build_select_input('in_roles', 'Roles', all_roles, in_roles),
-                                build_select_input('in_users', 'Users', all_users, in_users)]}
+                    'status': 'info',
+                    'inputs': [build_select_input('in_roles', 'Roles', all_roles, in_roles),
+                              build_select_input('in_users', 'Users', all_users, in_users)]}
         else:
             in_users = [trans.sa_session.query(trans.app.model.User).get(trans.security.decode_id(x)) for x in util.listify(payload.get('in_users'))]
             in_roles = [trans.sa_session.query(trans.app.model.Role).get(trans.security.decode_id(x)) for x in util.listify(payload.get('in_roles'))]
@@ -1256,7 +1278,7 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                 return self.message_exception(trans, 'One or more invalid user/role id has been provided.')
             trans.app.security_agent.set_entity_group_associations(groups=[group], users=in_users, roles=in_roles)
             trans.sa_session.refresh(group)
-            return {'message' : 'Group \'%s\' has been updated with %d associated users and %d associated roles.' % (group.name, len(in_users), len(in_roles))}
+            return {'message': f"Group '{group.name}' has been updated with {len(in_users)} associated users and {len(in_roles)} associated roles."}
 
     @web.expose_api
     @web.require_admin
@@ -1273,17 +1295,17 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                                         .order_by(trans.app.model.Role.table.c.name):
                 all_roles.append((role.name, trans.security.encode_id(role.id)))
             return {
-                'title'    : 'Create Group',
-                'title_id' : 'create-group',
-                'inputs' : [{
-                    'name'  : 'name',
-                    'label' : 'Name'
+                'title': 'Create Group',
+                'title_id': 'create-group',
+                'inputs': [{
+                    'name': 'name',
+                    'label': 'Name'
                 },
                     build_select_input('in_roles', 'Roles', all_roles, []),
                     build_select_input('in_users', 'Users', all_users, []), {
-                    'name'  : 'auto_create',
-                    'label' : 'Create a new role of the same name for this group:',
-                    'type'  : 'boolean'
+                    'name': 'auto_create',
+                    'label': 'Create a new role of the same name for this group:',
+                    'type': 'boolean'
                 }]
             }
         else:
@@ -1326,7 +1348,7 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                 message = 'Group \'%s\' has been created with %d associated users and %d associated roles.' % (group.name, len(in_users), num_in_roles)
                 if auto_create_checked:
                     message += 'One of the roles associated with this group is the newly created role with the same name.'
-                return {'message' : message}
+                return {'message': message}
 
     def _delete_group(self, trans, ids):
         message = 'Deleted %d groups: ' % len(ids)
@@ -1383,17 +1405,16 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
             if trans.request.method == 'GET':
                 return {
                     'message': 'Changes password(s) for: %s.' % ', '.join(user.email for user in users.values()),
-                    'status' : 'info',
-                    'inputs' : [{'name' : 'password', 'label' : 'New password', 'type' : 'password'},
-                                {'name' : 'confirm', 'label' : 'Confirm password', 'type' : 'password'}]
+                    'status': 'info',
+                    'inputs': [{'name': 'password', 'label': 'New password', 'type': 'password'},
+                              {'name': 'confirm', 'label': 'Confirm password', 'type': 'password'}]
                 }
             else:
                 password = payload.get('password')
                 confirm = payload.get('confirm')
-                if len(password) < 6:
-                    return self.message_exception(trans, 'Use a password of at least 6 characters.')
-                elif password != confirm:
-                    return self.message_exception(trans, 'Passwords do not match.')
+                message = validate_password(trans, password, confirm)
+                if message:
+                    return self.message_exception(trans, message)
                 for user in users.values():
                     user.set_password_cleartext(password)
                     trans.sa_session.add(user)
@@ -1406,61 +1427,9 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
         message = 'Deleted %d users: ' % len(ids)
         for user_id in ids:
             user = get_user(trans, user_id)
-            user.deleted = True
-
-            compliance_log.info('delete-user-event: %s' % user_id)
-
-            # Maybe there is some case in the future where an admin needs
-            # to prove that a user was using a server for some reason (e.g.
-            # a court case.) So we make this painfully hard to recover (and
-            # not immediately reversable) in line with GDPR, but still
-            # leave open the possibility to prove someone was part of the
-            # server just in case. By knowing the exact email + approximate
-            # time of deletion, one could run through hashes for every
-            # second of the surrounding days/weeks.
-            pseudorandom_value = str(int(time.time()))
-            # Replace email + username with a (theoretically) unreversable
-            # hash. If provided with the username we can probably re-hash
-            # to identify if it is needed for some reason.
-            #
-            # Deleting multiple times will re-hash the username/email
-            email_hash = new_secure_hash(user.email + pseudorandom_value)
-            uname_hash = new_secure_hash(user.username + pseudorandom_value)
-
-            # We must also redact username
-            for role in user.all_roles():
-                if self.app.config.redact_username_during_deletion:
-                    role.name = role.name.replace(user.username, uname_hash)
-                    role.description = role.description.replace(user.username, uname_hash)
-
-                if self.app.config.redact_email_during_deletion:
-                    role.name = role.name.replace(user.email, email_hash)
-                    role.description = role.description.replace(user.email, email_hash)
-
-            if self.app.config.redact_email_during_deletion:
-                user.email = email_hash
-            if self.app.config.redact_username_during_deletion:
-                user.username = uname_hash
-
-            # Redact user addresses as well
-            if self.app.config.redact_user_address_during_deletion:
-                user_addresses = trans.sa_session.query(trans.app.model.UserAddress) \
-                    .filter(trans.app.model.UserAddress.user_id == user.id).all()
-
-                for addr in user_addresses:
-                    addr.desc = new_secure_hash(addr.desc + pseudorandom_value)
-                    addr.name = new_secure_hash(addr.name + pseudorandom_value)
-                    addr.institution = new_secure_hash(addr.institution + pseudorandom_value)
-                    addr.address = new_secure_hash(addr.address + pseudorandom_value)
-                    addr.city = new_secure_hash(addr.city + pseudorandom_value)
-                    addr.state = new_secure_hash(addr.state + pseudorandom_value)
-                    addr.postal_code = new_secure_hash(addr.postal_code + pseudorandom_value)
-                    addr.country = new_secure_hash(addr.country + pseudorandom_value)
-                    addr.phone = new_secure_hash(addr.phone + pseudorandom_value)
-                    trans.sa_session.add(addr)
-
-            trans.sa_session.add(user)
-            trans.sa_session.flush()
+            # Actually do the delete
+            self.user_manager.delete(user)
+            # Accumulate messages for the return message
             message += ' %s ' % user.email
         return (message, 'done')
 
@@ -1469,12 +1438,9 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
         undeleted_users = ""
         for user_id in ids:
             user = get_user(trans, user_id)
-            if not user.deleted:
-                message = 'User \'%s\' has not been deleted, so it cannot be undeleted.' % user.email
-                return (message, 'error')
-            user.deleted = False
-            trans.sa_session.add(user)
-            trans.sa_session.flush()
+            # Actually do the undelete
+            self.user_manager.undelete(user)
+            # Count and accumulate messages to return to the admin panel
             count += 1
             undeleted_users += ' %s' % user.email
         message = 'Undeleted %d users: %s' % (count, undeleted_users)
@@ -1495,33 +1461,8 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
         message = 'Purged %d users: ' % len(ids)
         for user_id in ids:
             user = get_user(trans, user_id)
-            if not user.deleted:
-                return ('User \'%s\' has not been deleted, so it cannot be purged.' % user.email, 'error')
-            private_role = trans.app.security_agent.get_private_user_role(user)
-            # Delete History
-            for h in user.active_histories:
-                trans.sa_session.refresh(h)
-                for hda in h.active_datasets:
-                    # Delete HistoryDatasetAssociation
-                    hda.deleted = True
-                    trans.sa_session.add(hda)
-                h.deleted = True
-                trans.sa_session.add(h)
-            # Delete UserGroupAssociations
-            for uga in user.groups:
-                trans.sa_session.delete(uga)
-            # Delete UserRoleAssociations EXCEPT FOR THE PRIVATE ROLE
-            for ura in user.roles:
-                if ura.role_id != private_role.id:
-                    trans.sa_session.delete(ura)
-            # Delete UserAddresses
-            for address in user.addresses:
-                trans.sa_session.delete(address)
-            # Purge the user
-            user.purged = True
-            trans.sa_session.add(user)
-            trans.sa_session.flush()
-            message += '%s ' % user.email
+            self.user_manager.purge(user)
+            message += '\t%s\n ' % user.email
         return (message, 'done')
 
     def _recalculate_user(self, trans, user_id):
@@ -1534,7 +1475,7 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
         if new in (current, None):
             message = 'Usage is unchanged at %s.' % nice_size(current)
         else:
-            message = 'Usage has changed by %s to %s.' % (nice_size(new - current), nice_size(new))
+            message = 'Usage has changed by {} to {}.'.format(nice_size(new - current), nice_size(new))
         return (message, 'done')
 
     def _new_user_apikey(self, trans, user_id):
@@ -1547,7 +1488,23 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
         )
         trans.sa_session.add(new_key)
         trans.sa_session.flush()
-        return ("New key '%s' generated for requested user '%s'." % (new_key.key, user.email), "done")
+        return (f"New key '{new_key.key}' generated for requested user '{user.email}'.", "done")
+
+    def _activate_user(self, trans, user_id):
+        user = trans.sa_session.query(trans.model.User).get(trans.security.decode_id(user_id))
+        if not user:
+            return ('User not found for id (%s)' % sanitize_text(str(user_id)), 'error')
+        self.user_manager.activate(user)
+        return ('Activated user: %s.' % user.email, 'done')
+
+    def _resend_activation_email(self, trans, user_id):
+        user = trans.sa_session.query(trans.model.User).get(trans.security.decode_id(user_id))
+        if not user:
+            return ('User not found for id (%s)' % sanitize_text(str(user_id)), 'error')
+        if self.user_manager.send_activation_email(trans, user.email, user.username):
+            return ('Activation email has been sent to user: %s.' % user.email, 'done')
+        else:
+            return ('Unable to send activation email to user: %s.' % user.email, 'error')
 
     @web.expose_api
     @web.require_admin
@@ -1576,12 +1533,11 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                 if group in [x.group for x in user.groups]:
                     in_groups.append(trans.security.encode_id(group.id))
                 all_groups.append((group.name, trans.security.encode_id(group.id)))
-            return {'title'  : 'Roles and groups for \'%s\'' % user.email,
-                    'message': 'User \'%s\' is currently associated with %d role(s) and is a member of %d group(s).' %
-                    (user.email, len(in_roles) - 1, len(in_groups)),
-                    'status' : 'info',
-                    'inputs' : [build_select_input('in_roles', 'Roles', all_roles, in_roles),
-                                build_select_input('in_groups', 'Groups', all_groups, in_groups)]}
+            return {'title': f"Roles and groups for '{user.email}'",
+                    'message': f"User '{user.email}' is currently associated with {len(in_roles) - 1} role(s) and is a member of {len(in_groups)} group(s).",
+                    'status': 'info',
+                    'inputs': [build_select_input('in_roles', 'Roles', all_roles, in_roles),
+                              build_select_input('in_groups', 'Groups', all_groups, in_groups)]}
         else:
             in_roles = [trans.sa_session.query(trans.app.model.Role).get(trans.security.decode_id(x)) for x in util.listify(payload.get('in_roles'))]
             in_groups = [trans.sa_session.query(trans.app.model.Group).get(trans.security.decode_id(x)) for x in util.listify(payload.get('in_groups'))]
@@ -1595,10 +1551,11 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
 
             trans.app.security_agent.set_entity_user_associations(users=[user], roles=in_roles, groups=in_groups)
             trans.sa_session.refresh(user)
-            return {'message' : 'User \'%s\' has been updated with %d associated roles and %d associated groups (private roles are not displayed).' % (user.email, len(in_roles) - 1, len(in_groups))}
+            return {'message': f"User '{user.email}' has been updated with {len(in_roles) - 1} associated roles and {len(in_groups)} associated groups (private roles are not displayed)."}
 
     @web.expose
     @web.require_admin
+<<<<<<< HEAD
     def jobs(self, trans, stop=[], stop_msg=None, cutoff=180, job_lock=None, ajl_submit=None, **kwd):
         deleted = []
         msg = None
@@ -1640,9 +1597,14 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                 job_lock = False
         else:
             job_lock = trans.app.job_manager.job_lock
+=======
+    def jobs_list(self, trans, cutoff=180, **kwd):
+        message = kwd.get('message', '')
+        status = kwd.get('status', 'info')
+>>>>>>> refs/heads/release_21.01
         cutoff_time = datetime.utcnow() - timedelta(seconds=int(cutoff))
         jobs = trans.sa_session.query(trans.app.model.Job) \
-                               .filter(and_(trans.app.model.Job.table.c.update_time < cutoff_time,
+                               .filter(and_(trans.app.model.Job.table.c.update_time > cutoff_time,
                                             or_(trans.app.model.Job.state == trans.app.model.Job.states.NEW,
                                                 trans.app.model.Job.state == trans.app.model.Job.states.QUEUED,
                                                 trans.app.model.Job.state == trans.app.model.Job.states.RUNNING,
@@ -1653,6 +1615,7 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                          or_(trans.app.model.Job.state == trans.app.model.Job.states.ERROR,
                              trans.app.model.Job.state == trans.app.model.Job.states.OK))) \
             .order_by(trans.app.model.Job.table.c.update_time.desc()).all()
+<<<<<<< HEAD
         last_updated = {}
         for job in jobs:
             delta = datetime.utcnow() - job.update_time
@@ -1680,6 +1643,31 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
                                    msg=msg,
                                    status=status,
                                    job_lock=job_lock)
+=======
+
+        def prepare_jobs_list(jobs):
+            res = []
+            for job in jobs:
+                res.append({
+                    'job_info': {
+                        'id': job.id,
+                    },
+                    'id': trans.security.encode_id(job.id),
+                    'user': job.history.user.email if job.history and job.history.user else 'anonymous',
+                    'update_time': job.update_time.isoformat(),
+                    'tool_id': job.tool_id,
+                    'state': job.state,
+                    'command_line': job.command_line,
+                    'job_runner_name': job.job_runner_name,
+                    'job_runner_external_id': job.job_runner_external_id
+                })
+            return res
+        return {'jobs': prepare_jobs_list(jobs),
+                'recent_jobs': prepare_jobs_list(recent_jobs),
+                'cutoff': cutoff,
+                'message': message,
+                'status': status}
+>>>>>>> refs/heads/release_21.01
 
     @web.expose
     @web.require_admin
@@ -1688,8 +1676,7 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
         if jobid is not None:
             job = trans.sa_session.query(trans.app.model.Job).get(jobid)
         return trans.fill_template('/webapps/reports/job_info.mako',
-                                   job=job,
-                                   message="<a href='jobs'>Back</a>")
+                                   job=job)
 
     @web.expose
     @web.require_admin
@@ -1705,13 +1692,18 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
             selected_tool_ids = []
         if not selected_environments_to_uninstall:
             selected_environments_to_uninstall = []
+<<<<<<< HEAD
         tools_by_id = trans.app.toolbox.tools_by_id
         view = six.next(six.itervalues(trans.app.toolbox.tools_by_id))._view
+=======
+        tools_by_id = trans.app.toolbox.tools_by_id.copy()
+        view = next(iter(trans.app.toolbox.tools_by_id.values()))._view
+>>>>>>> refs/heads/release_21.01
         if selected_tool_ids:
             # install the dependencies for the tools in the selected_tool_ids list
             if not isinstance(selected_tool_ids, list):
                 selected_tool_ids = [selected_tool_ids]
-            requirements = set([tools_by_id[tid].tool_requirements for tid in selected_tool_ids])
+            requirements = {tools_by_id[tid].tool_requirements for tid in selected_tool_ids}
             if install_dependencies:
                 [view.install_dependencies(r) for r in requirements]
             elif uninstall_dependencies:
@@ -1729,19 +1721,20 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
 
     @web.expose
     @web.require_admin
-    def sanitize_whitelist(self, trans, submit_whitelist=False, tools_to_whitelist=[]):
-        if submit_whitelist:
-            # write the configured sanitize_whitelist_file with new whitelist
+    def sanitize_allowlist(self, trans, submit_allowlist=False, tools_to_allowlist=None):
+        tools_to_allowlist = tools_to_allowlist or []
+        if submit_allowlist:
+            # write the configured sanitize_allowlist_file with new allowlist
             # and update in-memory list.
-            with open(trans.app.config.sanitize_whitelist_file, 'wt') as f:
-                if isinstance(tools_to_whitelist, six.string_types):
-                    tools_to_whitelist = [tools_to_whitelist]
-                new_whitelist = sorted([tid for tid in tools_to_whitelist if tid in trans.app.toolbox.tools_by_id])
-                f.write("\n".join(new_whitelist))
-            trans.app.config.sanitize_whitelist = new_whitelist
-            galaxy.queue_worker.send_control_task(trans.app, 'reload_sanitize_whitelist', noop_self=True)
+            with open(trans.app.config.sanitize_allowlist_file, 'wt') as f:
+                if isinstance(tools_to_allowlist, str):
+                    tools_to_allowlist = [tools_to_allowlist]
+                new_allowlist = sorted([tid for tid in tools_to_allowlist if tid in trans.app.toolbox.tools_by_id])
+                f.write("\n".join(new_allowlist))
+            trans.app.config.sanitize_allowlist = new_allowlist
+            trans.app.queue_worker.send_control_task('reload_sanitize_allowlist', noop_self=True)
             # dispatch a message to reload list for other processes
-        return trans.fill_template('/webapps/galaxy/admin/sanitize_whitelist.mako',
+        return trans.fill_template('/webapps/galaxy/admin/sanitize_allowlist.mako',
                                    sanitize_all=trans.app.config.sanitize_all_html,
                                    tools=trans.app.toolbox.tools_by_id)
 
@@ -1749,14 +1742,14 @@ class AdminGalaxy(controller.JSAppLauncher, AdminActions, UsesQuotaMixin, QuotaP
 # ---- Utility methods -------------------------------------------------------
 
 def build_select_input(name, label, options, value):
-    return {'type'      : 'select',
-            'multiple'  : True,
-            'optional'  : True,
+    return {'type': 'select',
+            'multiple': True,
+            'optional': True,
             'individual': True,
-            'name'      : name,
-            'label'     : label,
-            'options'   : options,
-            'value'     : value}
+            'name': name,
+            'label': label,
+            'options': options,
+            'value': value}
 
 
 def get_user(trans, user_id):

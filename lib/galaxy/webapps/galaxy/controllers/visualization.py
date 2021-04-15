@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import logging
 import os
 from json import loads
@@ -10,8 +8,14 @@ from paste.httpexceptions import (
     HTTPBadRequest,
     HTTPNotFound
 )
-from six import string_types
-from sqlalchemy import and_, desc, false, or_, true
+from sqlalchemy import (
+    and_,
+    desc,
+    false,
+    or_,
+    text,
+    true,
+)
 from sqlalchemy.orm import eagerload, undefer
 
 from galaxy import managers, model, util, web
@@ -24,12 +28,12 @@ from galaxy.visualization.data_providers.phyloviz import PhylovizDataProvider
 from galaxy.visualization.genomes import decode_dbkey
 from galaxy.visualization.genomes import GenomeRegion
 from galaxy.visualization.plugins import registry
-from galaxy.web.base.controller import (
+from galaxy.web.framework.helpers import grids, time_ago
+from galaxy.webapps.base.controller import (
     BaseUIController,
     SharableMixin,
     UsesVisualizationMixin
 )
-from galaxy.web.framework.helpers import grids, time_ago
 
 log = logging.getLogger(__name__)
 
@@ -44,7 +48,8 @@ class HistoryDatasetsSelectionGrid(grids.Grid):
             """ Filter by dbkey through a raw SQL b/c metadata is a BLOB. """
             dbkey_user, dbkey = decode_dbkey(dbkey)
             dbkey = dbkey.replace("'", "\\'")
-            return query.filter(or_("metadata like '%%\"dbkey\": [\"%s\"]%%'" % dbkey, "metadata like '%%\"dbkey\": \"%s\"%%'" % dbkey))
+            return query.filter(or_(text("metadata like '%%\"dbkey\": [\"%s\"]%%'" % dbkey,
+                                         "metadata like '%%\"dbkey\": \"%s\"%%'" % dbkey)))
 
     class HistoryColumn(grids.GridColumn):
         def get_value(self, trans, grid, hda):
@@ -228,7 +233,7 @@ class VisualizationController(BaseUIController, SharableMixin, UsesVisualization
     _tracks_grid = TracksterSelectionGrid()
 
     def __init__(self, app):
-        super(VisualizationController, self).__init__(app)
+        super().__init__(app)
         self.hda_manager = managers.hdas.HDAManager(app)
 
     #
@@ -435,7 +440,7 @@ class VisualizationController(BaseUIController, SharableMixin, UsesVisualization
                 session.flush()
                 viz_title = escape(visualization.title)
                 other_email = escape(other.email)
-                trans.set_message("Visualization '%s' shared with user '%s'" % (viz_title, other_email))
+                trans.set_message(f"Visualization '{viz_title}' shared with user '{other_email}'")
                 return trans.response.send_redirect(web.url_for("/visualizations/sharing?id=%s" % id))
         return trans.fill_template("/ind_share_base.mako",
                                    message=msg,
@@ -665,7 +670,7 @@ class VisualizationController(BaseUIController, SharableMixin, UsesVisualization
         # post to saved in order to save a visualization
         if type is None or config is None:
             return HTTPBadRequest('A visualization type and config are required to save a visualization')
-        if isinstance(config, string_types):
+        if isinstance(config, str):
             config = loads(config)
         title = title or DEFAULT_VISUALIZATION_NAME
 
@@ -788,7 +793,7 @@ class VisualizationController(BaseUIController, SharableMixin, UsesVisualization
             dataset = self.get_hda_or_ldda(trans, dataset_dict['hda_ldda'], dataset_dict['id'])
 
             genome_data = self._get_genome_data(trans, dataset, dbkey)
-            if not isinstance(genome_data, string_types):
+            if not isinstance(genome_data, str):
                 track['preloaded_data'] = genome_data
 
         # define app configuration for generic mako template
@@ -895,7 +900,7 @@ class VisualizationController(BaseUIController, SharableMixin, UsesVisualization
                     else:
                         continue
 
-                    with open(image_file, 'r') as handle:
+                    with open(image_file) as handle:
                         self.gie_image_map[gie] = yaml.safe_load(handle)
 
         return trans.fill_template_mako(
@@ -927,7 +932,7 @@ class VisualizationController(BaseUIController, SharableMixin, UsesVisualization
                 if (i > 500):
                     break
                 fields = line.split()
-                location = name = "%s:%s-%s" % (fields[0], fields[1], fields[2])
+                location = name = "{}:{}-{}".format(fields[0], fields[1], fields[2])
                 if len(fields) > 3:
                     name = fields[4]
                 rows.append([location, name])

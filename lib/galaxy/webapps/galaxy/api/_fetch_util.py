@@ -8,7 +8,18 @@ from galaxy.actions.library import (
 from galaxy.exceptions import (
     RequestParameterInvalidException
 )
+<<<<<<< HEAD
 from galaxy.tools.actions.upload_common import validate_url
+=======
+from galaxy.model.store.discover import (
+    get_required_item,
+    replace_request_syntax_sugar,
+)
+from galaxy.tools.actions.upload_common import (
+    validate_datatype_extension,
+    validate_url,
+)
+>>>>>>> refs/heads/release_21.01
 from galaxy.util import (
     relpath,
 )
@@ -69,11 +80,18 @@ def validate_and_normalize_targets(trans, payload):
         if "object_id" in item:
             raise RequestParameterInvalidException("object_id not allowed to appear in the request.")
 
+        validate_datatype_extension(datatypes_registry=trans.app.datatypes_registry, ext=item.get('ext'))
+
         # Normalize file:// URLs into paths.
-        if item["src"] == "url" and item["url"].startswith("file://"):
-            item["src"] = "path"
-            item["path"] = item["url"][len("file://"):]
-            del item["path"]
+        if item["src"] == "url":
+            if "url" not in item:
+                raise RequestParameterInvalidException("src specified as 'url' but 'url' not specified")
+
+            url = item["url"]
+            if url.startswith("file://"):
+                item["src"] = "path"
+                item["path"] = url[len("file://"):]
+                del item["url"]
 
         if "in_place" in item:
             raise RequestParameterInvalidException("in_place cannot be set in the upload request")
@@ -153,10 +171,13 @@ def validate_and_normalize_targets(trans, payload):
                     looks_like_url = True
                     break
 
+            if not looks_like_url and trans.app.file_sources.looks_like_uri(url):
+                looks_like_url = True
+
             if not looks_like_url:
                 raise RequestParameterInvalidException("Invalid URL [%s] found in src definition." % url)
 
-            validate_url(url, trans.app.config.fetch_url_whitelist_ips)
+            validate_url(url, trans.app.config.fetch_url_allowlist_ips)
             item["in_place"] = run_as_real_user
         elif src == "files":
             item["in_place"] = run_as_real_user
@@ -213,5 +234,5 @@ def _for_each_src(f, obj):
     if isinstance(obj, dict):
         if "src" in obj:
             f(obj)
-        for key, value in obj.items():
+        for value in obj.values():
             _for_each_src(f, value)

@@ -1,22 +1,13 @@
 """
 Migration script to drop the installed_changeset_revision column from the tool_dependency table.
 """
-from __future__ import print_function
 
 import logging
-import sys
 
 from sqlalchemy import MetaData, Table
 from sqlalchemy.exc import NoSuchTableError
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-handler = logging.StreamHandler(sys.stdout)
-format = "%(name)s %(levelname)s %(asctime)s %(message)s"
-formatter = logging.Formatter(format)
-handler.setFormatter(formatter)
-log.addHandler(handler)
-
 metadata = MetaData()
 
 

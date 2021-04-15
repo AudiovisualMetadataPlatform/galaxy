@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import glob
 import os
 import shutil
@@ -23,7 +21,11 @@ def link_up_static(f):
     try:
         os.symlink(src, dest)
     except Exception:
+<<<<<<< HEAD
         print("Error symlinking '%s' to '%s'" % (src, dest))
+=======
+        print(f"Error copying '{src}' to '{dest}'")
+>>>>>>> refs/heads/release_21.01
         raise
 
 

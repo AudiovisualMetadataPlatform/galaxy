@@ -1,7 +1,6 @@
 """
 Migration script to add imported column for jobs table.
 """
-from __future__ import print_function
 
 import logging
 
@@ -28,6 +27,10 @@ def upgrade(migrate_engine):
     # Create and initialize imported column in job table.
     Jobs_table = Table("job", metadata, autoload=True)
     c = Column("imported", Boolean, default=False, index=True)
+<<<<<<< HEAD
+=======
+    add_column(c, Jobs_table, metadata, index_name="ix_job_imported")
+>>>>>>> refs/heads/release_21.01
     try:
         # Create
         c.create(Jobs_table, index_name="ix_job_imported")

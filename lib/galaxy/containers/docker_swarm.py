@@ -1,12 +1,12 @@
 """
 Docker Swarm mode interface
 """
-from __future__ import absolute_import
 
 import logging
 import os.path
 import subprocess
 from functools import partial
+from typing import Any, Dict, Optional
 
 try:
     import docker.types
@@ -33,6 +33,7 @@ from galaxy.containers.docker_model import (
     IMAGE_CONSTRAINT
 )
 from galaxy.exceptions import ContainerRunError
+from galaxy.util import unicodify
 from galaxy.util.json import safe_dumps_formatted
 
 log = logging.getLogger(__name__)
@@ -50,7 +51,7 @@ SWARM_MANAGER_PATH = os.path.abspath(
 class DockerSwarmInterface(DockerInterface):
 
     container_class = DockerService
-    conf_defaults = {
+    conf_defaults: Dict[str, Optional[Any]] = {
         'ignore_volumes': False,
         'node_prefix': None,
         'service_create_image_constraint': False,
@@ -63,7 +64,7 @@ class DockerSwarmInterface(DockerInterface):
     supports_volumes = False
 
     def validate_config(self):
-        super(DockerSwarmInterface, self).validate_config()
+        super().validate_config()
         self._node_prefix = self._conf.node_prefix
 
     def run_in_container(self, command, image=None, **kwopts):
@@ -124,7 +125,7 @@ class DockerSwarmInterface(DockerInterface):
                 subprocess.check_call(['python', SWARM_MANAGER_PATH, '--containers-config-file',
                                       self.containers_config_file, '--swarm', self.key])
             except subprocess.CalledProcessError as exc:
-                log.error('Failed to launch swarm manager: %s', str(exc))
+                log.error('Failed to launch swarm manager: %s', unicodify(exc))
 
     def _get_image(self, image):
         """Get the image string, either from the argument, or from the
@@ -169,7 +170,7 @@ class DockerSwarmInterface(DockerInterface):
 
     def service(self, id=None, name=None):
         try:
-            return self.services(id=id, name=name).next()
+            return next(self.services(id=id, name=name))
         except StopIteration:
             return None
 
@@ -192,7 +193,7 @@ class DockerSwarmInterface(DockerInterface):
 
     def node(self, id=None, name=None):
         try:
-            return self.nodes(id=id, name=name).next()
+            return next(self.nodes(id=id, name=name))
         except StopIteration:
             return None
 
@@ -331,7 +332,7 @@ class DockerSwarmCLIInterface(DockerSwarmInterface, DockerCLIInterface):
 
     @docker_columns
     def service_ps(self, service_id):
-        return self._run_docker(subcommand='service ps', args='--no-trunc {}'.format(service_id))
+        return self._run_docker(subcommand='service ps', args=f'--no-trunc {service_id}')
 
     def service_rm(self, service_ids):
         service_ids = ' '.join(service_ids)
@@ -347,7 +348,7 @@ class DockerSwarmCLIInterface(DockerSwarmInterface, DockerCLIInterface):
 
     @docker_columns
     def node_ps(self, node_id):
-        return self._run_docker(subcommand='node ps', args='--no-trunc {}'.format(node_id))
+        return self._run_docker(subcommand='node ps', args=f'--no-trunc {node_id}')
 
     def node_update(self, node_id, **kwopts):
         return self._run_docker(subcommand='node update', args='{kwopts} {node_id}'.format(
@@ -370,7 +371,7 @@ class DockerSwarmAPIInterface(DockerSwarmInterface, DockerAPIInterface):
         'service_mode': {'param': 0, 'default': 'replicated'},
         'replicas': {'default': 1},
     }
-    endpoint_spec_option_map = {
+    endpoint_spec_option_map: Dict[str, Dict] = {
         'ports': {},
     }
     resources_option_map = {
@@ -425,10 +426,10 @@ class DockerSwarmAPIInterface(DockerSwarmInterface, DockerAPIInterface):
         # service constraints
         kwopts['constraint'] = kwopts.get('constraint', [])
         if self._conf.service_create_image_constraint:
-            kwopts['constraint'].append((IMAGE_CONSTRAINT + '==' + image))
+            kwopts['constraint'].append(IMAGE_CONSTRAINT + '==' + image)
         if self._conf.service_create_cpus_constraint:
             cpus = kwopts.get('reserve_cpus', kwopts.get('limit_cpus', '1'))
-            kwopts['constraint'].append((CPUS_CONSTRAINT + '==' + cpus))
+            kwopts['constraint'].append(CPUS_CONSTRAINT + '==' + cpus)
         # ports
         if 'publish_port_random' in kwopts:
             kwopts['ports'] = [DockerSwarmAPIInterface.create_random_port_spec(kwopts.pop('publish_port_random'))]

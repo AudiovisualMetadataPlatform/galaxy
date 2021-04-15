@@ -11,7 +11,6 @@ import weakref
 from galaxy.exceptions import ObjectNotFound
 from galaxy.util import (
     config_directories_from_setting,
-    odict,
     parse_xml
 )
 from galaxy.visualization.plugins import (
@@ -22,7 +21,7 @@ from galaxy.visualization.plugins import (
 log = logging.getLogger(__name__)
 
 
-class VisualizationsRegistry(object):
+class VisualizationsRegistry:
     """
     Main responsibilities are:
         - discovering visualization plugins in the filesystem
@@ -51,7 +50,7 @@ class VisualizationsRegistry(object):
         """
         Set up the manager and load all visualization plugins.
 
-        :type   app:        UniverseApplication
+        :type   app:        galaxy.app.UniverseApplication
         :param  app:        the application (and its configuration) using this manager
         :type   base_url:   string
         :param  base_url:   url to prefix all plugin urls with
@@ -66,7 +65,7 @@ class VisualizationsRegistry(object):
         self.additional_template_paths = []
         self.directories = []
         self.skip_bad_plugins = skip_bad_plugins
-        self.plugins = odict.odict()
+        self.plugins = {}
         self.directories = config_directories_from_setting(directories_setting, app.config.root)
         self._load_configuration()
         self._load_plugins()
@@ -107,8 +106,6 @@ class VisualizationsRegistry(object):
         """
         Search ``self.directories`` for potential plugins, load them, and cache
         in ``self.plugins``.
-        :rtype:                 odict
-        :returns:               ``self.plugins``
         """
         for plugin_path in self._find_plugins():
             try:
@@ -184,11 +181,14 @@ class VisualizationsRegistry(object):
         plugin_name = os.path.split(plugin_path)[1]
         # TODO: this is the standard/older way to config
         config_file = os.path.join(plugin_path, 'config', (plugin_name + '.xml'))
-        config = self.config_parser.parse_file(config_file)
-        # config file is required, otherwise skip this visualization
-        if config is not None:
-            plugin = self._build_plugin(plugin_name, plugin_path, config)
-            return plugin
+        if os.path.exists(config_file):
+            config = self.config_parser.parse_file(config_file)
+            if config is not None:
+                # config may be none if the visualization is disabled
+                plugin = self._build_plugin(plugin_name, plugin_path, config)
+                return plugin
+        else:
+            raise ObjectNotFound('Visualization XML not found: %s.' % config_file)
 
     def _build_plugin(self, plugin_name, plugin_path, config):
         # TODO: as builder not factory
@@ -221,9 +221,11 @@ class VisualizationsRegistry(object):
             raise ObjectNotFound('Unknown or invalid visualization: ' + key)
         return self.plugins[key]
 
-    def get_plugins(self):
+    def get_plugins(self, embeddable=None):
         result = []
-        for plugin in self.plugins.itervalues():
+        for plugin in self.plugins.values():
+            if embeddable and not plugin.config.get('embeddable'):
+                continue
             result.append(plugin.to_dict())
         return sorted(result, key=lambda k: k.get('html'))
 

@@ -1,3 +1,13 @@
+<<<<<<< HEAD
+=======
+<%def name="load_default_js()">
+${h.css( 'base' ) }
+${h.dist_js('libs.chunk',
+            'base.chunk',
+            'generic.bundled')}
+</%def>
+
+>>>>>>> refs/heads/release_21.01
 <%def name="default_javascript_variables()">
 // Globals
 

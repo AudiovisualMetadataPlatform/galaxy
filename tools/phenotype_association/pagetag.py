@@ -68,7 +68,7 @@ indexcalculator = {(HOMC, HOMC): 0,
 def read_inputfile(filename, samples):
     input = {}
 
-    file = open(filename, "r")
+    file = open(filename)
 
     for line in file:
         position, sample, allele1, allele2 = line.split()
@@ -94,7 +94,7 @@ def annotate_locus(input, minorallelefrequency, snpsfile):
         genotypes = v.values()
         alleles = [y for x in genotypes for y in x]
         alleleset = list(set(alleles))
-        alleleset = list(set(alleles) - set(["N", "X"]))
+        alleleset = list(set(alleles) - {'N', 'X'})
 
         if len(alleleset) == 2:
             genotypevec = ""
@@ -245,7 +245,7 @@ def main(inputfile, snpsfile, neigborhoodfile,
 
 
 def read_list(filename):
-    file = open(filename, "r")
+    file = open(filename)
     list = {}
 
     for line in file:

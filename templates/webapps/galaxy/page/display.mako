@@ -3,6 +3,7 @@
 <%def name="javascripts()">
     ${parent.javascripts()}
     <script type="text/javascript">
+<<<<<<< HEAD
     
         $(function() {
             // Setup embedded content:
@@ -77,8 +78,12 @@
                     return false;
                 });
             });
+=======
+        config.addInitialization(function() {
+            console.log("page/display.mako, javascript_app", "Setup embedded content");
+            window.bundleEntries.render_embedded_items();
+>>>>>>> refs/heads/release_21.01
         });
-    
     </script>
 </%def>
 

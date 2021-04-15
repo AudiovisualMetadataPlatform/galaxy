@@ -185,7 +185,7 @@
         %if install_tool_dependencies_check_box is not None:
             <div class="form-row">
                 <label>When available, install Tool Shed managed tool dependencies?</label>
-                <% disabled = trans.app.config.tool_dependency_dir is None %>
+                <% disabled = trans.app.tool_dependency_dir is None %>
                 ${render_checkbox(install_tool_dependencies_check_box, disabled=disabled)}
                 <div class="toolParamHelp" style="clear: both;">
                     %if disabled:
@@ -254,6 +254,7 @@
     %endif
 </%def>
 
+<<<<<<< HEAD
 <%def name="dependency_status_updater()">
     <script type="text/javascript">
         // Tool dependency status updater - used to update the installation status on the Tool Dependencies Grid.
@@ -302,6 +303,8 @@
     </script>
 </%def>
 
+=======
+>>>>>>> refs/heads/release_21.01
 <%def name="repository_installation_status_updater()">
     <script type="text/javascript">
         // Tool shed repository status updater - used to update the installation status on the Repository Installation Grid.
@@ -357,6 +360,7 @@
     </script>
 </%def>
 
+<<<<<<< HEAD
 <%def name="tool_dependency_installation_updater()">
     <%
         can_update = False
@@ -374,6 +378,8 @@
     %endif
 </%def>
 
+=======
+>>>>>>> refs/heads/release_21.01
 <%def name="repository_installation_updater()">
     <%
         can_update = False

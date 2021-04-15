@@ -5,10 +5,16 @@ API operations on a jobs.
 """
 
 import logging
+import typing
 
-from six import string_types
-from sqlalchemy import or_
+from fastapi import Depends
+from fastapi_utils.cbv import cbv
+from fastapi_utils.inferring_router import InferringRouter as APIRouter
+from sqlalchemy import (
+    or_,
+)
 
+<<<<<<< HEAD
 from galaxy import exceptions
 from galaxy import model
 from galaxy import util
@@ -19,31 +25,102 @@ from galaxy.web import _future_expose_api_anonymous as expose_api_anonymous
 from galaxy.web.base.controller import BaseAPIController
 from galaxy.web.base.controller import UsesLibraryMixinItems
 from galaxy.work.context import WorkRequestContext
+=======
+from galaxy import (
+    exceptions,
+    model,
+    util,
+)
+from galaxy.app import UniverseApplication
+from galaxy.managers import hdas
+from galaxy.managers.jobs import (
+    JobLock,
+    JobManager,
+    JobSearch,
+    summarize_destination_params,
+    summarize_job_metrics,
+    summarize_job_parameters,
+    view_show_job,
+)
+from galaxy.schema.fields import EncodedDatabaseIdField
+from galaxy.web import (
+    expose_api,
+    expose_api_anonymous,
+    require_admin,
+)
+from galaxy.webapps.base.controller import (
+    BaseAPIController,
+    UsesVisualizationMixin
+)
+from galaxy.work.context import (
+    SessionRequestContext,
+    WorkRequestContext,
+)
+from . import (
+    get_app,
+    get_job_manager,
+    get_trans,
+)
+>>>>>>> refs/heads/release_21.01
 
 log = logging.getLogger(__name__)
+
+router = APIRouter(tags=["jobs"])
+
+
+def get_job_search(app: UniverseApplication = Depends(get_app)) -> JobSearch:
+    return JobSearch(app=app)
+
+
+def get_hda_manager(app: UniverseApplication = Depends(get_app)) -> hdas.HDAManager:
+    return app.hda_manager
+
+
+@cbv(router)
+class FastAPIJobs:
+    job_manager: JobManager = Depends(get_job_manager)
+    job_search: JobSearch = Depends(get_job_search)
+    hda_manager: hdas.HDAManager = Depends(get_hda_manager)
+
+    @router.get("/api/job/{id}")
+    def show(self, id: EncodedDatabaseIdField, trans: SessionRequestContext = Depends(get_trans), full: typing.Optional[bool] = False) -> typing.Dict:
+        """
+        Return dictionary containing description of job data
+
+        Parameters
+        - id: ID of job to return
+        - full: Return extra information ?
+        """
+        id = trans.app.security.decode_id(id)
+        job = self.job_manager.get_accessible_job(trans, id)
+        return view_show_job(trans, job, bool(full))
 
 
 class JobController(BaseAPIController, UsesLibraryMixinItems):
 
     def __init__(self, app):
+<<<<<<< HEAD
         super(JobController, self).__init__(app)
         self.dataset_manager = DatasetManager(app)
+=======
+        super().__init__(app)
+        self.job_manager = JobManager(app)
+>>>>>>> refs/heads/release_21.01
         self.job_search = JobSearch(app)
+        self.hda_manager = hdas.HDAManager(app)
 
     @expose_api
     def index(self, trans, **kwd):
         """
-        index( trans, state=None, tool_id=None, history_id=None, date_range_min=None, date_range_max=None, user_details=False )
-        * GET /api/jobs:
-            return jobs for current user
+        GET /api/jobs
 
-            !! if user is admin and user_details is True, then
-                return jobs for all galaxy users based on filtering - this is an extended service
+        return jobs for current user
+
+        if user is admin and user_details is True, then
+        return jobs for all galaxy users based on filtering - this is an extended service
 
         :type   state: string or list
         :param  state: limit listing of jobs to those that match one of the included states. If none, all are returned.
-        Valid Galaxy job states include:
-                'new', 'upload', 'waiting', 'queued', 'running', 'ok', 'error', 'paused', 'deleted', 'deleted_new'
 
         :type   tool_id: string or list
         :param  tool_id: limit listing of jobs to those that match one of the included tool_ids. If none, all are returned.
@@ -74,7 +151,7 @@ class JobController(BaseAPIController, UsesLibraryMixinItems):
 
         def build_and_apply_filters(query, objects, filter_func):
             if objects is not None:
-                if isinstance(objects, string_types):
+                if isinstance(objects, str):
                     query = query.filter(filter_func(objects))
                 elif isinstance(objects, list):
                     t = []
@@ -130,9 +207,8 @@ class JobController(BaseAPIController, UsesLibraryMixinItems):
         :returns:   dictionary containing full description of job data
         """
         job = self.__get_job(trans, id)
-        is_admin = trans.user_is_admin
-        job_dict = self.encode_all_ids(trans, job.to_dict('element', system_details=is_admin), True)
         full_output = util.asbool(kwd.get('full', 'false'))
+<<<<<<< HEAD
         if full_output:
             job_dict.update(dict(stderr=job.stderr, stdout=job.stdout))
             if is_admin:
@@ -156,13 +232,45 @@ class JobController(BaseAPIController, UsesLibraryMixinItems):
 
                 job_dict['job_metrics'] = [metric_to_dict(metric) for metric in job.metrics]
         return job_dict
+=======
+        return view_show_job(trans, job, full_output)
+>>>>>>> refs/heads/release_21.01
 
     @expose_api
+<<<<<<< HEAD
+=======
+    def common_problems(self, trans, id, **kwd):
+        """
+        * GET /api/jobs/{id}/common_problems
+            check inputs and job for common potential problems to aid in error reporting
+        """
+        job = self.__get_job(trans, id)
+        seen_ids = set()
+        has_empty_inputs = False
+        has_duplicate_inputs = False
+        for job_input_assoc in job.input_datasets:
+            input_dataset_instance = job_input_assoc.dataset
+            if input_dataset_instance is None:
+                continue
+            if input_dataset_instance.get_total_size() == 0:
+                has_empty_inputs = True
+            input_instance_id = input_dataset_instance.id
+            if input_instance_id in seen_ids:
+                has_duplicate_inputs = True
+            else:
+                seen_ids.add(input_instance_id)
+        # TODO: check percent of failing jobs around a window on job.update_time for handler - report if high.
+        # TODO: check percent of failing jobs around a window on job.update_time for destination_id - report if high.
+        # TODO: sniff inputs (add flag to allow checking files?)
+        return {"has_empty_inputs": has_empty_inputs, "has_duplicate_inputs": has_duplicate_inputs}
+
+    @expose_api
+>>>>>>> refs/heads/release_21.01
     def inputs(self, trans, id, **kwd):
         """
-        show( trans, id )
-        * GET /api/jobs/{id}/inputs
-            returns input datasets created by job
+        GET /api/jobs/{id}/inputs
+
+        returns input datasets created by job
 
         :type   id: string
         :param  id: Encoded job id
@@ -198,15 +306,13 @@ class JobController(BaseAPIController, UsesLibraryMixinItems):
 
         :type   id: string
         :param  id: Encoded job id
+        :type   message: string
+        :param  message: Stop message.
         """
+        payload = kwd.get("payload") or {}
         job = self.__get_job(trans, id)
-        if not job.finished:
-            job.mark_deleted(self.app.config.track_jobs_in_database)
-            trans.sa_session.flush()
-            self.app.job_manager.stop(job)
-            return True
-        else:
-            return False
+        message = payload.get("message", None)
+        return self.job_manager.stop(job, message=message)
 
     @expose_api
     def resume(self, trans, id, **kwd):
@@ -230,6 +336,80 @@ class JobController(BaseAPIController, UsesLibraryMixinItems):
         return self.__dictify_associations(trans, job.output_datasets, job.output_library_datasets)
 
     @expose_api_anonymous
+<<<<<<< HEAD
+=======
+    def metrics(self, trans, **kwd):
+        """
+        * GET /api/jobs/{job_id}/metrics
+        * GET /api/datasets/{dataset_id}/metrics
+            Return job metrics for specified job. Job accessibility checks are slightly
+            different than dataset checks, so both methods are available.
+
+        :type   job_id: string
+        :param  job_id: Encoded job id
+
+        :type   dataset_id: string
+        :param  dataset_id: Encoded HDA or LDDA id
+
+        :type   hda_ldda: string
+        :param  hda_ldda: hda if dataset_id is an HDA id (default), ldda if
+                          it is an ldda id.
+
+        :rtype:     list
+        :returns:   list containing job metrics
+        """
+        job = self.__get_job(trans, **kwd)
+        return summarize_job_metrics(trans, job)
+
+    @require_admin
+    @expose_api
+    def destination_params(self, trans, **kwd):
+        """
+        * GET /api/jobs/{job_id}/destination_params
+            Return destination parameters for specified job.
+
+        :type   job_id: string
+        :param  job_id: Encoded job id
+
+        :rtype:     list
+        :returns:   list containing job destination parameters
+        """
+        job = self.__get_job(trans, **kwd)
+        return summarize_destination_params(trans, job)
+
+    @expose_api_anonymous
+    def parameters_display(self, trans, **kwd):
+        """
+        * GET /api/jobs/{job_id}/parameters_display
+        * GET /api/datasets/{dataset_id}/parameters_display
+
+            Resolve parameters as a list for nested display. More client logic
+            here than is ideal but it is hard to reason about tool parameter
+            types on the client relative to the server. Job accessibility checks
+            are slightly different than dataset checks, so both methods are
+            available.
+
+            This API endpoint is unstable and tied heavily to Galaxy's JS client code,
+            this endpoint will change frequently.
+
+        :type   job_id: string
+        :param  job_id: Encoded job id
+
+        :type   dataset_id: string
+        :param  dataset_id: Encoded HDA or LDDA id
+
+        :type   hda_ldda: string
+        :param  hda_ldda: hda if dataset_id is an HDA id (default), ldda if
+                          it is an ldda id.
+
+        :rtype:     list
+        :returns:   job parameters for for display
+        """
+        job = self.__get_job(trans, **kwd)
+        return summarize_job_parameters(trans, job)
+
+    @expose_api_anonymous
+>>>>>>> refs/heads/release_21.01
     def build_for_rerun(self, trans, id, **kwd):
         """
         * GET /api/jobs/{id}/build_for_rerun
@@ -270,6 +450,7 @@ class JobController(BaseAPIController, UsesLibraryMixinItems):
                 dataset_dict = dict(src="ldda", id=trans.security.encode_id(dataset.id))
         return dict(name=job_dataset_association.name, dataset=dataset_dict)
 
+<<<<<<< HEAD
     def __get_job(self, trans, id):
         try:
             decoded_job_id = self.decode_id(id)
@@ -287,6 +468,17 @@ class JobController(BaseAPIController, UsesLibraryMixinItems):
                 if not self.dataset_manager.is_accessible(data_assoc.dataset.dataset, trans.user):
                     raise exceptions.ItemAccessibilityException("You are not allowed to rerun this job.")
         return job
+=======
+    def __get_job(self, trans, job_id=None, dataset_id=None, **kwd):
+        if job_id is not None:
+            decoded_job_id = self.decode_id(job_id)
+            return self.job_manager.get_accessible_job(trans, decoded_job_id)
+        else:
+            hda_ldda = kwd.get("hda_ldda", "hda")
+            # Following checks dataset accessible
+            dataset_instance = self.get_hda_or_ldda(trans, hda_ldda=hda_ldda, dataset_id=dataset_id)
+            return dataset_instance.creating_job
+>>>>>>> refs/heads/release_21.01
 
     @expose_api
     def create(self, trans, payload, **kwd):
@@ -313,12 +505,12 @@ class JobController(BaseAPIController, UsesLibraryMixinItems):
         """
         tool_id = payload.get('tool_id')
         if tool_id is None:
-            raise exceptions.ObjectAttributeMissingException("No tool id")
+            raise exceptions.RequestParameterMissingException("No tool id")
         tool = trans.app.toolbox.get_tool(tool_id)
         if tool is None:
             raise exceptions.ObjectNotFound("Requested tool not found")
         if 'inputs' not in payload:
-            raise exceptions.ObjectAttributeMissingException("No inputs defined")
+            raise exceptions.RequestParameterMissingException("No inputs defined")
         inputs = payload.get('inputs', {})
         # Find files coming in as multipart file data and add to inputs.
         for k, v in payload.items():
@@ -342,7 +534,7 @@ class JobController(BaseAPIController, UsesLibraryMixinItems):
         return [self.encode_all_ids(trans, single_job.to_dict('element'), True) for single_job in jobs]
 
     @expose_api_anonymous
-    def error(self, trans, id, **kwd):
+    def error(self, trans, id, payload, **kwd):
         """
         error( trans, id )
         * POST /api/jobs/{id}/error
@@ -355,16 +547,18 @@ class JobController(BaseAPIController, UsesLibraryMixinItems):
         :returns:   dictionary containing information regarding where the error report was sent.
         """
         # Get dataset on which this error was triggered
-        try:
-            decoded_dataset_id = self.decode_id(kwd['dataset_id'])
-        except Exception:
-            raise exceptions.MalformedId()
-        dataset = trans.sa_session.query(trans.app.model.HistoryDatasetAssociation).get(decoded_dataset_id)
+        dataset_id = payload.get('dataset_id')
+        if not dataset_id:
+            raise exceptions.RequestParameterMissingException('No dataset_id')
+        decoded_dataset_id = self.decode_id(dataset_id)
+        dataset = self.hda_manager.get_accessible(decoded_dataset_id, trans.user)
 
         # Get job
         job = self.__get_job(trans, id)
+        if dataset.creating_job.id != job.id:
+            raise exceptions.RequestParameterInvalidException('dataset_id was not created by job_id')
         tool = trans.app.toolbox.get_tool(job.tool_id, tool_version=job.tool_version) or None
-        email = kwd.get('email')
+        email = payload.get('email')
         if not email and not trans.anonymous:
             email = trans.user.email
         messages = trans.app.error_reports.default_error_plugin.submit_report(
@@ -374,7 +568,27 @@ class JobController(BaseAPIController, UsesLibraryMixinItems):
             user_submission=True,
             user=trans.user,
             email=email,
-            message=kwd.get('message')
+            message=payload.get('message')
         )
 
         return {'messages': messages}
+
+    @require_admin
+    @expose_api
+    def show_job_lock(self, trans, **kwd):
+        """
+        * GET /api/job_lock
+            return boolean indicating if job lock active.
+        """
+        return self.job_manager.job_lock()
+
+    @require_admin
+    @expose_api
+    def update_job_lock(self, trans, payload, **kwd):
+        """
+        * PUT /api/job_lock
+            return boolean indicating if job lock active.
+        """
+        active = payload.get("active")
+        job_lock = JobLock(active=active)
+        return self.job_manager.update_job_lock(job_lock)

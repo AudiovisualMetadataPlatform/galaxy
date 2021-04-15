@@ -11,6 +11,7 @@ A sharable Galaxy object:
 """
 import logging
 import re
+from typing import Optional, Type
 
 from sqlalchemy import true
 
@@ -23,6 +24,7 @@ from galaxy.managers import (
     taggable,
     users
 )
+from galaxy.model import UserShareAssociation
 
 log = logging.getLogger(__name__)
 
@@ -33,13 +35,13 @@ class SharableModelManager(base.ModelManager, secured.OwnableManagerMixin, secur
     # base.DeleteableModelMixin? (all four are deletable)
 
     #: the model used for UserShareAssociations with this model
-    user_share_model = None
+    user_share_model: Type[UserShareAssociation]
 
     #: the single character abbreviation used in username_and_slug: e.g. 'h' for histories: u/user/h/slug
-    SINGLE_CHAR_ABBR = None
+    SINGLE_CHAR_ABBR: Optional[str] = None
 
     def __init__(self, app):
-        super(SharableModelManager, self).__init__(app)
+        super().__init__(app)
         # user manager is needed to check access/ownership/admin
         self.user_manager = users.UserManager(app)
 
@@ -152,7 +154,7 @@ class SharableModelManager(base.ModelManager, secured.OwnableManagerMixin, secur
         # precondition: user has been validated
         # allow user to be a list and call recursivly
         if isinstance(user, list):
-            return map(lambda user: self.share_with(item, user, flush=False), user)
+            return [self.share_with(item, _, flush=False) for _ in user]
         # get or create
         existing = self.get_share_assocs(item, user=user)
         if existing:
@@ -181,7 +183,7 @@ class SharableModelManager(base.ModelManager, secured.OwnableManagerMixin, secur
         Delete a user share (or list of shares) from the database.
         """
         if isinstance(user, list):
-            return map(lambda user: self.unshare_with(item, user, flush=False), user)
+            return [self.unshare_with(item, _, flush=False) for _ in user]
         # Look for and delete sharing relation for user.
         user_share_assoc = self.get_share_assocs(item, user=user)[0]
         self.session().delete(user_share_assoc)
@@ -316,10 +318,10 @@ class SharableModelManager(base.ModelManager, secured.OwnableManagerMixin, secur
 class SharableModelSerializer(base.ModelSerializer,
        taggable.TaggableSerializerMixin, annotatable.AnnotatableSerializerMixin, ratable.RatableSerializerMixin):
     # TODO: stub
-    SINGLE_CHAR_ABBR = None
+    SINGLE_CHAR_ABBR: Optional[str] = None
 
     def __init__(self, app, **kwargs):
-        super(SharableModelSerializer, self).__init__(app, **kwargs)
+        super().__init__(app, **kwargs)
         self.add_view('sharing', [
             'id',
             'title',
@@ -330,7 +332,7 @@ class SharableModelSerializer(base.ModelSerializer,
         ])
 
     def add_serializers(self):
-        super(SharableModelSerializer, self).add_serializers()
+        super().add_serializers()
         taggable.TaggableSerializerMixin.add_serializers(self)
         annotatable.AnnotatableSerializerMixin.add_serializers(self)
         ratable.RatableSerializerMixin.add_serializers(self)
@@ -379,7 +381,7 @@ class SharableModelDeserializer(base.ModelDeserializer,
         taggable.TaggableDeserializerMixin, annotatable.AnnotatableDeserializerMixin, ratable.RatableDeserializerMixin):
 
     def add_deserializers(self):
-        super(SharableModelDeserializer, self).add_deserializers()
+        super().add_deserializers()
         taggable.TaggableDeserializerMixin.add_deserializers(self)
         annotatable.AnnotatableDeserializerMixin.add_deserializers(self)
         ratable.RatableDeserializerMixin.add_deserializers(self)
@@ -427,7 +429,7 @@ class SharableModelDeserializer(base.ModelDeserializer,
         unencoded_ids = [self.app.security.decode_id(id_) for id_ in val]
         new_users_shared_with = set(self.manager.user_manager.by_ids(unencoded_ids))
         current_shares = self.manager.get_share_assocs(item)
-        currently_shared_with = set([share.user for share in current_shares])
+        currently_shared_with = {share.user for share in current_shares}
 
         needs_adding = new_users_shared_with - currently_shared_with
         for user in needs_adding:
@@ -446,7 +448,7 @@ class SharableModelFilters(base.ModelFilterParser,
         taggable.TaggableFilterMixin, annotatable.AnnotatableFilterMixin, ratable.RatableFilterMixin):
 
     def _add_parsers(self):
-        super(SharableModelFilters, self)._add_parsers()
+        super()._add_parsers()
         taggable.TaggableFilterMixin._add_parsers(self)
         annotatable.AnnotatableFilterMixin._add_parsers(self)
         ratable.RatableFilterMixin._add_parsers(self)

@@ -1,18 +1,30 @@
 import collections
 import os
-import tempfile
 
 import pytest
 
 from galaxy.datatypes.registry import Registry
+<<<<<<< HEAD
+=======
+from galaxy.util.checkers import (
+    is_bz2,
+    is_gzip,
+    is_zip
+)
+>>>>>>> refs/heads/release_21.01
 from galaxy.util.hash_util import md5_hash_file
+<<<<<<< HEAD
 from .test_upload_configuration_options import BaseUploadContentConfigurationTestCase
+=======
+from galaxy_test.driver import integration_util
+from .test_upload_configuration_options import BaseUploadContentConfigurationInstance
+>>>>>>> refs/heads/release_21.01
 
 SCRIPT_DIRECTORY = os.path.abspath(os.path.dirname(__file__))
 TEST_FILE_DIR = '%s/../../lib/galaxy/datatypes/test' % SCRIPT_DIRECTORY
 TEST_DATA = collections.namedtuple('UploadDatatypesData', 'path datatype uploadable')
 GALAXY_ROOT = os.path.abspath('%s/../../' % SCRIPT_DIRECTORY)
-DATATYPES_CONFIG = os.path.join(GALAXY_ROOT, 'config/datatypes_conf.xml.sample')
+DATATYPES_CONFIG = os.path.join(GALAXY_ROOT, 'lib/galaxy/config/sample/datatypes_conf.xml.sample')
 PARENT_SNIFFER_MAP = {'fastqsolexa': 'fastq'}
 
 
@@ -39,6 +51,8 @@ def collect_test_data():
 class UploadTestDatatypeDataTestCase(BaseUploadContentConfigurationTestCase):
     framework_tool_and_types = False
     datatypes_conf_override = DATATYPES_CONFIG
+    object_store_config = None
+    object_store_config_path = None
 
     def runTest(self):
         # we don't want to run the standard unittest tests when we setup UploadTestDatatypeDataTestCase
@@ -54,6 +68,7 @@ def instance():
     instance.tearDownClass()
 
 
+<<<<<<< HEAD
 @pytest.fixture
 def temp_file():
     with tempfile.NamedTemporaryFile(delete=True, mode='wb') as fh:
@@ -61,10 +76,27 @@ def temp_file():
 
 
 TEST_CASES = collect_test_data()
+=======
+registry = Registry()
+registry.load_datatypes(root_dir=GALAXY_ROOT, config=DATATYPES_CONFIG)
+TEST_CASES = collect_test_data(registry)
+>>>>>>> refs/heads/release_21.01
 
 
 @pytest.mark.parametrize('test_data', TEST_CASES.values(), ids=list(TEST_CASES.keys()))
 def test_upload_datatype_auto(instance, test_data, temp_file):
+<<<<<<< HEAD
+=======
+    upload_datatype_helper(instance, test_data, temp_file)
+
+
+def upload_datatype_helper(instance, test_data, temp_file):
+    is_compressed = False
+    for is_method in (is_bz2, is_gzip, is_zip):
+        is_compressed = is_method(test_data.path)
+        if is_compressed:
+            break
+>>>>>>> refs/heads/release_21.01
     with open(test_data.path, 'rb') as content:
         if hasattr(test_data.datatype, 'sniff') or 'false' in test_data.path:
             file_type = 'auto'

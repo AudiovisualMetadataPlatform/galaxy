@@ -18,7 +18,12 @@ CREATE_VENV=1
 REPLACE_PIP=$SET_VENV
 COPY_SAMPLE_FILES=1
 SKIP_CLIENT_BUILD=${GALAXY_SKIP_CLIENT_BUILD:-0}
+<<<<<<< HEAD
 NODE_VERSION=${GALAXY_NODE_VERSION:-"10.13.0"}
+=======
+CLIENT_DEV_SERVER=${GALAXY_CLIENT_DEV_SERVER:-0}
+NODE_VERSION=${GALAXY_NODE_VERSION:-"$(cat client/.node_version)"}
+>>>>>>> refs/heads/release_21.01
 
 for arg in "$@"; do
     [ "$arg" = "--skip-eggs" ] && FETCH_WHEELS=0
@@ -32,11 +37,12 @@ for arg in "$@"; do
     [ "$arg" = "--skip-client-build" ] && SKIP_CLIENT_BUILD=1
 done
 
+# If a client dev server is being configured, skip the client build.
+if [ $CLIENT_DEV_SERVER -ne 0 ]; then
+    SKIP_CLIENT_BUILD=1
+fi
+
 SAMPLES="
-    config/migrated_tools_conf.xml.sample
-    config/shed_tool_conf.xml.sample
-    config/shed_tool_data_table_conf.xml.sample
-    config/shed_data_manager_conf.xml.sample
     lib/tool_shed/scripts/bootstrap_tool_shed/user_info.xml.sample
     tool-data/shared/ucsc/builds.txt.sample
     tool-data/shared/ucsc/manual_builds.txt.sample
@@ -73,7 +79,7 @@ if [ $COPY_SAMPLE_FILES -eq 1 ]; then
     # Create any missing config/location files
     for sample in $SAMPLES; do
         file=${sample%.sample}
-        if [ ! -f "$file" -a -f "$sample" ]; then
+        if [ ! -f "$file" ] && [ -f "$sample" ]; then
             echo "Initializing $file from $(basename "$sample")"
             cp "$sample" "$file"
         fi
@@ -106,7 +112,7 @@ fi
 : ${GALAXY_VIRTUAL_ENV:=.venv}
 # GALAXY_CONDA_ENV is not set here because we don't want to execute the Galaxy version check if we don't need to
 
-if [ $SET_VENV -eq 1 -a $CREATE_VENV -eq 1 ]; then
+if [ $SET_VENV -eq 1 ] && [ $CREATE_VENV -eq 1 ]; then
     if [ ! -d "$GALAXY_VIRTUAL_ENV" ]; then
         # Locate `conda` and set $CONDA_EXE (if needed). If `python` is Conda Python and $GALAXY_VIRTUAL_ENV does not
         # exist, virtualenv will not be used. setup_python calls this as well but in this case we need it done
@@ -121,25 +127,33 @@ if [ $SET_VENV -eq 1 -a $CREATE_VENV -eq 1 ]; then
                     echo "Creating Conda environment for Galaxy: $GALAXY_CONDA_ENV"
                     echo "To avoid this, use the --no-create-venv flag or set \$GALAXY_CONDA_ENV to an"
                     echo "existing environment before starting Galaxy."
-                    $CONDA_EXE create --yes --override-channels --channel conda-forge --channel defaults --name "$GALAXY_CONDA_ENV" 'python=2.7' 'pip>=9' 'virtualenv>=16'
+                    $CONDA_EXE create --yes --override-channels --channel conda-forge --channel defaults --name "$GALAXY_CONDA_ENV" 'python=3.6' 'pip>=9' 'virtualenv>=16'
                     unset __CONDA_INFO
                 fi
                 conda_activate
             fi
             virtualenv "$GALAXY_VIRTUAL_ENV"
         else
-            # If .venv does not exist, and there is no conda available, attempt to create it.
-            # Ensure Python is a supported version before creating .venv
+            # If $GALAXY_VIRTUAL_ENV does not exist, and there is no conda available, attempt to create it.
+            if [ -z "$GALAXY_PYTHON" ]; then
+                if command -v python3 >/dev/null; then
+                    GALAXY_PYTHON=python3
+                else
+                    GALAXY_PYTHON=python
+                fi
+            fi
+            # Ensure Python is a supported version before creating $GALAXY_VIRTUAL_ENV
+            "$GALAXY_PYTHON" ./scripts/check_python.py || exit 1
             echo "Creating Python virtual environment for Galaxy: $GALAXY_VIRTUAL_ENV"
+            echo "using Python: $GALAXY_PYTHON"
             echo "To avoid this, use the --no-create-venv flag or set \$GALAXY_VIRTUAL_ENV to an"
             echo "existing environment before starting Galaxy."
-            python ./scripts/check_python.py || exit 1
             if command -v virtualenv >/dev/null; then
-                virtualenv -p "$(command -v python)" "$GALAXY_VIRTUAL_ENV"
+                virtualenv -p "$GALAXY_PYTHON" "$GALAXY_VIRTUAL_ENV"
             else
-                vvers=16.1.0
+                vvers=16.7.9
                 vurl="https://files.pythonhosted.org/packages/source/v/virtualenv/virtualenv-${vvers}.tar.gz"
-                vsha=f899fafcd92e1150f40c8215328be38ff24b519cd95357fa6e78e006c7638208
+                vsha=0d62c70883c0342d59c11d0ddac0d954d0431321a41ab20851facf2b222598f3
                 vtmp=$(mktemp -d -t galaxy-virtualenv-XXXXXX)
                 vsrc="$vtmp/$(basename $vurl)"
                 # SSL certificates are not checked to prevent problems with messed
@@ -151,16 +165,16 @@ if [ $SET_VENV -eq 1 -a $CREATE_VENV -eq 1 ]; then
                 elif command -v wget >/dev/null; then
                     wget --no-check-certificate -O "$vsrc" "$vurl"
                 else
-                    python -c "try:
+                    "$GALAXY_PYTHON" -c "try:
     from urllib import urlretrieve
 except:
     from urllib.request import urlretrieve
 urllib.urlretrieve('$vurl', '$vsrc')"
                 fi
                 echo "Verifying $vsrc checksum is $vsha"
-                python -c "import hashlib; assert hashlib.sha256(open('$vsrc', 'rb').read()).hexdigest() == '$vsha', '$vsrc: invalid checksum'"
+                "$GALAXY_PYTHON" -c "import hashlib; assert hashlib.sha256(open('$vsrc', 'rb').read()).hexdigest() == '$vsha', '$vsrc: invalid checksum'"
                 tar zxf "$vsrc" -C "$vtmp"
-                python "$vtmp/virtualenv-$vvers/src/virtualenv.py" "$GALAXY_VIRTUAL_ENV"
+                "$GALAXY_PYTHON" "$vtmp/virtualenv-$vvers/virtualenv.py" "$GALAXY_VIRTUAL_ENV"
                 rm -rf "$vtmp"
             fi
         fi
@@ -170,14 +184,8 @@ fi
 # activate virtualenv or conda env, sets $GALAXY_VIRTUAL_ENV and $GALAXY_CONDA_ENV
 setup_python
 
-if [ $SET_VENV -eq 1 -a -z "$VIRTUAL_ENV" -a -z "$CONDA_DEFAULT_ENV" ]; then
+if [ $SET_VENV -eq 1 ] && [ -z "$VIRTUAL_ENV" ]; then
     echo "ERROR: A virtualenv cannot be found. Please create a virtualenv in $GALAXY_VIRTUAL_ENV, or activate one."
-    exit 1
-fi
-
-# this shouldn't happen, but check just in case
-if [ -z "$VIRTUAL_ENV" ] && [ "$CONDA_DEFAULT_ENV" = "base" -o "$CONDA_DEFAULT_ENV" = "root" ]; then
-    echo "ERROR: Conda is in 'base' environment, refusing to continue"
     exit 1
 fi
 
@@ -185,13 +193,15 @@ fi
 : ${PYPI_INDEX_URL:="https://pypi.python.org/simple"}
 : ${GALAXY_DEV_REQUIREMENTS:="./lib/galaxy/dependencies/dev-requirements.txt"}
 if [ $REPLACE_PIP -eq 1 ]; then
-    pip install 'pip>=8.1'
+    python -m pip install 'pip>=8.1'
 fi
 
 requirement_args="-r requirements.txt"
 if [ $DEV_WHEELS -eq 1 ]; then
     requirement_args="$requirement_args -r ${GALAXY_DEV_REQUIREMENTS}"
 fi
+
+[ "$CI" = 'true' ] && export PIP_PROGRESS_BAR=off
 
 if [ $FETCH_WHEELS -eq 1 ]; then
     pip install $requirement_args --index-url "${GALAXY_WHEELS_INDEX_URL}" --extra-index-url "${PYPI_INDEX_URL}"
@@ -211,10 +221,20 @@ if [ $SKIP_CLIENT_BUILD -eq 0 ]; then
         # If git is not used and static/client_build_hash.txt is present, next
         # client rebuilds must be done manually by the admin
         if [ "$GIT_BRANCH" = "0" ]; then
+<<<<<<< HEAD
+=======
+            echo "Skipping Galaxy client build because git is not in use and the client build state cannot be compared against local changes.  If you have made local modifications, then manual client builds will be required.  See ./client/README.md for more information."
+>>>>>>> refs/heads/release_21.01
             SKIP_CLIENT_BUILD=1
         else
+<<<<<<< HEAD
             # Check if anything has changed in client/ since the last build
             if git diff --quiet $(cat static/client_build_hash.txt) -- client/; then
+=======
+            # Check if anything has changed in client/ or visualization plugins since the last build
+            if git diff --quiet "$(cat static/client_build_hash.txt)" -- client/ config/plugins/visualizations/; then
+                echo "The Galaxy client build is up to date and will not be rebuilt at this time."
+>>>>>>> refs/heads/release_21.01
                 SKIP_CLIENT_BUILD=1
             else
                 echo "The Galaxy client is out of date and will be built now."
@@ -223,6 +243,24 @@ if [ $SKIP_CLIENT_BUILD -eq 0 ]; then
     else
         echo "The Galaxy client has not yet been built and will be built now."
     fi
+<<<<<<< HEAD
+=======
+else
+    echo "The Galaxy client build is being skipped due to the SKIP_CLIENT_BUILD environment variable."
+fi
+
+# Install node if not installed
+if [ -n "$VIRTUAL_ENV" ]; then
+    if ! in_venv "$(command -v node)" || [ "$(node --version)" != "v${NODE_VERSION}" ]; then
+        echo "Installing node into $VIRTUAL_ENV with nodeenv."
+        nodeenv -n "$NODE_VERSION" -p
+    fi
+elif [ -n "$CONDA_DEFAULT_ENV" ] && [ -n "$CONDA_EXE" ]; then
+    if ! in_conda_env "$(command -v node)"; then
+        echo "Installing node into '$CONDA_DEFAULT_ENV' Conda environment with conda."
+        $CONDA_EXE install --yes --override-channels --channel conda-forge --channel defaults --name "$CONDA_DEFAULT_ENV" nodejs="$NODE_VERSION"
+    fi
+>>>>>>> refs/heads/release_21.01
 fi
 
 # Build client if necessary.
@@ -237,10 +275,10 @@ if [ $SKIP_CLIENT_BUILD -eq 0 ]; then
             echo "Installing yarn into $VIRTUAL_ENV with npm."
             npm install --global yarn
         fi
-    elif [ -n "$CONDA_DEFAULT_ENV" -a -n "$CONDA_EXE" ]; then
+    elif [ -n "$CONDA_DEFAULT_ENV" ] && [ -n "$CONDA_EXE" ]; then
         if ! in_conda_env "$(command -v yarn)"; then
             echo "Installing yarn into '$CONDA_DEFAULT_ENV' Conda environment with conda."
-            $CONDA_EXE install --yes --override-channels --channel conda-forge --channel defaults --name $CONDA_DEFAULT_ENV yarn
+            $CONDA_EXE install --yes --override-channels --channel conda-forge --channel defaults --name "$CONDA_DEFAULT_ENV" yarn
         fi
     else
         echo "WARNING: Galaxy client build needed but there is no virtualenv enabled. Build may fail."

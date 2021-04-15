@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 uwsgi:
 
   # The address and port on which to listen.  By default, only listen to
@@ -391,3 +392,6 @@ tool_shed:
   # activation emails.
   #terms_url: null
 
+=======
+../lib/galaxy/config/sample/tool_shed.yml.sample
+>>>>>>> refs/heads/release_21.01

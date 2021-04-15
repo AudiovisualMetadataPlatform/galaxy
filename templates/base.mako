@@ -42,11 +42,12 @@
 <%def name="stylesheets()">
     ${h.css("base")}
     ${h.css('bootstrap-tour')}
-    ${h.css('base')}
+    ${h.dist_css('base')}
 </%def>
 
 ## Default javascripts
 <%def name="javascripts()">
+<<<<<<< HEAD
     ## Send errors to Sentry server if configured
     %if app.config.sentry_dsn:
         ${h.js( "libs/raven" )}
@@ -64,7 +65,26 @@
         'bundled/libs.chunk',
         'bundled/base.chunk',
         'bundled/extended.bundled'
+=======
+    ## TODO: remove when all libs are required directly in modules
+    ${h.dist_js(
+        'libs.chunk',
+        'base.chunk',
+        'generic.bundled'
+>>>>>>> refs/heads/release_21.01
     )}
+<<<<<<< HEAD
+=======
+</%def>
+
+<%def name="javascript_app()">
+
+    ${ galaxy_client.load( app=self.js_app ) }
+    ${ galaxy_client.config_sentry( app=self.js_app ) }
+    %if self.js_app and self.js_app.config and self.js_app.config.ga_code:
+        ${ galaxy_client.config_google_analytics(self.js_app.config.ga_code) }
+    %endif
+>>>>>>> refs/heads/release_21.01
 
     %if not form_input_auto_focus is UNDEFINED and form_input_auto_focus:
         <script type="text/javascript">

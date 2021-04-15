@@ -9,8 +9,13 @@ from galaxy import (
 )
 from galaxy.model.item_attrs import UsesAnnotations
 from galaxy.util.sanitize_html import sanitize_html
+<<<<<<< HEAD
 from galaxy.web import _future_expose_api as expose_api
 from galaxy.web.base.controller import (
+=======
+from galaxy.web import expose_api
+from galaxy.webapps.base.controller import (
+>>>>>>> refs/heads/release_21.01
     BaseAPIController,
     UsesStoredWorkflowMixin
 )
@@ -60,7 +65,7 @@ class HistoryAnnotationsController(BaseAnnotationsController):
     tagged_item_id = "history_id"
 
     def __init__(self, app):
-        super(HistoryAnnotationsController, self).__init__(app)
+        super().__init__(app)
         self.history_manager = managers.histories.HistoryManager(app)
 
     def _get_item_from_id(self, trans, idstr):
@@ -74,7 +79,7 @@ class HistoryContentAnnotationsController(BaseAnnotationsController):
     tagged_item_id = "history_content_id"
 
     def __init__(self, app):
-        super(HistoryContentAnnotationsController, self).__init__(app)
+        super().__init__(app)
         self.hda_manager = managers.hdas.HDAManager(app)
 
     def _get_item_from_id(self, trans, idstr):

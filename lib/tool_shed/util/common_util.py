@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import json
 import logging
 import os
@@ -348,3 +349,6 @@ def remove_protocol_and_user_from_clone_url(repository_clone_url):
 def remove_protocol_from_tool_shed_url(tool_shed_url):
     """Return a partial Tool Shed URL, eliminating the protocol if it exists."""
     return util.remove_protocol_from_url(tool_shed_url)
+=======
+from galaxy.util.tool_shed.common_util import *  # noqa: F401,F403
+>>>>>>> refs/heads/release_21.01

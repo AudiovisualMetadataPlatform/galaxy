@@ -117,40 +117,36 @@ http {
         server_name _;
 
         # use a variable for convenience
-		set $galaxy_root /srv/galaxy/server;
+        set $galaxy_root /srv/galaxy/server;
 
         # Enable HSTS
         add_header Strict-Transport-Security "max-age=15552000; includeSubdomains";
 
         # proxy all requests not matching other locations to uWSGI
         location / {
-            uwsgi_pass unix:///srv/galaxy/var/uwsgi.sock
+            uwsgi_pass unix:///srv/galaxy/var/uwsgi.sock;
             uwsgi_param UWSGI_SCHEME $scheme;
             include uwsgi_params;
         }
 
-		# serve framework static content
-		location /static/style {
-			alias $galaxy_root/static/style/blue;
-			expires 24h;
-		}
-		location /static {
-			alias $galaxy_root/static;
-			expires 24h;
-		}
-		location /robots.txt {
-			alias $galaxy_root/static/robots.txt;
-			expires 24h;
-		}
-		location /favicon.ico {
-			alias $galaxy_root/static/favicon.ico;
-			expires 24h;
-		}
+        # serve framework static content
+        location /static {
+            alias $galaxy_root/static;
+            expires 24h;
+        }
+        location /robots.txt {
+            alias $galaxy_root/static/robots.txt;
+            expires 24h;
+        }
+        location /favicon.ico {
+            alias $galaxy_root/static/favicon.ico;
+            expires 24h;
+        }
 
         # serve visualization and interactive environment plugin static content
-		location ~ ^/plugins/(?<plug_type>.+?)/(?<vis_name>.+?)/static/(?<static_file>.*?)$ {
+        location ~ ^/plugins/(?<plug_type>.+?)/(?<vis_name>.+?)/static/(?<static_file>.*?)$ {
             alias $galaxy_root/config/plugins/$plug_type/$vis_name/static/$static_file;
-			expires 24;
+            expires 24;
         }
     }
 }
@@ -203,8 +199,8 @@ previous section:
             }
 
             # serve framework static content
-            location /galaxy/static/style {
-                alias $galaxy_root/static/style/blue;
+            location /galaxy/static {
+                alias $galaxy_root/static;
                 expires 24h;
             }
 
@@ -221,7 +217,7 @@ previous section:
     ```yaml
     uwsgi:
         #...
-        socket: unix:///srv/galaxy/var/uwsgi.sock
+        socket: /srv/galaxy/var/uwsgi.sock
         mount: /galaxy=galaxy.webapps.galaxy.buildapp:uwsgi_app()
         manage-script-name: true
         # `module` MUST NOT be set when `mount` is in use
@@ -244,11 +240,20 @@ previous section:
 
 Galaxy sends files (e.g. dataset downloads) by opening the file and streaming it in chunks through the proxy server.
 However, this ties up the Galaxy process, which can impact the performance of other operations (see [Production Server
+<<<<<<< HEAD
 Configuration](production.html) for a more in-depth explanation).
+=======
+Configuration](production.md) for a more in-depth explanation).
+>>>>>>> refs/heads/release_21.01
 
+<<<<<<< HEAD
 Nginx can assume this task instead and as an added benefit, speed up downloads. This is accomplished through the use of
 the special `X-Accel-Redirect` header. Dataset security is maintained in this configuration because nginx will still
 check with Galaxy to ensure that the requesting user has permission to access the dataset before sending it.
+=======
+Nginx can assume this task instead and, as an added benefit, speed up downloads. In addition, the Integrative Genomics Viewer (IGV), the Integrated Genome Browser (IGB), and the JBrowse tool (run within Galaxy) require support for the HTTP *Range* header, and this is only available if the proxy serves datasets.
+This is accomplished through the use of the special `X-Accel-Redirect` header. Dataset security is maintained in this configuration because nginx will still check with Galaxy to ensure that the requesting user has permission to access the dataset before sending it.
+>>>>>>> refs/heads/release_21.01
 
 To enable it, add the following to your Galaxy's `server {}` block:
 
@@ -310,24 +315,24 @@ user galaxy;
 
 http {
 
-	#...
+    #...
 
     server {
 
-		#...
+        #...
 
         # handle file uploads via the upload module
-		location /_upload {
-			upload_store /srv/galaxy/upload_store;
-			upload_store_access user:rw group:rw;
-			upload_pass_form_field "";
-			upload_set_form_field "__${upload_field_name}__is_composite" "true";
-			upload_set_form_field "__${upload_field_name}__keys" "name path";
-			upload_set_form_field "${upload_field_name}_name" "$upload_file_name";
-			upload_set_form_field "${upload_field_name}_path" "$upload_tmp_path";
-			upload_pass_args on;
-			upload_pass /_upload_done;
-		}
+        location /_upload {
+            upload_store /srv/galaxy/upload_store;
+            upload_store_access user:rw group:rw;
+            upload_pass_form_field "";
+            upload_set_form_field "__${upload_field_name}__is_composite" "true";
+            upload_set_form_field "__${upload_field_name}__keys" "name path";
+            upload_set_form_field "${upload_field_name}_name" "$upload_file_name";
+            upload_set_form_field "${upload_field_name}_path" "$upload_tmp_path";
+            upload_pass_args on;
+            upload_pass /_upload_done;
+        }
 
         # once upload is complete, redirect to the proper galaxy path
         location /_upload_done {
@@ -356,11 +361,61 @@ galaxy:
     nginx_upload_path: '/_upload'
 ```
 
+```eval_rst
+.. _protect-reports:
+```
+
+### Creating archives with mod-zip
+
+Galaxy creates zip archives when downloading multiple datasets from a history or a dataset library.
+While this works fine for small datasets and few users, nginx can handle the creation of zip archives
+more efficiently using [mod-zip](https://www.nginx.com/resources/wiki/modules/zip/).
+To use this feature, install nginx with mod-zip enabled, provide the file locations from which
+nginx should serve files and edit `galaxy.yml` and make the following changes before restarting Galaxy:
+
+```yaml
+galaxy:
+    #...
+    upstream_mod_zip: true
+```
+
+Instead of creating archives Galaxy will send a special header containing the list of files to be archived.
+nginx needs to be able to serve these files. To serve files from /galaxy_root/database/files
+create the following location:
+
+```nginx
+http {
+
+    #...
+
+    server {
+
+        #...
+
+        # handle archive create via mod-zip
+        location /galaxy_root/database/files/ {
+            internal;
+            alias /galaxy_root/database/files/;
+        }
+}
+```
+
+The `internal;` statement means that the location can only be used for internal nginx requests.
+For external requests, the client error 404 (Not Found) is returned, meaning users cannot
+access arbitrary datasets in `/galaxy_root/database/files/` .
+
+Note that if you allow linking datasets from filesystem locations in your data libraries,
+these paths need to exposed in the same way.
+
 ### Use Galaxy Authentication to Protect Custom Paths
 
 You may find it useful to require authentication for access to certain paths on your server.  For example, Galaxy can
 run a separate reports app which gives useful information about your Galaxy instance. See the [Reports Configuration
+<<<<<<< HEAD
 documentation](reports.html) and [Peter Briggs' blog post on the
+=======
+documentation](./reports) and [Peter Briggs' blog post on the
+>>>>>>> refs/heads/release_21.01
 subject](http://galacticengineer.blogspot.com/2015/06/exposing-galaxy-reports-via-nginx-in.html) for more.
 
 After successfully following the blog post, Galaxy reports should be available at e.g. `https://galaxy.example.org/reports`.

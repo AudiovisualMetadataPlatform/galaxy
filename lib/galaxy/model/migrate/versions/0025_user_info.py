@@ -1,23 +1,28 @@
 """
 This script adds a foreign key to the form_values table in the galaxy_user table
 """
-from __future__ import print_function
 
 import logging
-import sys
 
+<<<<<<< HEAD
 from migrate import ForeignKeyConstraint
 from sqlalchemy import Column, Integer, MetaData, Table
 from sqlalchemy.exc import NoSuchTableError
+=======
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    Integer,
+    MetaData
+)
+
+from galaxy.model.migrate.versions.util import (
+    add_column,
+    drop_column
+)
+>>>>>>> refs/heads/release_21.01
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-handler = logging.StreamHandler(sys.stdout)
-format = "%(name)s %(levelname)s %(asctime)s %(message)s"
-formatter = logging.Formatter(format)
-handler.setFormatter(formatter)
-log.addHandler(handler)
-
 metadata = MetaData()
 
 
@@ -26,6 +31,7 @@ def upgrade(migrate_engine):
     print(__doc__)
     # Load existing tables
     metadata.reflect()
+<<<<<<< HEAD
     try:
         User_table = Table("galaxy_user", metadata, autoload=True)
     except NoSuchTableError:
@@ -54,6 +60,11 @@ def upgrade(migrate_engine):
                     cons.create()
                 except Exception:
                     log.exception("Adding foreign key constraint 'user_form_values_id_fk' to table 'galaxy_user' failed.")
+=======
+
+    col = Column("form_values_id", Integer, ForeignKey('form_values.id', name='user_form_values_id_fk'), index=True)
+    add_column(col, 'galaxy_user', metadata, index_name='ix_galaxy_user_form_values_id')
+>>>>>>> refs/heads/release_21.01
 
 
 def downgrade(migrate_engine):

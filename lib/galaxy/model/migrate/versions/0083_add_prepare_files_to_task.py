@@ -1,7 +1,6 @@
 """
 Migration script to add 'prepare_input_files_cmd' column to the task table and to rename a column.
 """
-from __future__ import print_function
 
 import logging
 
@@ -15,6 +14,7 @@ def upgrade(migrate_engine):
     metadata.bind = migrate_engine
     print(__doc__)
     metadata.reflect()
+<<<<<<< HEAD
     try:
         task_table = Table("task", metadata, autoload=True)
         c = Column("prepare_input_files_cmd", TEXT, nullable=True)
@@ -29,6 +29,15 @@ def upgrade(migrate_engine):
         assert c is task_table.c.working_directory
     except Exception:
         log.exception("Adding working_directory column to task table failed.")
+=======
+
+    task_table = Table("task", metadata, autoload=True)
+    c = Column("prepare_input_files_cmd", TEXT, nullable=True)
+    add_column(c, task_table, metadata)
+
+    c = Column("working_directory", String(1024), nullable=True)
+    add_column(c, task_table, metadata)
+>>>>>>> refs/heads/release_21.01
 
     # remove the 'part_file' column - nobody used tasks before this, so no data needs to be migrated
     try:
@@ -40,6 +49,7 @@ def upgrade(migrate_engine):
 def downgrade(migrate_engine):
     metadata.bind = migrate_engine
     metadata.reflect()
+<<<<<<< HEAD
     try:
         task_table = Table("task", metadata, autoload=True)
         task_table.c.prepare_input_files_cmd.drop()
@@ -57,3 +67,12 @@ def downgrade(migrate_engine):
         assert c is task_table.c.part_file
     except Exception:
         log.exception("Adding part_file column to task table failed.")
+=======
+
+    task_table = Table("task", metadata, autoload=True)
+    c = Column("part_file", String(1024), nullable=True)
+    add_column(c, task_table, metadata)
+
+    drop_column('working_directory', task_table)
+    drop_column('prepare_input_files_cmd', task_table)
+>>>>>>> refs/heads/release_21.01

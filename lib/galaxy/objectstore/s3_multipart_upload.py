@@ -17,7 +17,7 @@ try:
     import boto
     from boto.s3.connection import S3Connection
 except ImportError:
-    boto = None
+    boto = None  # type: ignore
 
 
 def map_wrap(f):

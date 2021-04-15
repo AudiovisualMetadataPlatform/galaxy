@@ -1,27 +1,29 @@
 import logging
 import time
+from typing import Optional
 
 from sqlalchemy import false, func
 
 from galaxy import util, web
+from galaxy.security.validate_user_input import validate_password
 from galaxy.util import inflector
 from galaxy.util.hash_util import new_secure_hash
 from galaxy.web.form_builder import CheckboxField
+from galaxy.web.legacy_framework.grids import Grid, GridOperation
 from tool_shed.util.web_util import escape
-
 
 log = logging.getLogger(__name__)
 compliance_log = logging.getLogger('COMPLIANCE')
 
 
-class Admin(object):
+class Admin:
     # Override these
-    user_list_grid = None
-    role_list_grid = None
-    group_list_grid = None
-    delete_operation = None
-    undelete_operation = None
-    purge_operation = None
+    user_list_grid: Optional[Grid] = None
+    role_list_grid: Optional[Grid] = None
+    group_list_grid: Optional[Grid] = None
+    delete_operation: Optional[GridOperation] = None
+    undelete_operation: Optional[GridOperation] = None
+    purge_operation: Optional[GridOperation] = None
 
     @web.expose
     @web.require_admin
@@ -173,7 +175,7 @@ class Admin(object):
                         role.description = new_description
                         trans.sa_session.add(role)
                         trans.sa_session.flush()
-                        message = "Role '%s' has been renamed to '%s'" % (old_name, new_name)
+                        message = f"Role '{old_name}' has been renamed to '{new_name}'"
                     return trans.response.send_redirect(web.url_for(controller='admin',
                                                                     action='roles',
                                                                     message=util.sanitize_text(message),
@@ -251,12 +253,12 @@ class Admin(object):
                     folder_path = ''
                     folder = ldda.library_dataset.folder
                     while not root_found:
-                        folder_path = '%s / %s' % (folder.name, folder_path)
+                        folder_path = f'{folder.name} / {folder_path}'
                         if not folder.parent:
                             root_found = True
                         else:
                             folder = folder.parent
-                    folder_path = '%s %s' % (folder_path, ldda.name)
+                    folder_path = f'{folder_path} {ldda.name}'
                     library = trans.sa_session.query(trans.app.model.Library) \
                                               .filter(trans.app.model.Library.table.c.root_folder_id == folder.id) \
                                               .first()
@@ -439,7 +441,7 @@ class Admin(object):
                         group.name = new_name
                         trans.sa_session.add(group)
                         trans.sa_session.flush()
-                        message = "Group '%s' has been renamed to '%s'" % (old_name, new_name)
+                        message = f"Group '{old_name}' has been renamed to '{new_name}'"
                     return trans.response.send_redirect(web.url_for(controller='admin',
                                                                     action='groups',
                                                                     message=util.sanitize_text(message),
@@ -685,12 +687,8 @@ class Admin(object):
                 user = get_user(trans, user_id)
                 password = kwd.get('password', None)
                 confirm = kwd.get('confirm', None)
-                if len(password) < 6:
-                    message = "Use a password of at least 6 characters."
-                    status = 'error'
-                    break
-                elif password != confirm:
-                    message = "Passwords do not match."
+                message = validate_password(trans, password, confirm)
+                if message:
                     status = 'error'
                     break
                 else:

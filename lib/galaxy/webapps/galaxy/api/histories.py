@@ -28,13 +28,20 @@ from galaxy.util import (
     string_as_bool
 )
 from galaxy.web import (
+<<<<<<< HEAD
     _future_expose_api as expose_api,
     _future_expose_api_anonymous as expose_api_anonymous,
     _future_expose_api_anonymous_and_sessionless as expose_api_anonymous_and_sessionless,
     _future_expose_api_raw as expose_api_raw,
     url_for
+=======
+    expose_api,
+    expose_api_anonymous,
+    expose_api_anonymous_and_sessionless,
+    expose_api_raw,
+>>>>>>> refs/heads/release_21.01
 )
-from galaxy.web.base.controller import (
+from galaxy.webapps.base.controller import (
     BaseAPIController,
     ExportsHistoryMixin,
     ImportsHistoryMixin,
@@ -47,11 +54,12 @@ log = logging.getLogger(__name__)
 class HistoriesController(BaseAPIController, ExportsHistoryMixin, ImportsHistoryMixin, SharableMixin):
 
     def __init__(self, app):
-        super(HistoriesController, self).__init__(app)
+        super().__init__(app)
         self.citations_manager = citations.CitationsManager(app)
         self.user_manager = users.UserManager(app)
         self.workflow_manager = workflows.WorkflowsManager(app)
         self.manager = histories.HistoryManager(app)
+        self.history_export_view = histories.HistoryExportView(app)
         self.serializer = histories.HistorySerializer(app)
         self.deserializer = histories.HistoryDeserializer(app)
         self.filters = histories.HistoryFilters(app)
@@ -59,11 +67,14 @@ class HistoriesController(BaseAPIController, ExportsHistoryMixin, ImportsHistory
     @expose_api_anonymous
     def index(self, trans, deleted='False', **kwd):
         """
-        index( trans, deleted='False' )
-        * GET /api/histories:
-            return undeleted histories for the current user
-        * GET /api/histories/deleted:
-            return deleted histories for the current user
+        GET /api/histories
+
+        return undeleted histories for the current user
+
+        GET /api/histories/deleted
+
+        return deleted histories for the current user
+
         .. note:: Anonymous users are allowed to get their current history
 
         :type   deleted: boolean
@@ -73,33 +84,48 @@ class HistoriesController(BaseAPIController, ExportsHistoryMixin, ImportsHistory
         :returns:   list of dictionaries containing summary history information
 
         The following are optional parameters:
+
             view:   string, one of ('summary','detailed'), defaults to 'summary'
                     controls which set of properties to return
             keys:   comma separated strings, unused by default
                     keys/names of individual properties to return
+            all:    boolean, defaults to 'false', admin-only
+                    returns all histories, not just current user's
 
         If neither keys or views are sent, the default view (set of keys) is returned.
         If both a view and keys are sent, the key list and the view's keys are
         combined.
+
         If keys are send and no view, only those properties in keys are returned.
 
-        For which properties are available see:
+        For which properties are available see
+
             galaxy/managers/histories/HistorySerializer
 
         The list returned can be filtered by using two optional parameters:
-            q:      string, generally a property name to filter by followed
-                    by an (often optional) hyphen and operator string.
-            qv:     string, the value to filter by
 
-        ..example:
+            :q:
+
+                string, generally a property name to filter by followed
+                by an (often optional) hyphen and operator string.
+
+            :qv:
+
+                string, the value to filter by
+
+        ..example::
+
             To filter the list to only those created after 2015-01-29,
             the query string would look like:
+
                 '?q=create_time-gt&qv=2015-01-29'
 
             Multiple filters can be sent in using multiple q/qv pairs:
+
                 '?q=create_time-gt&qv=2015-01-29&q=tag-has&qv=experiment-1'
 
         The list returned can be paginated using two optional parameters:
+
             limit:  integer, defaults to no value and no limit (return all)
                     how many items to return
             offset: integer, defaults to 0 and starts at the beginning
@@ -107,10 +133,12 @@ class HistoriesController(BaseAPIController, ExportsHistoryMixin, ImportsHistory
                     at the Nth item
 
         ..example:
+
             limit and offset can be combined. Skip the first two and return five:
                 '?limit=5&offset=3'
 
         The list returned can be ordered using the optional parameter:
+
             order:  string containing one of the valid ordering attributes followed
                     (optionally) by '-asc' or '-dsc' for ascending and descending
                     order respectively. Orders can be stacked as a comma-
@@ -121,6 +149,7 @@ class HistoriesController(BaseAPIController, ExportsHistoryMixin, ImportsHistory
                 '?order=name-dsc,create_time'
 
         The ordering attributes and their default orders are:
+
             create_time defaults to 'create_time-dsc'
             update_time defaults to 'update_time-dsc'
             name    defaults to 'name-asc'
@@ -144,8 +173,16 @@ class HistoriesController(BaseAPIController, ExportsHistoryMixin, ImportsHistory
         filters = []
         # support the old default of not-returning/filtering-out deleted histories
         filters += self._get_deleted_filter(deleted, filter_params)
-        # users are limited to requesting only their own histories (here)
-        filters += [self.app.model.History.user == current_user]
+        # get optional parameter 'all'
+        all_histories = util.string_as_bool(kwd.get('all', False))
+        # if parameter 'all' is true, throw exception if not admin
+        # else add current user filter to query (default behaviour)
+        if all_histories:
+            if not trans.user_is_admin:
+                message = "Only admins can query all histories"
+                raise exceptions.AdminRequiredException(message)
+        else:
+            filters += [self.app.model.History.user == current_user]
         # and any sent in from the query string
         filters += self.filters.parse_filters(filter_params)
 
@@ -226,9 +263,12 @@ class HistoriesController(BaseAPIController, ExportsHistoryMixin, ImportsHistory
     @expose_api_anonymous
     def citations(self, trans, history_id, **kwd):
         """
+        GET /api/histories/{id}/citations
+        Return all the citations for the tools used to produce the datasets in
+        the history.
         """
         history = self.manager.get_accessible(self.decode_id(history_id), trans.user, current_history=trans.history)
-        tool_ids = set([])
+        tool_ids = set()
         for dataset in history.datasets:
             job = dataset.creating_job
             if not job:
@@ -242,9 +282,9 @@ class HistoriesController(BaseAPIController, ExportsHistoryMixin, ImportsHistory
     @expose_api_anonymous_and_sessionless
     def published(self, trans, **kwd):
         """
-        published( self, trans, **kwd ):
-        * GET /api/histories/published:
-            return all histories that are published
+        GET /api/histories/published
+
+        return all histories that are published
 
         :rtype:     list
         :returns:   list of dictionaries containing summary history information
@@ -263,8 +303,7 @@ class HistoriesController(BaseAPIController, ExportsHistoryMixin, ImportsHistory
             rval.append(history_dict)
         return rval
 
-    # TODO: does this need to be anonymous_and_sessionless? Not just expose_api?
-    @expose_api_anonymous_and_sessionless
+    @expose_api
     def shared_with_me(self, trans, **kwd):
         """
         shared_with_me( self, trans, **kwd )
@@ -324,15 +363,14 @@ class HistoriesController(BaseAPIController, ExportsHistoryMixin, ImportsHistory
             if archive_source:
                 archive_type = payload.get("archive_type", "url")
             elif hasattr(archive_file, "file"):
-                # archive_file.file is a TemporaryFile and will be deleted once it is closed.
-                # We prevent this by setting `delete` to `False`.
-                archive_file.file.delete = False
                 archive_source = payload["archive_file"].file.name
                 archive_type = "file"
             else:
                 raise exceptions.MessageException("Please provide a url or file.")
-            self.queue_history_import(trans, archive_type=archive_type, archive_source=archive_source)
-            return {"message": "Importing history from source '%s'. This history will be visible when the import is complete." % archive_source}
+            job = self.queue_history_import(trans, archive_type=archive_type, archive_source=archive_source)
+            job_dict = job.to_dict()
+            job_dict["message"] = "Importing history from source '%s'. This history will be visible when the import is complete." % archive_source
+            return trans.security.encode_all_ids(job_dict)
 
         new_history = None
         # if a history id was passed, copy that history
@@ -346,6 +384,7 @@ class HistoriesController(BaseAPIController, ExportsHistoryMixin, ImportsHistory
         else:
             new_history = self.manager.create(user=trans.user, name=hist_name)
 
+        trans.app.security_agent.history_set_default_permissions(new_history)
         trans.sa_session.add(new_history)
         trans.sa_session.flush()
 
@@ -359,9 +398,10 @@ class HistoriesController(BaseAPIController, ExportsHistoryMixin, ImportsHistory
     @expose_api
     def delete(self, trans, id, **kwd):
         """
-        delete( self, trans, id, **kwd )
-        * DELETE /api/histories/{id}
-            delete the history with the given ``id``
+        DELETE /api/histories/{id}
+
+        delete the history with the given ``id``
+
         .. note:: Stops all active jobs in the history if purge is set.
 
         :type   id:     str
@@ -448,12 +488,22 @@ class HistoriesController(BaseAPIController, ExportsHistoryMixin, ImportsHistory
             user=trans.user, trans=trans, **self._parse_serialization_params(kwd, 'detailed'))
 
     @expose_api
-    def archive_export(self, trans, id, **kwds):
+    def index_exports(self, trans, id):
         """
-        export_archive( self, trans, id, payload )
-        * PUT /api/histories/{id}/exports:
-            start job (if needed) to create history export for corresponding
-            history.
+        GET /api/histories/{id}/exports
+
+        Get previous history exports (to links). Effectively returns serialized
+        JEHA objects.
+        """
+        return self.history_export_view.get_exports(trans, id)
+
+    @expose_api
+    def archive_export(self, trans, id, payload=None, **kwds):
+        """
+        PUT /api/histories/{id}/exports
+
+        start job (if needed) to create history export for corresponding
+        history.
 
         :type   id:     str
         :param  id:     the encoded id of the history to export
@@ -461,52 +511,66 @@ class HistoriesController(BaseAPIController, ExportsHistoryMixin, ImportsHistory
         :rtype:     dict
         :returns:   object containing url to fetch export from.
         """
+        kwds.update(payload or {})
         # PUT instead of POST because multiple requests should just result
         # in one object being created.
         history = self.manager.get_accessible(self.decode_id(id), trans.user, current_history=trans.history)
         jeha = history.latest_export
-        up_to_date = jeha and jeha.up_to_date
-        if 'force' in kwds:
-            up_to_date = False  # Temp hack to force rebuild everytime during dev
+        force = 'force' in kwds  # Hack to force rebuild everytime during dev
+        exporting_to_uri = 'directory_uri' in kwds
+        # always just issue a new export when exporting to a URI.
+        up_to_date = not force and not exporting_to_uri and (jeha and jeha.up_to_date)
+        job = None
         if not up_to_date:
             # Need to create new JEHA + job.
             gzip = kwds.get("gzip", True)
             include_hidden = kwds.get("include_hidden", False)
             include_deleted = kwds.get("include_deleted", False)
-            self.queue_history_export(trans, history, gzip=gzip, include_hidden=include_hidden, include_deleted=include_deleted)
+            directory_uri = kwds.get("directory_uri", None)
+            file_name = kwds.get("file_name", None)
+            job = self.queue_history_export(
+                trans,
+                history,
+                gzip=gzip,
+                include_hidden=include_hidden,
+                include_deleted=include_deleted,
+                directory_uri=directory_uri,
+                file_name=file_name,
+            )
+        else:
+            job = jeha.job
+
+        if exporting_to_uri:
+            # we don't have a jeha, there will never be a download_url. Just let
+            # the client poll on the created job_id to determine when the file has been
+            # written.
+            job_id = trans.security.encode_id(job.id)
+            return dict(job_id=job_id)
 
         if up_to_date and jeha.ready:
-            jeha_id = trans.security.encode_id(jeha.id)
-            return dict(download_url=url_for("history_archive_download", id=id, jeha_id=jeha_id))
+            return self.history_export_view.serialize(trans, id, jeha)
         else:
             # Valid request, just resource is not ready yet.
             trans.response.status = "202 Accepted"
-            return ''
+            if jeha:
+                return self.history_export_view.serialize(trans, id, jeha)
+            else:
+                assert job is not None, "logic error, don't have a jeha or a job"
+                job_id = trans.security.encode_id(job.id)
+                return dict(job_id=job_id)
 
     @expose_api_raw
     def archive_download(self, trans, id, jeha_id, **kwds):
         """
-        export_download( self, trans, id, jeha_id )
-        * GET /api/histories/{id}/exports/{jeha_id}:
-            If ready and available, return raw contents of exported history.
-            Use/poll "PUT /api/histories/{id}/exports" to initiate the creation
-            of such an export - when ready that route will return 200 status
-            code (instead of 202) with a JSON dictionary containing a
-            `download_url`.
+        GET /api/histories/{id}/exports/{jeha_id}
+
+        If ready and available, return raw contents of exported history.
+        Use/poll ``PUT /api/histories/{id}/exports`` to initiate the creation
+        of such an export - when ready that route will return 200 status
+        code (instead of 202) with a JSON dictionary containing a
+        ``download_url``.
         """
-        # Seems silly to put jeha_id in here, but want GET to be immuatable?
-        # and this is being accomplished this way.
-        history = self.manager.get_accessible(self.decode_id(id), trans.user, current_history=trans.history)
-        matching_exports = [e for e in history.exports if trans.security.encode_id(e.id) == jeha_id]
-        if not matching_exports:
-            raise exceptions.ObjectNotFound()
-
-        jeha = matching_exports[0]
-        if not jeha.ready:
-            # User should not have been given this URL, PUT export should have
-            # return a 202.
-            raise exceptions.MessageException("Export not available or not yet ready.")
-
+        jeha = self.history_export_view.get_ready_jeha(trans, id, jeha_id)
         return self.serve_ready_history_export(trans, jeha)
 
     @expose_api
@@ -529,5 +593,5 @@ class HistoriesController(BaseAPIController, ExportsHistoryMixin, ImportsHistory
             .order_by(model.HistoryDatasetAssociation.hid.desc())
         return {
             'installed_builds'  : [{'label' : ins, 'value' : ins} for ins in installed_builds],
-            'fasta_hdas'        : [{'label' : '%s: %s' % (hda.hid, hda.name), 'value' : trans.security.encode_id(hda.id)} for hda in fasta_hdas],
+            'fasta_hdas'        : [{'label' : f'{hda.hid}: {hda.name}', 'value' : trans.security.encode_id(hda.id)} for hda in fasta_hdas],
         }

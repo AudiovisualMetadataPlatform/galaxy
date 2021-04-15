@@ -8,7 +8,10 @@ from galaxy.datatypes.data import get_file_peek, Text
 from galaxy.datatypes.metadata import MetadataElement
 from galaxy.datatypes.sniff import build_sniff_from_prefix
 from galaxy.datatypes.util import generic_util
-from galaxy.util import nice_size
+from galaxy.util import (
+    nice_size,
+    unicodify,
+)
 
 log = logging.getLogger(__name__)
 
@@ -54,7 +57,7 @@ class InfernalCM(Text):
         Set the number of models and the version of CM file in dataset.
         """
         dataset.metadata.number_of_models = generic_util.count_special_lines('^INFERNAL', dataset.file_name)
-        with open(dataset.file_name, 'r') as f:
+        with open(dataset.file_name) as f:
             first_line = f.readline()
             if first_line.startswith("INFERNAL"):
                 dataset.metadata.cm_version = (first_line.split()[0]).replace('INFERNAL', '')
@@ -107,7 +110,6 @@ class Hmmer3(Hmmer):
 class HmmerPress(Binary):
     """Class for hmmpress database files."""
     file_ext = 'hmmpress'
-    allow_datatype_change = False
     composite_type = 'basic'
 
     def set_peek(self, dataset, is_multi_byte=False):
@@ -127,7 +129,7 @@ class HmmerPress(Binary):
             return "HMMER3 database (multiple files)"
 
     def __init__(self, **kwd):
-        Binary.__init__(self, **kwd)
+        super().__init__(**kwd)
         # Binary model
         self.add_composite_file('model.hmm.h3m', is_binary=True)
         # SSI index for binary model
@@ -167,6 +169,7 @@ class Stockholm_1_0(Text):
         """
         dataset.metadata.number_of_models = generic_util.count_special_lines('^#[[:space:]+]STOCKHOLM[[:space:]+]1.0', dataset.file_name)
 
+    @classmethod
     def split(cls, input_datasets, subdir_generator_function, split_params):
         """
 
@@ -214,9 +217,8 @@ class Stockholm_1_0(Text):
             if stockholm_lines_accumulated:
                 _write_part_stockholm_file(stockholm_lines_accumulated)
         except Exception as e:
-            log.error('Unable to split files: %s' % str(e))
+            log.error('Unable to split files: %s', unicodify(e))
             raise
-    split = classmethod(split)
 
 
 @build_sniff_from_prefix
@@ -241,3 +243,13 @@ class MauveXmfa(Text):
 
     def set_meta(self, dataset, **kwd):
         dataset.metadata.number_of_models = generic_util.count_special_lines('^#Sequence([[:digit:]]+)Entry', dataset.file_name)
+
+
+class Msf(Text):
+    """
+    Multiple sequence alignment format produced by the Accelrys GCG suite and
+    other programs.
+    """
+    edam_data = "data_0863"
+    edam_format = "format_1947"
+    file_ext = 'msf'

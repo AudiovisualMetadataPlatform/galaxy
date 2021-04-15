@@ -4,22 +4,28 @@ API Controller providing Galaxy Webhooks
 import imp
 import logging
 
+<<<<<<< HEAD
 from galaxy.web import _future_expose_api_anonymous_and_sessionless as \
     expose_api_anonymous_and_sessionless
 from galaxy.web.base.controller import BaseAPIController
+=======
+from galaxy.web import expose_api_anonymous_and_sessionless
+from galaxy.webapps.base.controller import BaseAPIController
+>>>>>>> refs/heads/release_21.01
 
 log = logging.getLogger(__name__)
 
 
 class WebhooksController(BaseAPIController):
     def __init__(self, app):
-        super(WebhooksController, self).__init__(app)
+        super().__init__(app)
 
     @expose_api_anonymous_and_sessionless
     def all_webhooks(self, trans, **kwd):
         """
-        *GET /api/webhooks/
-        Returns all webhooks
+        GET /api/webhooks/
+
+        Return all webhooks.
         """
         return [
             webhook.to_dict()
@@ -29,8 +35,9 @@ class WebhooksController(BaseAPIController):
     @expose_api_anonymous_and_sessionless
     def webhook_data(self, trans, webhook_id, **kwd):
         """
-        *GET /api/webhooks/{webhook_id}/data/{params}
-        Returns the result of executing helper function
+        GET /api/webhooks/{webhook_id}/data/{params}
+
+        Return the result of executing helper function.
         """
         params = {}
 

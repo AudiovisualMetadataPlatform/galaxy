@@ -1,7 +1,8 @@
 import json
 import logging
-import re
+from urllib.parse import quote
 
+<<<<<<< HEAD
 from six.moves.urllib.parse import (
     quote as urlquote,
     unquote as urlunquote
@@ -18,108 +19,55 @@ from tool_shed.util import (
     repository_util,
     tool_util
 )
+=======
+from galaxy.exceptions import MessageException
+from galaxy.util import url_get
+from galaxy.web import expose_api, require_admin
+from galaxy.webapps.base.controller import BaseAPIController
+>>>>>>> refs/heads/release_21.01
 
 log = logging.getLogger(__name__)
 
 
 class ToolShedController(BaseAPIController):
-    """RESTful controller for interactions with tool sheds."""
-
-    def __get_repo_dict_by_id(self, id):
-        tool_shed_repository = repository_util.get_tool_shed_repository_by_id(self.app, id)
-        if tool_shed_repository is None:
-            log.debug("Unable to locate tool_shed_repository record for id %s." % (str(id)))
-            return {}
-        tool_shed_repository_dict = tool_shed_repository.as_dict(value_mapper=self.__get_value_mapper(tool_shed_repository))
-        tool_shed_repository_dict['url'] = web.url_for(controller='tool_shed_repositories',
-                                                       action='show',
-                                                       id=self.app.security.encode_id(tool_shed_repository.id))
-        tool_shed_repository_dict['repository_dependencies'] = self.__flatten_repository_dependency_list(tool_shed_repository)
-        return tool_shed_repository_dict
-
-    def __get_tool_dependencies(self, metadata, tool_dependencies=None):
-        if tool_dependencies is None:
-            tool_dependencies = []
-        if metadata['includes_tool_dependencies']:
-            for key, dependency_dict in metadata['tool_dependencies'].items():
-                if 'readme' in dependency_dict:
-                    del(dependency_dict['readme'])
-                if dependency_dict not in tool_dependencies:
-                    tool_dependencies.append(dependency_dict)
-        if metadata['has_repository_dependencies']:
-            for dependency in metadata['repository_dependencies']:
-                tool_dependencies = self.__get_tool_dependencies(dependency, tool_dependencies)
-        return tool_dependencies
-
-    def __flatten_repository_dependency_list(self, tool_shed_repository):
-        '''
-        Return a recursive exclusive flattened list of all tool_shed_repository's dependencies.
-        '''
-        dependencies = []
-        for dependency in tool_shed_repository.repository_dependencies:
-            if len(dependency.repository_dependencies) > 0:
-                sub_dependencies = self.__flatten_repository_dependency_list(dependency)
-                for sub_dependency in sub_dependencies:
-                    if sub_dependency not in dependencies:
-                        dependencies.append(sub_dependency)
-            if dependency not in dependencies:
-                dependencies.append(dependency.as_dict(value_mapper=self.__get_value_mapper(tool_shed_repository)))
-        return dependencies
-
-    def __get_value_mapper(self, tool_shed_repository):
-        value_mapper = {'id': self.app.security.encode_id(tool_shed_repository.id),
-                        'error_message': tool_shed_repository.error_message or ''}
-        return value_mapper
-
-    def __get_tools(self, metadata, tools=None):
-        if tools is None:
-            tools = []
-        if metadata['includes_tools_for_display_in_tool_panel']:
-            for key, tool_dict in metadata['tools']:
-                tool_info = dict(clean=re.sub('[^a-zA-Z0-9]+', '_', tool_dict['name']).lower(),
-                                 name=tool_dict['name'],
-                                 version=tool_dict['version'],
-                                 description=tool_dict['description'])
-                if tool_info not in tools:
-                    tools.append(tool_info)
-        if metadata['has_repository_dependencies']:
-            for dependency in metadata['repository_dependencies']:
-                tools = self.__get_tools(dependency, tools)
-        return tools
+    """RESTful controller for interactions with Toolsheds."""
 
     @expose_api
     def index(self, trans, **kwd):
         """
         GET /api/tool_shed
-        Interact with this galaxy instance's toolshed registry.
+        Interact with the Toolshed registry of this instance.
         """
-        sheds = []
+        tool_sheds = []
         for name, url in trans.app.tool_shed_registry.tool_sheds.items():
-            # api_url = web.url_for( controller='api/tool_shed',
-            #                        action='contents',
-            #                        tool_shed_url=urlquote( url, '' ),
-            #                        qualified=True )
-            sheds.append(dict(name=name, url=urlquote(url, '')))
-        return sheds
+            tool_sheds.append(dict(name=name, url=quote(url, '')))
+        return tool_sheds
 
+    @require_admin
     @expose_api
-    @web.require_admin
-    def status(self, trans, **kwd):
+    def request(self, trans, **params):
         """
-        GET /api/tool_shed_repositories/{id}/status
-        Display a dictionary containing information about a specified repository's installation
-        status and a list of its dependencies and the status of each.
-
-        :param id: the repository's encoded id
+        GET /api/tool_shed/request
         """
-        repository_ids = kwd.get('repositories', None)
-        repositories = []
-        if repository_ids is not None:
-            for repository_id in repository_ids.split('|'):
-                tool_shed_repository_dict = self.__get_repo_dict_by_id(repository_id)
-                repositories.append(tool_shed_repository_dict)
-            return repositories
+        tool_shed_url = params.pop("tool_shed_url")
+        controller = params.pop("controller")
+        if controller is None:
+            raise MessageException("Please provide a toolshed controller name.")
+        tool_shed_registry = trans.app.tool_shed_registry
+        if tool_shed_registry is None:
+            raise MessageException("Toolshed registry not available.")
+        if tool_shed_url in tool_shed_registry.tool_sheds.values():
+            pathspec = ["api", controller]
+            if "id" in params:
+                pathspec.append(params.pop("id"))
+            if "action" in params:
+                pathspec.append(params.pop("action"))
+            try:
+                return json.loads(url_get(tool_shed_url, params=dict(params), pathspec=pathspec))
+            except Exception as e:
+                raise MessageException("Invalid server response. %s." % str(e))
         else:
+<<<<<<< HEAD
             return []
         # return tool_shed_repository_dict
 
@@ -304,3 +252,6 @@ class ToolShedController(BaseAPIController):
             return {}
         response = json.loads(util.url_get(tool_shed_url, params=dict(q=q), pathspec=['api', 'repositories']))
         return response
+=======
+            raise MessageException("Invalid toolshed url.")
+>>>>>>> refs/heads/release_21.01

@@ -29,8 +29,13 @@ def get_resource_mapper_function(app):
         return functools.partial(raw_function, workflow_resource_params=workflow_resource_params)
     else:
         workflow_resource_params = _read_defined_parameter_definitions(config)
+<<<<<<< HEAD
         with open(mapper, "r") as f:
             mapper_definition = yaml.load(f)
+=======
+        with open(mapper) as f:
+            mapper_definition = yaml.safe_load(f)
+>>>>>>> refs/heads/release_21.01
 
         if "by_group" in mapper_definition:
             by_group = mapper_definition["by_group"]
@@ -85,7 +90,7 @@ def _resource_parameters_by_group(trans, **kwds):
 # returns an array of parameters that a users set of permissions can access.
 def get_workflow_parameter_list(params, user_permissions):
     param_list = []
-    for param_name, param_elem in params.items():
+    for param_elem in params.values():
         attr = deepcopy(param_elem.attrib)
         if attr['name'] in user_permissions:
             # Allow 'select' type parameters to be used
@@ -153,7 +158,6 @@ def validate_by_group_workflow_parameters_mapper(by_group, workflow_resource_par
     except Exception as e:
         log.exception(e)
         valid = False
-        pass
 
     return valid
 
@@ -169,7 +173,7 @@ def _import_resource_mapping_function(qualified_function_path):
     if hasattr(module, function_name):
         return getattr(module, function_name)
     else:
-        raise Exception("Failed to find workflow resource mapper function %s.%s" % (full_module_name, function_name))
+        raise Exception(f"Failed to find workflow resource mapper function {full_module_name}.{function_name}")
 
 
 def _null_mapper_function(*args, **kwds):

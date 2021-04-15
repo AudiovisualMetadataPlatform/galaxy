@@ -7,7 +7,6 @@ may change often.
 import json
 import logging
 
-from six import string_types
 
 from galaxy import (
     exceptions,
@@ -19,8 +18,13 @@ from galaxy.managers.visualizations import (
     VisualizationSerializer
 )
 from galaxy.model.item_attrs import UsesAnnotations
+<<<<<<< HEAD
 from galaxy.web import _future_expose_api as expose_api
 from galaxy.web.base.controller import (
+=======
+from galaxy.web import expose_api
+from galaxy.webapps.base.controller import (
+>>>>>>> refs/heads/release_21.01
     BaseAPIController,
     SharableMixin,
     UsesVisualizationMixin
@@ -35,7 +39,7 @@ class VisualizationsController(BaseAPIController, UsesVisualizationMixin, Sharab
     """
 
     def __init__(self, app):
-        super(VisualizationsController, self).__init__(app)
+        super().__init__(app)
         self.manager = VisualizationManager(app)
         self.serializer = VisualizationSerializer(app)
 
@@ -183,31 +187,31 @@ class VisualizationsController(BaseAPIController, UsesVisualizationMixin, Sharab
         for key, val in payload.items():
             # TODO: validate types in VALID_TYPES/registry names at the mixin/model level?
             if key == 'type':
-                if not isinstance(val, string_types):
-                    raise ValidationError('%s must be a string or unicode: %s' % (key, str(type(val))))
+                if not isinstance(val, str):
+                    raise ValidationError('{} must be a string or unicode: {}'.format(key, str(type(val))))
                 val = util.sanitize_html.sanitize_html(val)
             elif key == 'config':
                 if not isinstance(val, dict):
-                    raise ValidationError('%s must be a dictionary: %s' % (key, str(type(val))))
+                    raise ValidationError('{} must be a dictionary: {}'.format(key, str(type(val))))
 
             elif key == 'annotation':
-                if not isinstance(val, string_types):
-                    raise ValidationError('%s must be a string or unicode: %s' % (key, str(type(val))))
+                if not isinstance(val, str):
+                    raise ValidationError('{} must be a string or unicode: {}'.format(key, str(type(val))))
                 val = util.sanitize_html.sanitize_html(val)
 
             # these are keys that actually only be *updated* at the revision level and not here
             #   (they are still valid for create, tho)
             elif key == 'title':
-                if not isinstance(val, string_types):
-                    raise ValidationError('%s must be a string or unicode: %s' % (key, str(type(val))))
+                if not isinstance(val, str):
+                    raise ValidationError('{} must be a string or unicode: {}'.format(key, str(type(val))))
                 val = util.sanitize_html.sanitize_html(val)
             elif key == 'slug':
-                if not isinstance(val, string_types):
-                    raise ValidationError('%s must be a string: %s' % (key, str(type(val))))
+                if not isinstance(val, str):
+                    raise ValidationError('{} must be a string: {}'.format(key, str(type(val))))
                 val = util.sanitize_html.sanitize_html(val)
             elif key == 'dbkey':
-                if not isinstance(val, string_types):
-                    raise ValidationError('%s must be a string or unicode: %s' % (key, str(type(val))))
+                if not isinstance(val, str):
+                    raise ValidationError('{} must be a string or unicode: {}'.format(key, str(type(val))))
                 val = util.sanitize_html.sanitize_html(val)
 
             elif key not in valid_but_uneditable_keys:

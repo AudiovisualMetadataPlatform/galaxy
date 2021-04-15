@@ -15,8 +15,27 @@ from galaxy.managers import (
     secured,
     taggable
 )
+from galaxy.managers.collections_util import get_hda_and_element_identifiers
+from galaxy.util.zipstream import ZipstreamWrapper
+
 
 log = logging.getLogger(__name__)
+
+
+def stream_dataset_collection(dataset_collection_instance, upstream_mod_zip=False, upstream_gzip=False):
+    archive_name = f"{dataset_collection_instance.hid}: {dataset_collection_instance.name}"
+    archive = ZipstreamWrapper(
+        archive_name=archive_name,
+        upstream_mod_zip=upstream_mod_zip,
+        upstream_gzip=upstream_gzip,
+    )
+    names, hdas = get_hda_and_element_identifiers(dataset_collection_instance)
+    for name, hda in zip(names, hdas):
+        if hda.state != hda.states.OK:
+            continue
+        for file_path, relpath in hda.datatype.to_archive(dataset=hda, name=name):
+            archive.write(file_path, relpath)
+    return archive
 
 
 # TODO: to DatasetCollectionInstanceManager
@@ -40,7 +59,7 @@ class HDCAManager(
         """
         Set up and initialize other managers needed by hdcas.
         """
-        super(HDCAManager, self).__init__(app)
+        super().__init__(app)
 
     def map_datasets(self, content, fn, *parents):
         """
@@ -74,7 +93,7 @@ class DCESerializer(base.ModelSerializer):
     """
 
     def __init__(self, app):
-        super(DCESerializer, self).__init__(app)
+        super().__init__(app)
         self.hda_serializer = hdas.HDASerializer(app)
         self.dc_serializer = DCSerializer(app, dce_serializer=self)
 
@@ -88,7 +107,7 @@ class DCESerializer(base.ModelSerializer):
         ])
 
     def add_serializers(self):
-        super(DCESerializer, self).add_serializers()
+        super().add_serializers()
         self.serializers.update({
             'model_class'   : lambda *a, **c: 'DatasetCollectionElement',
             'object'        : self.serialize_object
@@ -108,7 +127,7 @@ class DCSerializer(base.ModelSerializer):
     """
 
     def __init__(self, app, dce_serializer=None):
-        super(DCSerializer, self).__init__(app)
+        super().__init__(app)
         self.dce_serializer = dce_serializer or DCESerializer(app)
 
         self.default_view = 'summary'
@@ -127,7 +146,7 @@ class DCSerializer(base.ModelSerializer):
         ], include_keys_from='summary')
 
     def add_serializers(self):
-        super(DCSerializer, self).add_serializers()
+        super().add_serializers()
         self.serializers.update({
             'model_class'   : lambda *a, **c: 'DatasetCollection',
             'elements'      : self.serialize_elements,
@@ -147,7 +166,7 @@ class DCASerializer(base.ModelSerializer):
     """
 
     def __init__(self, app, dce_serializer=None):
-        super(DCASerializer, self).__init__(app)
+        super().__init__(app)
         self.dce_serializer = dce_serializer or DCESerializer(app)
 
         self.default_view = 'summary'
@@ -165,7 +184,7 @@ class DCASerializer(base.ModelSerializer):
         ], include_keys_from='summary')
 
     def add_serializers(self):
-        super(DCASerializer, self).add_serializers()
+        super().add_serializers()
         # most attributes are (kinda) proxied from DCs - we need a serializer to proxy to
         self.dc_serializer = DCSerializer(self.app)
         # then set the serializers to point to it for those attrs
@@ -202,7 +221,7 @@ class HDCASerializer(
     """
 
     def __init__(self, app):
-        super(HDCASerializer, self).__init__(app)
+        super().__init__(app)
         self.hdca_manager = HDCAManager(app)
 
         self.default_view = 'summary'
@@ -228,15 +247,45 @@ class HDCASerializer(
             'visible',
             'type', 'url',
             'create_time', 'update_time',
-            'tags',  # TODO: detail view only (maybe)
+            'tags',  # TODO: detail view only (maybe),
+            'contents_url'
         ])
         self.add_view('detailed', [
             'populated',
             'elements'
         ], include_keys_from='summary')
 
+        # fields for new beta web client, there is no summary/detailed split any more
+        self.add_view('betawebclient', [
+            # common to hda
+            'create_time',
+            'deleted',
+            'hid',
+            'history_content_type',
+            'history_id',
+            'id',
+            'name',
+            'tags',
+            'type',
+            'type_id',
+            'update_time',
+            'url',
+            'visible',
+            # hdca only
+            'collection_id',
+            'collection_type',
+            'contents_url',
+            'element_count',
+            'job_source_id',
+            'job_source_type',
+            'job_state_summary',
+            'populated',
+            'populated_state',
+            'populated_state_message',
+        ])
+
     def add_serializers(self):
-        super(HDCASerializer, self).add_serializers()
+        super().add_serializers()
         taggable.TaggableSerializerMixin.add_serializers(self)
         annotatable.AnnotatableSerializerMixin.add_serializers(self)
 
@@ -254,4 +303,19 @@ class HDCASerializer(
                                                      history_id=self.app.security.encode_id(i.history_id),
                                                      id=self.app.security.encode_id(i.id),
                                                      type=self.hdca_manager.model_class.content_type),
+            'contents_url'              : self.generate_contents_url,
+            'job_state_summary'         : self.serialize_job_state_summary
         })
+
+    def generate_contents_url(self, hdca, key, **context):
+        encode_id = self.app.security.encode_id
+        contents_url = self.url_for('contents_dataset_collection',
+            hdca_id=encode_id(hdca.id),
+            parent_id=encode_id(hdca.collection_id))
+        return contents_url
+
+    def serialize_job_state_summary(self, hdca, key, **context):
+        states = hdca.job_state_summary.__dict__.copy()
+        del states['_sa_instance_state']
+        del states['hdca_id']
+        return states

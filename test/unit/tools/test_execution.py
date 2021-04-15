@@ -1,5 +1,6 @@
 """ Test Tool execution and state handling logic.
 """
+from collections import OrderedDict
 from unittest import TestCase
 
 import webob.exc
@@ -7,7 +8,6 @@ import webob.exc
 import galaxy.model
 from galaxy.tools.parameters import params_to_incoming
 from galaxy.util.bunch import Bunch
-from galaxy.util.odict import odict
 from .. import tools_support
 
 BASE_REPEAT_TOOL_CONTENTS = '''<tool id="test_tool" name="Test Tool">
@@ -144,7 +144,7 @@ class ToolExecutionTestCase(TestCase, tools_support.UsesApp, tools_support.UsesT
         hdca.id = id
         collection = galaxy.model.DatasetCollection()
         hdca.collection = collection
-        collection.elements = [galaxy.model.DatasetCollectionElement(element=self.__add_dataset(1))]
+        galaxy.model.DatasetCollectionElement(collection=collection, element=self.__add_dataset(1))
         collection.type = collection_type
         self.trans.sa_session.model_objects[galaxy.model.HistoryDatasetCollectionAssociation][id] = hdca
         self.history.dataset_collections.append(hdca)
@@ -163,7 +163,7 @@ class ToolExecutionTestCase(TestCase, tools_support.UsesApp, tools_support.UsesT
         assert not vars["job_errors"]
 
 
-class MockAction(object):
+class MockAction:
 
     def __init__(self, expected_trans):
         self.expected_trans = expected_trans
@@ -185,7 +185,7 @@ class MockAction(object):
             if num_calls > self.error_message_after_excution:
                 return None, "Test Error Message"
 
-        return galaxy.model.Job(), odict(dict(out1="1"))
+        return galaxy.model.Job(), OrderedDict(out1="1")
 
     def raise_exception(self, after_execution=0):
         self.exception_after_exection = after_execution
@@ -194,7 +194,7 @@ class MockAction(object):
         self.error_message_after_excution = after_execution
 
 
-class MockTrans(object):
+class MockTrans:
 
     def __init__(self, app, history):
         self.app = app
@@ -211,8 +211,11 @@ class MockTrans(object):
     def get_current_user_roles(self):
         return []
 
+    def log_event(self, *args, **kwds):
+        pass
 
-class MockCollectionService(object):
+
+class MockCollectionService:
 
     def __init__(self):
         self.collection_info = object()

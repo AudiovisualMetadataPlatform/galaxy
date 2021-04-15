@@ -3,7 +3,6 @@ Migration script to add 'total_size' column to the dataset table, 'purged'
 column to the HDA table, and 'disk_usage' column to the User and GalaxySession
 tables.
 """
-from __future__ import print_function
 
 import logging
 
@@ -18,6 +17,15 @@ def upgrade(migrate_engine):
     print(__doc__)
     metadata.reflect()
 
+<<<<<<< HEAD
+=======
+    c = Column('total_size', Numeric(15, 0))
+    add_column(c, 'dataset', metadata)
+
+    HistoryDatasetAssociation_table = Table("history_dataset_association", metadata, autoload=True)
+    c = Column("purged", Boolean, index=True, default=False)
+    add_column(c, HistoryDatasetAssociation_table, metadata, index_name="ix_history_dataset_association_purged")
+>>>>>>> refs/heads/release_21.01
     try:
         Dataset_table = Table("dataset", metadata, autoload=True)
         c = Column('total_size', Numeric(15, 0))

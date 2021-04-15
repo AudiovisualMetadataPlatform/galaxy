@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import logging
 
 try:
@@ -8,11 +6,11 @@ except ImportError:
     def nottest(x):
         return x
 
-from base.driver_util import setup_keep_outdir, target_url_parts
-from base.instrument import register_job_data
-from base.testcase import FunctionalTestCase  # noqa: I100,I201,I202
-from galaxy.tools import DataManagerTool  # noqa: I201
-from galaxy.tools.verify.interactor import GalaxyInteractorApi, verify_tool  # noqa: I201
+from galaxy.tool_util.verify.interactor import GalaxyInteractorApi, verify_tool
+from galaxy.tools import DataManagerTool
+from galaxy_test.base.env import setup_keep_outdir, target_url_parts
+from galaxy_test.base.instrument import register_job_data
+from galaxy_test.driver.testcase import DrivenFunctionalTestCase
 
 log = logging.getLogger(__name__)
 
@@ -22,13 +20,14 @@ toolbox = None
 TOOL_TYPES_NO_TEST = (DataManagerTool, )
 
 
-class ToolTestCase(FunctionalTestCase):
+class ToolTestCase(DrivenFunctionalTestCase):
     """Abstract test case that runs tests based on a `galaxy.tools.test.ToolTest`."""
 
-    def do_it(self, tool_id=None, tool_version=None, test_index=0, resource_parameters={}):
+    def do_it(self, tool_id=None, tool_version=None, test_index=0, resource_parameters=None):
         """
         Run through a tool test case.
         """
+        resource_parameters = resource_parameters or {}
         if tool_id is None:
             tool_id = self.tool_id
         assert tool_id
@@ -73,7 +72,7 @@ def build_tests(app=None,
         G = globals()
 
     # Eliminate all previous tests from G.
-    for key, val in G.copy().items():
+    for key in G.copy().keys():
         if key.startswith('TestForTool_'):
             del G[key]
 

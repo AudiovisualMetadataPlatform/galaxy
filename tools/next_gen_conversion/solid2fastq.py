@@ -2,11 +2,13 @@
 
 import optparse
 import sqlite3
-import string
 import sys
 import tempfile
 
-import six
+try:
+    maketrans = str.maketrans
+except AttributeError:
+    from string import maketrans
 
 
 def stop_err(msg):
@@ -33,10 +35,7 @@ def solid2sanger(quality_string, min_qual=0):
 def Translator(frm='', to='', delete=''):
     if len(to) == 1:
         to = to * len(frm)
-    if six.PY2:
-        trans = string.maketrans(frm, to)
-    else:
-        trans = str.maketrans(frm, to)
+    trans = maketrans(frm, to)
 
     def callable(s):
         return s.translate(trans, delete)
@@ -162,13 +161,13 @@ def main():
         Use --help for more info
         """)
 
-    fr = open(options.fr, 'r')
-    fq = open(options.fq, 'r')
+    fr = open(options.fr)
+    fq = open(options.fq)
     f_out = open(options.fout, 'w')
 
     if options.rr and options.rq:
-        rr = open(options.rr, 'r')
-        rq = open(options.rq, 'r')
+        rr = open(options.rr)
+        rq = open(options.rq)
         if not options.rout:
             parser.error("Provide the name for f3 output using --rout option. Use --help for more info")
         r_out = open(options.rout, 'w')

@@ -24,8 +24,11 @@ Highlights
 **Galaxy chat**
   Admins can now plug in the included communication server to enable
   users of their instance to use real-time chat within the Galaxy interface.
+<<<<<<< HEAD
   Please see the `documentation <https://docs.galaxyproject.org/en/master/admin/chat.html>`__
   to learn how to activate and use this feature.
+=======
+>>>>>>> refs/heads/release_21.01
   Implemented in `PR #2515 <https://github.com/galaxyproject/galaxy/pull/2515>`__
 
 `Github <https://github.com/galaxyproject/galaxy>`__

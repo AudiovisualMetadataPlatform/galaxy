@@ -1,9 +1,9 @@
+import bz2
 import gzip
 import json
 import logging
 import os
 import shutil
-import sys
 import tempfile
 from collections import namedtuple
 
@@ -14,11 +14,6 @@ from galaxy.util import checkers
 from galaxy.util.path import safe_relpath
 from tool_shed.tools.data_table_manager import ShedToolDataTableManager
 from tool_shed.util import basic_util, hg_util, shed_util_common as suc
-
-if sys.version_info < (3, 3):
-    import bz2file as bz2
-else:
-    import bz2
 
 log = logging.getLogger(__name__)
 
@@ -46,13 +41,14 @@ def check_archive(repository, archive):
             undesirable_files.append(member)
             continue
         head = tail = member.name
-        try:
-            while tail:
-                head, tail = os.path.split(head)
-                if tail in UNDESIRABLE_DIRS:
-                    undesirable_dirs.append(member)
-                    assert False
-        except AssertionError:
+        found_undesirable_dir = False
+        while tail:
+            head, tail = os.path.split(head)
+            if tail in UNDESIRABLE_DIRS:
+                undesirable_dirs.append(member)
+                found_undesirable_dir = True
+                break
+        if found_undesirable_dir:
             continue
         if repository.type == rt_util.REPOSITORY_SUITE_DEFINITION and member.name != rt_util.REPOSITORY_DEPENDENCY_DEFINITION_FILENAME:
             errors.append('Repositories of type <b>Repository suite definition</b> can contain only a single file named <b>repository_dependencies.xml</b>.')
@@ -134,34 +130,33 @@ def get_upload_point(repository, **kwd):
 
 
 def handle_bz2(repository, uploaded_file_name):
-    fd, uncompressed = tempfile.mkstemp(prefix='repo_%d_upload_bunzip2_' % repository.id,
-                                        dir=os.path.dirname(uploaded_file_name),
-                                        text=False)
-    bzipped_file = bz2.BZ2File(uploaded_file_name, 'rb')
-    while 1:
-        try:
-            chunk = bzipped_file.read(basic_util.CHUNK_SIZE)
-        except IOError:
-            os.close(fd)
-            os.remove(uncompressed)
-            log.exception('Problem uncompressing bz2 data "%s"', uploaded_file_name)
-            return
-        if not chunk:
-            break
-        os.write(fd, chunk)
-    os.close(fd)
-    bzipped_file.close()
-    shutil.move(uncompressed, uploaded_file_name)
+    with tempfile.NamedTemporaryFile(
+        mode='wb',
+        prefix=f'repo_{repository.id}_upload_bunzip2_',
+        dir=os.path.dirname(uploaded_file_name),
+        delete=False,
+    ) as uncompressed, bz2.BZ2File(uploaded_file_name, 'rb') as bzipped_file:
+        while 1:
+            try:
+                chunk = bzipped_file.read(basic_util.CHUNK_SIZE)
+            except OSError:
+                os.remove(uncompressed.name)
+                log.exception(f'Problem uncompressing bz2 data "{uploaded_file_name}"')
+                return
+            if not chunk:
+                break
+            uncompressed.write(chunk)
+    shutil.move(uncompressed.name, uploaded_file_name)
 
 
 def handle_directory_changes(app, host, username, repository, full_path, filenames_in_archive, remove_repo_files_not_in_tar,
                              new_repo_alert, commit_message, undesirable_dirs_removed, undesirable_files_removed):
     repo_path = repository.repo_path(app)
-    repo = hg_util.get_repo_for_repository(app, repo_path=repo_path)
     content_alert_str = ''
     files_to_remove = []
     filenames_in_archive = [os.path.join(full_path, name) for name in filenames_in_archive]
-    if remove_repo_files_not_in_tar and not repository.is_new(app):
+    repo = repository.hg_repo
+    if remove_repo_files_not_in_tar and not repository.is_new():
         # We have a repository that is not new (it contains files), so discover those files that are in the
         # repository, but not in the uploaded archive.
         for root, dirs, files in os.walk(full_path):
@@ -234,24 +229,23 @@ def handle_directory_changes(app, host, username, repository, full_path, filenam
 
 
 def handle_gzip(repository, uploaded_file_name):
-    fd, uncompressed = tempfile.mkstemp(prefix='repo_%d_upload_gunzip_' % repository.id,
-                                        dir=os.path.dirname(uploaded_file_name),
-                                        text=False)
-    gzipped_file = gzip.GzipFile(uploaded_file_name, 'rb')
-    while 1:
-        try:
-            chunk = gzipped_file.read(basic_util.CHUNK_SIZE)
-        except IOError:
-            os.close(fd)
-            os.remove(uncompressed)
-            log.exception('Problem uncompressing gz data "%s"', uploaded_file_name)
-            return
-        if not chunk:
-            break
-        os.write(fd, chunk)
-    os.close(fd)
-    gzipped_file.close()
-    shutil.move(uncompressed, uploaded_file_name)
+    with tempfile.NamedTemporaryFile(
+        mode='wb',
+        prefix=f'repo_{repository.id}_upload_gunzip_',
+        dir=os.path.dirname(uploaded_file_name),
+        delete=False
+    ) as uncompressed, gzip.GzipFile(uploaded_file_name, 'rb') as gzipped_file:
+        while 1:
+            try:
+                chunk = gzipped_file.read(basic_util.CHUNK_SIZE)
+            except OSError:
+                os.remove(uncompressed.name)
+                log.exception(f'Problem uncompressing gz data "{uploaded_file_name}"')
+                return
+            if not chunk:
+                break
+            uncompressed.write(chunk)
+    shutil.move(uncompressed.name, uploaded_file_name)
 
 
 def uncompress(repository, uploaded_file_name, uploaded_file_filename, isgzip=False, isbz2=False):

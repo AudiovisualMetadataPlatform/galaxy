@@ -1,8 +1,7 @@
-galaxy\.visualization\.tracks package
-=====================================
+galaxy.visualization.tracks package
+===================================
 
 .. automodule:: galaxy.visualization.tracks
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   :members:
+   :undoc-members:
+   :show-inheritance:

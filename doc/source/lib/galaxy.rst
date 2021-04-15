@@ -2,15 +2,17 @@ galaxy package
 ==============
 
 .. automodule:: galaxy
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
+<<<<<<< HEAD
     galaxy.actions
     galaxy.auth
     galaxy.authnz
@@ -37,56 +39,91 @@ Subpackages
     galaxy.webhooks
     galaxy.work
     galaxy.workflow
+=======
+   galaxy.actions
+   galaxy.auth
+   galaxy.authnz
+   galaxy.config
+   galaxy.containers
+   galaxy.datatypes
+   galaxy.dependencies
+   galaxy.eggs
+   galaxy.exceptions
+   galaxy.files
+   galaxy.forms
+   galaxy.job_execution
+   galaxy.job_metrics
+   galaxy.jobs
+   galaxy.managers
+   galaxy.metadata
+   galaxy.model
+   galaxy.objectstore
+   galaxy.openid
+   galaxy.quota
+   galaxy.schema
+   galaxy.security
+   galaxy.selenium
+   galaxy.tool_shed
+   galaxy.tool_util
+   galaxy.tools
+   galaxy.tours
+   galaxy.util
+   galaxy.visualization
+   galaxy.web
+   galaxy.web_stack
+   galaxy.webapps
+   galaxy.webhooks
+   galaxy.work
+   galaxy.workflow
+>>>>>>> refs/heads/release_21.01
 
 Submodules
 ----------
 
-galaxy\.app module
-------------------
+galaxy.app module
+-----------------
 
 .. automodule:: galaxy.app
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-galaxy\.config module
----------------------
+galaxy.config\_watchers module
+------------------------------
 
-.. automodule:: galaxy.config
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. automodule:: galaxy.config_watchers
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-galaxy\.main module
--------------------
+galaxy.main module
+------------------
 
 .. automodule:: galaxy.main
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-galaxy\.queue\_worker module
-----------------------------
+galaxy.queue\_worker module
+---------------------------
 
 .. automodule:: galaxy.queue_worker
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-galaxy\.queues module
----------------------
+galaxy.queues module
+--------------------
 
 .. automodule:: galaxy.queues
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-galaxy\.version module
-----------------------
+galaxy.version module
+---------------------
 
 .. automodule:: galaxy.version
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
+   :members:
+   :undoc-members:
+   :show-inheritance:

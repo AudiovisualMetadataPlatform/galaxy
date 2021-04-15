@@ -2,7 +2,6 @@ import copy
 import logging
 
 from galaxy.util import asbool
-from galaxy.util.odict import odict
 from galaxy.web import url_for
 from tool_shed.dependencies.tool import tag_attribute_handler
 from tool_shed.repository_types.util import REPOSITORY_DEPENDENCY_DEFINITION_FILENAME
@@ -15,7 +14,7 @@ from tool_shed.util import xml_util
 log = logging.getLogger(__name__)
 
 
-class RepositoryDependencyAttributeHandler(object):
+class RepositoryDependencyAttributeHandler:
 
     def __init__(self, app, unpopulate):
         self.app = app
@@ -71,8 +70,8 @@ class RepositoryDependencyAttributeHandler(object):
         if len(sub_elems) > 0:
             # At this point, a <repository> tag will point only to a package.
             # <package name="xorg_macros" version="1.17.1" />
-            # Coerce the list to an odict().
-            sub_elements = odict()
+            # Coerce the list to dict.
+            sub_elements = {}
             packages = []
             for sub_elem in sub_elems:
                 sub_elem_type = sub_elem.tag
@@ -88,7 +87,7 @@ class RepositoryDependencyAttributeHandler(object):
             # We're exporting the repository, so eliminate all toolshed and changeset_revision attributes
             # from the <repository> tag.
             if toolshed or changeset_revision:
-                attributes = odict()
+                attributes = {}
                 attributes['name'] = name
                 attributes['owner'] = owner
                 prior_installation_required = elem.get('prior_installation_required')
@@ -117,9 +116,9 @@ class RepositoryDependencyAttributeHandler(object):
                 else:
                     error_message = 'Invalid latest installable changeset_revision %s ' % \
                         str(lastest_installable_changeset_revision)
-                    error_message += 'retrieved for repository %s owned by %s.  ' % (str(name), str(owner))
+                    error_message += 'retrieved for repository {} owned by {}.  '.format(str(name), str(owner))
             else:
-                error_message = 'Unable to locate repository with name %s and owner %s.  ' % (str(name), str(owner))
+                error_message = 'Unable to locate repository with name {} and owner {}.  '.format(str(name), str(owner))
         return altered, elem, error_message
 
     def handle_sub_elem(self, parent_elem, elem_index, elem):
@@ -166,7 +165,7 @@ class RepositoryDependencyAttributeHandler(object):
                 # <repository name="molecule_datatypes" owner="test" changeset_revision="1a070566e9c6" />
                 altered, new_elem, error_message = self.handle_elem(elem)
                 if error_message:
-                    error_message = 'The %s file contains an invalid <repository> tag.  %s' % (self.file_name, error_message)
+                    error_message = f'The {self.file_name} file contains an invalid <repository> tag.  {error_message}'
                     return False, None, error_message
                 if altered:
                     if not root_altered:
@@ -175,7 +174,7 @@ class RepositoryDependencyAttributeHandler(object):
         return root_altered, new_root, error_message
 
 
-class ToolDependencyAttributeHandler(object):
+class ToolDependencyAttributeHandler:
 
     def __init__(self, app, unpopulate):
         self.app = app

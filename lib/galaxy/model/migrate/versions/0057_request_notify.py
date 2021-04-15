@@ -2,7 +2,6 @@
 Migration script to modify the 'notify' field in the 'request' table from a boolean
 to a JSONType
 """
-from __future__ import print_function
 
 import logging
 from json import dumps
@@ -35,6 +34,7 @@ def upgrade(migrate_engine):
         except Exception:
             log.exception("Creating column 'notification' in the 'request' table failed.")
 
+<<<<<<< HEAD
         cmd = "SELECT id, user_id, notify FROM request"
         result = migrate_engine.execute(cmd)
         for r in result:
@@ -42,6 +42,11 @@ def upgrade(migrate_engine):
             notify_new = dict(email=[], sample_states=[], body='', subject='')
             cmd = "UPDATE request SET notification='%s' WHERE id=%i" % (dumps(notify_new), id)
             migrate_engine.execute(cmd)
+=======
+    # create the column again as JSONType
+    col = Column("notification", JSONType)
+    add_column(col, Request_table, metadata)
+>>>>>>> refs/heads/release_21.01
 
         # remove the 'notify' column for non-sqlite databases.
         if migrate_engine.name != 'sqlite':
@@ -54,8 +59,18 @@ def upgrade(migrate_engine):
 def downgrade(migrate_engine):
     metadata.bind = migrate_engine
     metadata.reflect()
+<<<<<<< HEAD
     try:
         Request_table = Table("request", metadata, autoload=True)
         Request_table.c.notification.drop()
     except Exception:
         log.exception("Dropping column 'notification' from 'request' table failed.")
+=======
+
+    Request_table = Table("request", metadata, autoload=True)
+    if migrate_engine.name != 'sqlite':
+        c = Column("notify", Boolean, default=False)
+        add_column(c, Request_table, metadata)
+
+    drop_column('notification', Request_table)
+>>>>>>> refs/heads/release_21.01

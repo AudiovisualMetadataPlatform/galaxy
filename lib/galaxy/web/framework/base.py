@@ -9,23 +9,16 @@ import tarfile
 import tempfile
 import time
 import types
+from http.cookies import CookieError, SimpleCookie
 
 import routes
-import six
 import webob.compat
 import webob.exc
 import webob.exc as httpexceptions  # noqa: F401
 # We will use some very basic HTTP/wsgi utilities from the paste library
-from paste.request import get_cookies
 from paste.response import HeaderDict
-from six.moves.http_cookies import SimpleCookie
 
 from galaxy.util import smart_str
-
-try:
-    file_types = (file, io.IOBase)
-except NameError:
-    file_types = (io.IOBase, )
 
 log = logging.getLogger(__name__)
 
@@ -51,7 +44,7 @@ def __resource_with_deleted(self, member_name, collection_name, **kwargs):
 routes.Mapper.resource_with_deleted = __resource_with_deleted
 
 
-class WebApplication(object):
+class WebApplication:
     """
     A simple web application which maps requests to objects using routes,
     and to methods on those objects in the CherryPy style. Thus simple
@@ -212,7 +205,7 @@ class WebApplication(object):
                 raise
         trans.controller = controller_name
         trans.action = action
-        environ['controller_action_key'] = "%s.%s.%s" % ('api' if environ['is_api_request'] else 'web', controller_name, action or 'default')
+        environ['controller_action_key'] = "{}.{}.{}".format('api' if environ['is_api_request'] else 'web', controller_name, action or 'default')
         # Combine mapper args and query string / form args and call
         kwargs = trans.request.params.mixed()
         kwargs.update(map_match)
@@ -239,7 +232,7 @@ class WebApplication(object):
             start_response(trans.response.wsgi_status(),
                            trans.response.wsgi_headeritems())
             return body
-        elif isinstance(body, file_types):
+        elif isinstance(body, io.IOBase):
             # Stream the file back to the browser
             return send_file(start_response, trans, body)
         else:
@@ -265,7 +258,7 @@ class WebApplication(object):
         return False
 
 
-class WSGIEnvironmentProperty(object):
+class WSGIEnvironmentProperty:
     """
     Descriptor that delegates a property to a key in the environ member of the
     associated object (provides property style access to keys in the WSGI
@@ -282,7 +275,7 @@ class WSGIEnvironmentProperty(object):
         return obj.environ.get(self.key, self.default)
 
 
-class LazyProperty(object):
+class LazyProperty:
     """
     Property that replaces itself with a calculated value the first time
     it is used.
@@ -302,7 +295,7 @@ class LazyProperty(object):
 lazy_property = LazyProperty
 
 
-class DefaultWebTransaction(object):
+class DefaultWebTransaction:
     """
     Wraps the state of a single web transaction (request/response cycle).
 
@@ -334,12 +327,10 @@ def _make_file(self, binary=None):
     # tempfiles.  Necessary for externalizing the upload tool.  It's a little hacky
     # but for performance reasons it's way better to use Paste's tempfile than to
     # create a new one and copy.
-    if six.PY2:
-        return tempfile.NamedTemporaryFile()
     if self._binary_file or self.length >= 0:
-        return tempfile.NamedTemporaryFile("wb+")
+        return tempfile.NamedTemporaryFile("wb+", delete=False)
     else:
-        return tempfile.NamedTemporaryFile("w+", encoding=self.encoding, newline='\n')
+        return tempfile.NamedTemporaryFile("w+", encoding=self.encoding, newline='\n', delete=False)
 
 
 def _read_lines(self):
@@ -348,7 +339,7 @@ def _read_lines(self):
     # Adapt `self.__file = None` to Python name mangling of class-private attributes.
     # We need to patch the original FieldStorage class attribute, not the cgi_FieldStorage
     # class.
-    setattr(self, '_FieldStorage__file', None)
+    self._FieldStorage__file = None
     if self.outerboundary:
         self.read_lines_to_outerboundary()
     else:
@@ -376,19 +367,28 @@ class Request(webob.Request):
     def remote_host(self):
         try:
             return socket.gethostbyname(self.remote_addr)
-        except socket.error:
+        except OSError:
             return self.remote_addr
 
     @lazy_property
     def remote_hostname(self):
         try:
             return socket.gethostbyaddr(self.remote_addr)[0]
-        except socket.error:
+        except OSError:
             return self.remote_addr
 
     @lazy_property
     def cookies(self):
-        return get_cookies(self.environ)
+        cookies = SimpleCookie()
+        cookie_header = self.environ.get("HTTP_COOKIE")
+        if cookie_header:
+            galaxy_cookies = "; ".join(x.strip() for x in cookie_header.split('; ') if x.startswith('galaxy'))
+            if galaxy_cookies:
+                try:
+                    cookies.load(galaxy_cookies)
+                except CookieError:
+                    pass
+        return cookies
 
     @lazy_property
     def base(self):
@@ -422,7 +422,7 @@ class Request(webob.Request):
     # path_info = WSGIEnvironmentProperty( 'PATH_INFO' )
 
 
-class Response(object):
+class Response:
     """
     Describes an HTTP response. Currently very simple since the actual body
     of the request is handled separately.
@@ -459,7 +459,7 @@ class Response(object):
         """
         result = self.headers.headeritems()
         # Add cookie to header
-        for name, crumb in self.cookies.items():
+        for crumb in self.cookies.values():
             header, value = str(crumb).split(': ', 1)
             result.append((header, value))
         return result
@@ -487,10 +487,10 @@ def send_file(start_response, trans, body):
     if base:
         trans.response.headers['X-Accel-Redirect'] = \
             base + os.path.abspath(body.name)
-        body = [""]
+        body = [b""]
     elif apache_xsendfile:
         trans.response.headers['X-Sendfile'] = os.path.abspath(body.name)
-        body = [""]
+        body = [b""]
     # Fall back on sending the file in chunks
     else:
         body = iterate_file(body)

@@ -4,7 +4,6 @@ API operations on the contents of a history dataset.
 import logging
 import os
 
-from six import string_types
 
 from galaxy import (
     exceptions as galaxy_exceptions,
@@ -22,11 +21,11 @@ from galaxy.visualization.data_providers.genome import (
     FeatureLocationIndexDataProvider,
     SamDataProvider
 )
-from galaxy.web.base.controller import (
+from galaxy.web.framework.helpers import is_true
+from galaxy.webapps.base.controller import (
     BaseAPIController,
     UsesVisualizationMixin
 )
-from galaxy.web.framework.helpers import is_true
 
 log = logging.getLogger(__name__)
 
@@ -34,7 +33,12 @@ log = logging.getLogger(__name__)
 class DatasetsController(BaseAPIController, UsesVisualizationMixin):
 
     def __init__(self, app):
+<<<<<<< HEAD
         super(DatasetsController, self).__init__(app)
+=======
+        super().__init__(app)
+        self.history_manager = managers.histories.HistoryManager(app)
+>>>>>>> refs/heads/release_21.01
         self.hda_manager = managers.hdas.HDAManager(app)
         self.hda_serializer = managers.hdas.HDASerializer(self.app)
         self.ldda_manager = managers.lddas.LDDAManager(app)
@@ -42,18 +46,89 @@ class DatasetsController(BaseAPIController, UsesVisualizationMixin):
     def _parse_serialization_params(self, kwd, default_view):
         view = kwd.get('view', None)
         keys = kwd.get('keys')
-        if isinstance(keys, string_types):
+        if isinstance(keys, str):
             keys = keys.split(',')
         return dict(view=view, keys=keys, default_view=default_view)
 
     @web.expose_api
     def index(self, trans, **kwd):
         """
+<<<<<<< HEAD
         GET /api/datasets
         Lists datasets.
+=======
+        GET /api/datasets/
+
+        Search datasets or collections using a query system
+
+        :rtype:     list
+        :returns:   dictionaries containing summary of dataset or dataset_collection information
+
+        The list returned can be filtered by using two optional parameters:
+
+            :q:
+                string, generally a property name to filter by followed
+                by an (often optional) hyphen and operator string.
+
+            :qv:
+
+                string, the value to filter by
+
+        ..example::
+
+            To filter the list to only those created after 2015-01-29,
+            the query string would look like:
+                '?q=create_time-gt&qv=2015-01-29'
+
+            Multiple filters can be sent in using multiple q/qv pairs:
+                '?q=create_time-gt&qv=2015-01-29&q=name-contains&qv=experiment-1'
+
+        The list returned can be paginated using two optional parameters:
+            limit:  integer, defaults to no value and no limit (return all)
+                    how many items to return
+            offset: integer, defaults to 0 and starts at the beginning
+                    skip the first ( offset - 1 ) items and begin returning
+                    at the Nth item
+
+        ..example:
+            limit and offset can be combined. Skip the first two and return five:
+                '?limit=5&offset=3'
+
+        The list returned can be ordered using the optional parameter:
+            order:  string containing one of the valid ordering attributes followed
+                    (optionally) by '-asc' or '-dsc' for ascending and descending
+                    order respectively. Orders can be stacked as a comma-
+                    separated list of values.
+
+        ..example:
+            To sort by name descending then create time descending:
+                '?order=name-dsc,create_time'
+
+        The ordering attributes and their default orders are:
+            hid defaults to 'hid-asc'
+            create_time defaults to 'create_time-dsc'
+            update_time defaults to 'update_time-dsc'
+            name    defaults to 'name-asc'
+
+        'order' defaults to 'create_time'
+>>>>>>> refs/heads/release_21.01
         """
+<<<<<<< HEAD
         trans.response.status = 501
         return 'not implemented'
+=======
+        filter_params = self.parse_filter_params(kwd)
+        filters = self.history_contents_filters.parse_filters(filter_params)
+        view = kwd.get('view', 'summary')
+        order_by = self._parse_order_by(manager=self.history_contents_manager, order_by_string=kwd.get('order', 'create_time-dsc'))
+        container = None
+        if history_id:
+            container = self.history_manager.get_accessible(self.decode_id(history_id), trans.user)
+        contents = self.history_contents_manager.contents(
+            container=container, filters=filters, limit=limit, offset=offset, order_by=order_by, user_id=trans.user.id,
+        )
+        return [self.serializer_by_type[content.history_content_type].serialize_to_view(content, user=trans.user, trans=trans, view=view) for content in contents]
+>>>>>>> refs/heads/release_21.01
 
     @web.expose_api_anonymous
     def show(self, trans, id, hda_ldda='hda', data_type=None, provider=None, **kwd):
@@ -68,37 +143,65 @@ class DatasetsController(BaseAPIController, UsesVisualizationMixin):
             return str(e)
 
         # Use data type to return particular type of data.
-        try:
-            if data_type == 'state':
-                rval = self._dataset_state(trans, dataset)
-            elif data_type == 'converted_datasets_state':
-                rval = self._converted_datasets_state(trans, dataset, kwd.get('chrom', None),
-                                                      is_true(kwd.get('retry', False)))
-            elif data_type == 'data':
-                rval = self._data(trans, dataset, **kwd)
-            elif data_type == 'features':
-                rval = self._search_features(trans, dataset, kwd.get('query'))
-            elif data_type == 'raw_data':
-                rval = self._raw_data(trans, dataset, provider, **kwd)
-            elif data_type == 'track_config':
-                rval = self.get_new_track_config(trans, dataset)
-            elif data_type == 'genome_data':
-                rval = self._get_genome_data(trans, dataset, kwd.get('dbkey', None))
+        if data_type == 'state':
+            rval = self._dataset_state(trans, dataset)
+        elif data_type == 'converted_datasets_state':
+            rval = self._converted_datasets_state(trans, dataset, kwd.get('chrom', None),
+                                                  is_true(kwd.get('retry', False)))
+        elif data_type == 'data':
+            rval = self._data(trans, dataset, **kwd)
+        elif data_type == 'features':
+            rval = self._search_features(trans, dataset, kwd.get('query'))
+        elif data_type == 'raw_data':
+            rval = self._raw_data(trans, dataset, provider, **kwd)
+        elif data_type == 'track_config':
+            rval = self.get_new_track_config(trans, dataset)
+        elif data_type == 'genome_data':
+            rval = self._get_genome_data(trans, dataset, kwd.get('dbkey', None))
+        elif data_type == 'in_use_state':
+            rval = self._dataset_in_use_state(dataset)
+        else:
+            # Default: return dataset as dict.
+            if hda_ldda == 'hda':
+                return self.hda_serializer.serialize_to_view(dataset,
+                                                             view=kwd.get('view', 'detailed'), user=trans.user, trans=trans)
             else:
-                # Default: return dataset as dict.
-                if hda_ldda == 'hda':
-                    return self.hda_serializer.serialize_to_view(dataset,
-                                                                 view=kwd.get('view', 'detailed'), user=trans.user, trans=trans)
-                else:
-                    rval = dataset.to_dict()
-
-        except Exception as e:
-            rval = "Error in dataset API at listing contents: " + str(e)
-            log.error(rval + ": %s" % str(e), exc_info=True)
-            trans.response.status = 500
+                rval = dataset.to_dict()
         return rval
 
+<<<<<<< HEAD
     @web._future_expose_api
+=======
+    @web.expose_api_anonymous
+    def show_storage(self, trans, dataset_id, hda_ldda='hda', **kwd):
+        """
+        GET /api/datasets/{encoded_dataset_id}/storage
+
+        Display user-facing storage details related to the objectstore a
+        dataset resides in.
+        """
+        dataset_instance = self.get_hda_or_ldda(trans, hda_ldda=hda_ldda, dataset_id=dataset_id)
+        dataset = dataset_instance.dataset
+        object_store = self.app.object_store
+        object_store_id = dataset.object_store_id
+        name = object_store.get_concrete_store_name(dataset)
+        description = object_store.get_concrete_store_description_markdown(dataset)
+        # not really working (existing problem)
+        try:
+            percent_used = object_store.get_store_usage_percent()
+        except AttributeError:
+            # not implemented on nestedobjectstores yet.
+            percent_used = None
+
+        return {
+            'object_store_id': object_store_id,
+            'name': name,
+            'description': description,
+            'percent_used': percent_used,
+        }
+
+    @web.expose_api
+>>>>>>> refs/heads/release_21.01
     def update_permissions(self, trans, dataset_id, payload, **kwd):
         """
         PUT /api/datasets/{encoded_dataset_id}/permissions
@@ -117,6 +220,12 @@ class DatasetsController(BaseAPIController, UsesVisualizationMixin):
         else:
             self.ldda_manager.update_permissions(trans, dataset_assoc, **kwd)
             return self.ldda_manager.serialize_dataset_association_roles(trans, dataset_assoc)
+
+    def _dataset_in_use_state(self, dataset):
+        """
+        Return True if dataset is currently used as an input or output. False otherwise.
+        """
+        return not dataset.ok_to_edit_metadata()
 
     def _dataset_state(self, trans, dataset, **kwargs):
         """
@@ -342,12 +451,19 @@ class DatasetsController(BaseAPIController, UsesVisualizationMixin):
         rval = ''
         try:
             hda = self.hda_manager.get_accessible(decoded_content_id, trans.user)
-
             if raw:
                 if filename and filename != 'index':
+<<<<<<< HEAD
                     file_path = trans.app.object_store.get_filename(hda.dataset,
                                                                     extra_dir=('dataset_%s_files' % hda.dataset.id),
                                                                     alt_name=filename)
+=======
+                    object_store = trans.app.object_store
+                    dir_name = hda.dataset.extra_files_path_name
+                    file_path = object_store.get_filename(hda.dataset,
+                                                          extra_dir=dir_name,
+                                                          alt_name=filename)
+>>>>>>> refs/heads/release_21.01
                 else:
                     file_path = hda.file_name
                 rval = open(file_path, 'rb')
@@ -362,11 +478,35 @@ class DatasetsController(BaseAPIController, UsesVisualizationMixin):
             log.error("Error getting display data for dataset (%s) from history (%s): %s",
                       history_content_id, history_id, str(exception), exc_info=True)
             trans.response.status = 500
+<<<<<<< HEAD
             rval = ("Could not get display data for dataset: " + str(exception))
 
+=======
+            rval = "Could not get display data for dataset: %s" % util.unicodify(e)
+>>>>>>> refs/heads/release_21.01
         return rval
 
+<<<<<<< HEAD
     @web.expose_api_raw_anonymous
+=======
+    @web.expose_api
+    def get_content_as_text(self, trans, dataset_id):
+        """ Returns item content as Text. """
+        decoded_id = self.decode_id(dataset_id)
+        dataset = self.hda_manager.get_accessible(decoded_id, trans.user)
+        dataset = self.hda_manager.error_if_uploading(dataset)
+        if dataset is None:
+            raise galaxy_exceptions.MessageException("Dataset not found.")
+        truncated, dataset_data = self.hda_manager.text_data(dataset, preview=True)
+        item_url = web.url_for(controller='dataset', action='display_by_username_and_slug', username=dataset.history.user.username, slug=trans.security.encode_id(dataset.id), preview=False)
+        return {
+            "item_data": dataset_data,
+            "truncated": truncated,
+            "item_url": item_url,
+        }
+
+    @web.legacy_expose_api_raw_anonymous
+>>>>>>> refs/heads/release_21.01
     def get_metadata_file(self, trans, history_content_id, history_id, metadata_file=None, **kwd):
         decoded_content_id = self.decode_id(history_content_id)
         rval = ''
@@ -375,13 +515,17 @@ class DatasetsController(BaseAPIController, UsesVisualizationMixin):
             file_ext = hda.metadata.spec.get(metadata_file).get("file_ext", metadata_file)
             fname = ''.join(c in util.FILENAME_VALID_CHARS and c or '_' for c in hda.name)[0:150]
             trans.response.headers["Content-Type"] = "application/octet-stream"
-            trans.response.headers["Content-Disposition"] = 'attachment; filename="Galaxy%s-[%s].%s"' % (hda.hid, fname, file_ext)
+            trans.response.headers["Content-Disposition"] = f'attachment; filename="Galaxy{hda.hid}-[{fname}].{file_ext}"'
             return open(hda.metadata.get(metadata_file).file_name, 'rb')
         except Exception as exception:
             log.error("Error getting metadata_file (%s) for dataset (%s) from history (%s): %s",
                       metadata_file, history_content_id, history_id, str(exception), exc_info=True)
             trans.response.status = 500
+<<<<<<< HEAD
             rval = ("Could not get display data for dataset: " + str(exception))
+=======
+            rval = "Could not get metadata for dataset: %s" % util.unicodify(e)
+>>>>>>> refs/heads/release_21.01
         return rval
 
     @web._future_expose_api_anonymous

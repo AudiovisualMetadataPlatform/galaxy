@@ -2,18 +2,19 @@
 Mixins for Ratable model managers and serializers.
 """
 import logging
+from typing import Type
 
 from sqlalchemy.sql.expression import func
 
+from galaxy.model import ItemRatingAssociation
 from . import base
 
 log = logging.getLogger(__name__)
 
 
-class RatableManagerMixin(object):
+class RatableManagerMixin:
 
-    #: class of RatingAssociation (e.g. HistoryRatingAssociation)
-    rating_assoc = None
+    rating_assoc: Type[ItemRatingAssociation]
 
     def rating(self, item, user, as_int=True):
         """Returns the integer rating given to this item by the user.
@@ -60,7 +61,7 @@ class RatableManagerMixin(object):
     # TODO?: all ratings for a user
 
 
-class RatableSerializerMixin(object):
+class RatableSerializerMixin:
 
     def add_serializers(self):
         self.serializers['user_rating'] = self.serialize_user_rating
@@ -88,7 +89,7 @@ class RatableSerializerMixin(object):
         }
 
 
-class RatableDeserializerMixin(object):
+class RatableDeserializerMixin:
 
     def add_deserializers(self):
         self.deserializers['user_rating'] = self.deserialize_rating
@@ -101,7 +102,7 @@ class RatableDeserializerMixin(object):
         return self.manager.rate(item, user, val, flush=False)
 
 
-class RatableFilterMixin(object):
+class RatableFilterMixin:
 
     def _ratings_avg_accessor(self, item):
         return self.manager.ratings_avg(item)

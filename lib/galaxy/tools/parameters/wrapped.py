@@ -28,7 +28,7 @@ def copy_identifiers(source, destination):
                     destination[k] = v
 
 
-class WrappedParameters(object):
+class WrappedParameters:
 
     def __init__(self, trans, tool, incoming, input_datasets=None):
         self.trans = trans
@@ -76,12 +76,14 @@ class WrappedParameters(object):
                                        dataset_instances,
                                        datatypes_registry=trans.app.datatypes_registry,
                                        tool=tool,
-                                       name=input.name)
+                                       name=input.name,
+                                       formats=input.formats)
             elif isinstance(input, DataToolParameter):
                 wrapper_kwds = dict(
                     datatypes_registry=trans.app.datatypes_registry,
                     tool=tool,
-                    name=input.name
+                    name=input.name,
+                    formats=input.formats
                 )
                 element_identifier = element_identifier_mapper.identifier(value, input_values)
                 if element_identifier:

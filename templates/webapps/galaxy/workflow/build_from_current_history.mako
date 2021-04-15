@@ -90,7 +90,7 @@ into a workflow will be shown in gray.</p>
     <input name="workflow_name" type="text" value="Workflow constructed from history '${ util.unicodify( history.name )}'" size="60"/>
 </div>
 <p>
-    <input type="submit" value="${_('Create Workflow')}" />
+    <input type="submit" class="btn btn-primary" value="${_('Create Workflow')}" />
     <button id="checkall" style="display: none;">Check all</button>
     <button id="uncheckall" style="display: none;">Uncheck all</button>
 </p>
@@ -103,7 +103,7 @@ into a workflow will be shown in gray.</p>
         <th style="width: 47.5%">${_('History items created')}</th>
     </tr>
 
-%for job, datasets in jobs.iteritems():
+%for job, datasets in jobs.items():
 
     <%
     cls = "toolForm"

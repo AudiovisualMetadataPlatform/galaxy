@@ -1,37 +1,28 @@
-galaxy\.webapps package
-=======================
+galaxy.webapps package
+======================
 
 .. automodule:: galaxy.webapps
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
-    galaxy.webapps.galaxy
-    galaxy.webapps.reports
-    galaxy.webapps.tool_shed
+   galaxy.webapps.base
+   galaxy.webapps.galaxy
+   galaxy.webapps.reports
 
 Submodules
 ----------
 
-galaxy\.webapps\.config\_manage module
---------------------------------------
-
-.. automodule:: galaxy.webapps.config_manage
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-galaxy\.webapps\.util module
-----------------------------
+galaxy.webapps.util module
+--------------------------
 
 .. automodule:: galaxy.webapps.util
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,3 +1,4 @@
+import collections
 import json
 import os
 import string
@@ -5,20 +6,16 @@ import time
 import unittest
 
 import routes
-from six import string_types
 
 from galaxy import model
+from galaxy.config_watchers import ConfigWatchers
 from galaxy.model import tool_shed_install
 from galaxy.model.tool_shed_install import mapping
 from galaxy.tools import ToolBox
 from galaxy.tools.cache import ToolCache
-from galaxy.webapps.galaxy.config_watchers import ConfigWatchers
-from .test_tool_loader import (
-    SIMPLE_MACRO,
-    SIMPLE_TOOL_WITH_MACRO
-)
 from .test_toolbox_filters import mock_trans
 from ..tools_support import UsesApp, UsesTools
+from ..unittest_utils.sample_data import SIMPLE_MACRO, SIMPLE_TOOL_WITH_MACRO
 
 
 CONFIG_TEST_TOOL_VERSION_TEMPLATE = string.Template(
@@ -34,6 +31,12 @@ CONFIG_TEST_TOOL_VERSION_TEMPLATE = string.Template(
 )
 CONFIG_TEST_TOOL_VERSION_1 = CONFIG_TEST_TOOL_VERSION_TEMPLATE.safe_substitute(dict(version="1"))
 CONFIG_TEST_TOOL_VERSION_2 = CONFIG_TEST_TOOL_VERSION_TEMPLATE.safe_substitute(dict(version="2"))
+
+REPO_TYPE = collections.namedtuple(
+    'DEFAULT_TEST_REPO',
+    'tool_shed owner name changeset_revision installed_changeset_revision description status',
+)
+DEFAULT_TEST_REPO = REPO_TYPE('github.com', 'galaxyproject', 'example', '1', '1', 'description', 'OK')
 
 
 class BaseToolBoxTestCase(unittest.TestCase, UsesApp, UsesTools):
@@ -67,7 +70,11 @@ class BaseToolBoxTestCase(unittest.TestCase, UsesApp, UsesTools):
         itp_config = os.path.join(self.test_directory, "integrated_tool_panel.xml")
         self.app.config.integrated_tool_panel_config = itp_config
         self.app.watchers = ConfigWatchers(self.app)
+<<<<<<< HEAD
         self.__toolbox = None
+=======
+        self._toolbox = None
+>>>>>>> refs/heads/release_21.01
         self.config_files = []
 
     def _repo_install(self, changeset, config_filename=None):
@@ -75,9 +82,9 @@ class BaseToolBoxTestCase(unittest.TestCase, UsesApp, UsesTools):
         if config_filename:
             metadata['shed_config_filename'] = config_filename
         repository = tool_shed_install.ToolShedRepository(metadata=metadata)
-        repository.tool_shed = "github.com"
-        repository.owner = "galaxyproject"
-        repository.name = "example"
+        repository.tool_shed = DEFAULT_TEST_REPO.tool_shed
+        repository.owner = DEFAULT_TEST_REPO.owner
+        repository.name = DEFAULT_TEST_REPO.name
         repository.changeset_revision = changeset
         repository.installed_changeset_revision = changeset
         repository.deleted = False
@@ -134,7 +141,7 @@ class BaseToolBoxTestCase(unittest.TestCase, UsesApp, UsesTools):
         is_json = name.endswith(".json")
         path = self._tool_conf_path(name=name)
         with open(path, "w") as f:
-            if not is_json or isinstance(content, string_types):
+            if not is_json or isinstance(content, str):
                 f.write(content)
             else:
                 json.dump(content, f)
@@ -235,7 +242,11 @@ class ToolBoxTestCase(BaseToolBoxTestCase):
 
     def _try_until_no_errors(self, f):
         e = None
+<<<<<<< HEAD
         for i in range(300):
+=======
+        for _ in range(40):
+>>>>>>> refs/heads/release_21.01
             try:
                 f()
                 return
@@ -293,7 +304,7 @@ class ToolBoxTestCase(BaseToolBoxTestCase):
             if elem.get("id") == section_id:
                 assert elem["model_class"] == "ToolSection"
                 return elem
-        assert False, "Failed to find section with id [%s]" % section_id
+        raise AssertionError(f"Failed to find section with id [{section_id}]")
 
     def test_tool_shed_properties(self):
         self._init_tool()
@@ -367,6 +378,15 @@ class ToolBoxTestCase(BaseToolBoxTestCase):
 
         # Assert tools merged in tool panel.
         assert len(self.toolbox._tool_panel) == 1
+
+    def test_get_section_by_label(self):
+        self._add_config(
+            """<toolbox><section id="tid" name="Completely unrelated"><label id="lab1" text="Label 1" /><label id="lab2" text="Label 2" /></section></toolbox>""")
+        assert len(self.toolbox._tool_panel) == 1
+        section = self.toolbox._tool_panel['tid']
+        tool_panel_section_key, section_by_label = self.toolbox.get_section(section_id='nope', new_label='Completely unrelated', create_if_needed=True)
+        assert section_by_label is section
+        assert tool_panel_section_key == 'tid'
 
     def test_get_tool_id(self):
         self._init_tool()
@@ -546,16 +566,14 @@ class SimplifiedToolBox(ToolBox):
         app.tool_cache = ToolCache() if not hasattr(app, 'tool_cache') else app.tool_cache
         app.job_config.get_tool_resource_parameters = lambda tool_id: None
         app.config.update_integrated_tool_panel = True
+        app.config.schema.defaults = {'tool_dependency_dir': 'dependencies'}
         config_files = test_case.config_files
         tool_root_dir = test_case.test_directory
-        super(SimplifiedToolBox, self).__init__(
+        super().__init__(
             config_files,
             tool_root_dir,
             app,
         )
-
-    def handle_panel_update(self, section_dict):
-        self.create_section(section_dict)
 
 
 def reload_callback(test_case):

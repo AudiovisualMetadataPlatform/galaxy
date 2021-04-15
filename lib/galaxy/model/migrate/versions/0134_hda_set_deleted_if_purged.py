@@ -1,12 +1,14 @@
 """
-Migration script to set the 'deleted' column of the
-'history_dataset_association' table to True if 'purged' is True.
+Postponed to migration 160.
 """
+<<<<<<< HEAD
 from __future__ import print_function
 
 import logging
 
 log = logging.getLogger(__name__)
+=======
+>>>>>>> refs/heads/release_21.01
 
 
 def engine_true(migrate_engine):
@@ -20,11 +22,6 @@ def engine_true(migrate_engine):
 
 def upgrade(migrate_engine):
     print(__doc__)
-    cmd = 'UPDATE history_dataset_association SET deleted=%s WHERE purged;' % engine_true(migrate_engine)
-    try:
-        migrate_engine.execute(cmd)
-    except Exception:
-        log.exception("Exception executing SQL command: %s", cmd)
 
 
 def downgrade(migrate_engine):

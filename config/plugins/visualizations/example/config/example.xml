@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE visualization SYSTEM "../../visualization.dtd">
-<visualization name="Example">
+<visualization name="Example" embeddable="false">
     <description>This is a developer example which demonstrates how to implement and configure a basic d3-based plugin for charts.</description>
     <data_sources>
         <data_source>
@@ -18,6 +18,14 @@
         <tag>svg</tag>
         <use_panels>both</use_panels>
     </specs>
+    <settings>
+        <input>
+            <name>data_dialog</name>
+            <label>Some data selector</label>
+            <type>data_dialog</type>
+            <multiple>false</multiple>
+        </input>
+    </settings>
     <groups>
         <input>
             <name>x</name>

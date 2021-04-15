@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 <tool id="Grouping1" name="Group" version="2.1.2">
+=======
+<tool id="Grouping1" name="Group" version="2.1.4">
+>>>>>>> refs/heads/release_21.01
   <description>data by a column and perform aggregate operation on other columns.</description>
   <command interpreter="python">
     grouping.py 

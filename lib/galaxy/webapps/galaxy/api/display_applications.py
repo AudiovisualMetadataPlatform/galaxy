@@ -3,9 +3,14 @@ API operations on annotations.
 """
 import logging
 
+<<<<<<< HEAD
 from galaxy import queue_worker
 from galaxy.web import expose_api, require_admin
 from galaxy.web.base.controller import BaseAPIController
+=======
+from galaxy.web import legacy_expose_api, require_admin
+from galaxy.webapps.base.controller import BaseAPIController
+>>>>>>> refs/heads/release_21.01
 
 log = logging.getLogger(__name__)
 
@@ -25,17 +30,21 @@ class DisplayApplicationsController(BaseAPIController):
         response = []
         for display_app in trans.app.datatypes_registry.display_applications.values():
             response.append({
-                'id' : display_app.id,
+                'id': display_app.id,
                 'name': display_app.name,
                 'version': display_app.version,
                 'filename_': display_app._filename,
-                'links': [{'name': l.name} for l in display_app.links.values()]
+                'links': [{'name': link.name} for link in display_app.links.values()]
             })
         return response
 
+<<<<<<< HEAD
     @expose_api
+=======
+>>>>>>> refs/heads/release_21.01
     @require_admin
-    def reload(self, trans, payload={}, **kwd):
+    @legacy_expose_api
+    def reload(self, trans, payload=None, **kwd):
         """
         POST /api/display_applications/reload
 
@@ -44,11 +53,13 @@ class DisplayApplicationsController(BaseAPIController):
         :param  ids:  list containing ids of display to be reloaded
         :type   ids:  list
         """
+        payload = payload or {}
         ids = payload.get('ids')
-        queue_worker.send_control_task(trans.app,
+        trans.app.queue_worker.send_control_task(
             'reload_display_application',
             noop_self=True,
-            kwargs={'display_application_ids': ids})
+            kwargs={'display_application_ids': ids}
+        )
         reloaded, failed = trans.app.datatypes_registry.reload_display_applications(ids)
         if not reloaded and failed:
             message = 'Unable to reload any of the %i requested display applications ("%s").' % (len(failed), '", "'.join(failed))
