@@ -10,7 +10,7 @@
   <inputs>
     <!-- should be wave data type -->
     <param name="input_audio" type="data" format="wav" label="Input Audio" help="Input audio file in wav format"/>
-    <param name="input_transcript" type="data" format="transcript" label="Input Transcript" help="Input AMP Transcript Json"/>
+    <param name="input_transcript" type="data" format="transcript" label="Input AMP Transcript" help="Input AMP Transcript Json"/>
   </inputs>
   <outputs>
     <data name="amp_transcript" format="transcript" label="AMP Segments Generated"/>
