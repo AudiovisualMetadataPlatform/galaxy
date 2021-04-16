@@ -10,16 +10,18 @@ import tempfile
 
 import uuid
 
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_util'))
+import mgm_utils
 
 def main():
 	(input_audio_file, input_transcript_file, json_file) = sys.argv[1:4]
 	try:
+		# Define directory accessible to singularity container
+		tmpdir = '/tmp'
+
 		# Create random temp names
 		tmpAudioName = str(uuid.uuid4())
 		tmpTranscriptName = str(uuid.uuid4())
-
-		# Define directory accessible to singularity container
-		tmpdir = '/Users/dan'
 
 		# Create temp file paths
 		temp_audio_file = f"{tmpdir}/{tmpAudioName}.dat"
@@ -39,7 +41,7 @@ def main():
 
 			# Run gentle
 			print("Running gentle")
-			r = subprocess.run(["singularity", "run", "/Users/dan/documents/IU/gentle-singularity.sif", temp_audio_file, temp_transcript_file, "-o", temp_output_file], stdout=subprocess.PIPE)
+			r = subprocess.run(["singularity", "run", "/srv/amp/gentle-singularity/gentle-singularity.sif", temp_audio_file, temp_transcript_file, "-o", temp_output_file], stdout=subprocess.PIPE)
 			print("Finished running gentle")
 
 			print("Creating amp transcript output")
@@ -82,7 +84,6 @@ def write_amp_json(temp_gentle_output, original_transcript, amp_transcript_outpu
 						} 
 					}
 				)
-		with open(amp_transcript_output, 'w') as outfile:
-			json.dump(output, outfile)
+		mgm_utils.write_json_file(output, amp_transcript_output)
 if __name__ == "__main__":
 	main()

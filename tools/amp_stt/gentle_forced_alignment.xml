@@ -1,5 +1,5 @@
 <tool id="gentle_forced_alignment" name="Gentle Forced Alignment" version="1.0.0">
-  <description>TODO</description>
+  <description>Align an audio file's speech with a transcript</description>
   <requirements>
 	<requirement type="package" version="3.8">python</requirement>
     <requirement type="package" version="8.30">coreutils</requirement>
@@ -20,7 +20,7 @@
   <help>
 .. class:: infomark
 
-TODO
+Align an audio file's speech with a transcript
 
   </help>
 </tool>
