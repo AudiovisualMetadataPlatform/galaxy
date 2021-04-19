@@ -21,7 +21,7 @@ def main():
 		tmpTranscriptName = str(uuid.uuid4())
 
 		# Define directory accessible to singularity container
-		tmpdir = '/tmp'
+		tmpdir = '/Users/dan'
 
 		# Create temp file paths
 		temp_audio_file = f"{tmpdir}/{tmpAudioName}.dat"
@@ -61,7 +61,7 @@ def main():
 	exit(r.returncode)
 
 def find_next_success(gentle_output, current_index):
-	for word_index in range(current_index, len(gentle_output["words"])+1):
+	for word_index in range(current_index, len(gentle_output["words"])):
 		word = gentle_output["words"][word_index]
 		# Make sure we have all the data
 		if word["case"] == 'success':
@@ -111,12 +111,12 @@ def write_amp_json(temp_gentle_output, original_transcript, amp_transcript_outpu
 					if(next_success_index > word_index):
 						# Average the times based on how many words in between
 						next_success_word = gentle_output["words"][next_success_index]
-						skips_ahead = next_success_index - word_index
+						skips_ahead = (next_success_index - word_index)
 						avg_time = (next_success_word["start"] - previous_end)/skips_ahead
 						print("Averaging time from next success")
 					else:
 						duration = original_transcript["results"]["duration"]
-						skips_ahead = len(gentle_output["words"]) - word_index
+						skips_ahead = (len(gentle_output["words"]) - word_index)
 						avg_time = duration/skips_ahead
 						print("Averaging time from end of file")
 					
