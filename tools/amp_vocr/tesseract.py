@@ -20,6 +20,11 @@ from datetime import datetime
 from decimal import Decimal
 from pytesseract import Output
 
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_util'))
+from mgm_logger import MgmLogger
+import mgm_utils
+
+
 def main():
 	(input_file, output_name) = sys.argv[1:3]
 	os.mkdir(input_file[:-4])
@@ -82,14 +87,12 @@ def main():
       		#save frame if it had text
 		if len(frameList["objects"]) > 0:
 			output["frames"].append(frameList)
-  
-	with open(output_name, 'w') as outfile:
-		json.dump(output, outfile)
+     
+    # save the output json file
+	mgm_utils.write_json_file(output, output_name)
 	
 	#clear generated images
-	shutil.rmtree(input_file[:-4])
-
-	
+	shutil.rmtree(input_file[:-4])	
 
 # UTIL FUNCTIONS
 def findVideoMetada(pathToInputVideo):
