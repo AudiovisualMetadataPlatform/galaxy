@@ -15,6 +15,10 @@ from scenedetect.stats_manager import StatsManager
 # For content-aware scene detection:
 from scenedetect.detectors.content_detector import ContentDetector
 
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_util'))
+from mgm_logger import MgmLogger
+import mgm_utils
+
 
 def main():
     (input_file, threshold, output_json, output_csv) = sys.argv[1:5]
@@ -29,8 +33,11 @@ def main():
     for shot in shots:
         print("start: " + str(shot[0]) + "  end: " + str(shot[1]))
     
-    # Convert the result to json, save the file
-    convert_to_json(shots, input_file, output_json)
+    # Convert the result to json,
+    shots_dict = convert_to_json(shots, input_file)
+    
+    # save the output json file    
+    mgm_utils.write_json_file(shots_dict, output_json)
 
 # Get the duration based on the last output
 def get_duration(shots):
@@ -90,7 +97,7 @@ def get_seconds_from_timecode(time_string):
     a_timedelta = dt - datetime.datetime(1900, 1, 1)
     return a_timedelta.total_seconds()
 
-def convert_to_json(shots, input_file, output_json):
+def convert_to_json(shots, input_file):
     duration = get_duration(shots)
     outputDict = {
         "media": {
@@ -110,9 +117,8 @@ def convert_to_json(shots, input_file, output_json):
         }
         outputDict["shots"].append(shot)
 
-    with open(output_json, "w") as f:
-        json.dump(outputDict, f)
-
     return outputDict
+
+
 if __name__ == "__main__":
     main()

@@ -13,6 +13,11 @@ from shutil import copyfile
 sys.path.insert(0, os.path.abspath('../../../../../tools/amp_schema'))
 from segmentation import Segmentation
 
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_util'))
+from mgm_logger import MgmLogger
+import mgm_utils
+
+
 # Seconds to buffer beginning and end of audio segments by
 buffer = 1
 
@@ -27,7 +32,7 @@ def main():
 	kept_segments = remove_silence(remove_type, seg_data, input_file, output_file)
 
 	# Write kept segments to json file
-	write_kept_segments_json(kept_segments, kept_segments_file)
+	mgm_utils.write_json_file(kept_segments, kept_segments_file)
 	exit(0)
 
 # Given segmentation data, an audio file, and output file, remove silence
@@ -177,11 +182,6 @@ def should_remove_segment(remove_type, segment, start_block):
 			return True
 	return False
 
-# Serialize obj and write it to output file
-def write_kept_segments_json(kept_segments, kept_segments_file):
-	# Serialize the segmentation object
-	with open(kept_segments_file, 'w') as outfile:
-		json.dump(kept_segments, outfile, default=lambda x: x.__dict__)
 
 if __name__ == "__main__":
 	main()

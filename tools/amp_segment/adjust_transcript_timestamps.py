@@ -8,6 +8,11 @@ sys.path.insert(0, os.path.abspath('../../../../../tools/amp_schema'))
 from speech_to_text import SpeechToText, SpeechToTextMedia, SpeechToTextResult, SpeechToTextScore, SpeechToTextWord
 from adjustment import Adjustment
 
+sys.path.insert(0, os.path.abspath('../../../../../tools/amp_util'))
+from mgm_logger import MgmLogger
+import mgm_utils
+
+
 def main():
 
     (stt_json, adj_json, output_json) = sys.argv[1:4]
@@ -46,7 +51,7 @@ def main():
         adjust_word(word, offset_adj)
         
     # Write the resulting json
-    write_output_json(stt, output_json)
+    mgm_utils.write_json_file(stt, output_json)
 
 def adjust_word(word, offset_adj):
     print(f"WORD: {word.start} : {word.end}")
@@ -58,13 +63,7 @@ def adjust_word(word, offset_adj):
             word.end = word.end + adj.adjustment
             return
     print("No adjustment found")
-
     
-# Serialize schema obj and write it to output file
-def write_output_json(transcribe_schema, json_file):
-    # Serialize the stt object
-    with open(json_file, 'w') as outfile:
-        json.dump(transcribe_schema, outfile, default=lambda x: x.__dict__)
     
 if __name__ == "__main__":
     main()
