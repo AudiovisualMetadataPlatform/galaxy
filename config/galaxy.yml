@@ -97,8 +97,8 @@ uwsgi:
   enable-threads: true
 
   # enable API performance logging  
-  enable-metrics: true
-  dlopen: metrics/system_metrics.so
+  #enable-metrics: true
+  #dlopen: metrics/system_metrics.so
   metric: name=system_load,collector=func,arg1=load_average,freq=3
   metric: name=system_swap,collector=func,arg1=swap,freq=3
   metric: name=system_ram,collector=func,arg1=memory,freq=3
@@ -1291,7 +1291,7 @@ galaxy:
   # Admin section of the server, and will have access to create users,
   # groups, roles, libraries, and more.  For more information, see:
   # https://galaxyproject.org/admin/
-  admin_users: amppd@iu.edu, amppd-ci@iu.edu
+  admin_users: amppd@iu.edu, amppd-ci@iu.edu, dan@portalmedia.com
   
   # Force everyone to log in (disable anonymous access).
   #require_login: false

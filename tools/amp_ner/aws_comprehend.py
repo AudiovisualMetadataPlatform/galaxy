@@ -10,6 +10,7 @@ import sys
 import traceback
 import tempfile
 import uuid
+import string
 import time
 import tarfile
 from datetime import datetime
@@ -95,7 +96,7 @@ def main():
                 for wordPos in range(lastPos, sttWords):
                     # If it matches, set the time offset.
                     word = stt.results.words[wordPos]
-                    if clean_entity_word(word.text) == entityPart:
+                    if clean_entity_word(word.text) == clean_entity_word(entityPart):
                         # Keep track of last position to save iterations
                         lastPos = wordPos
                         # Set start if we haven't set it yet
@@ -128,7 +129,7 @@ def clean_entity_word(entity_word):
     cleaned_word = entity_word
     if(entity_word.endswith('\'s')):
         cleaned_word = entity_word.replace('\'s', '')
-    return cleaned_word
+    return cleaned_word.translate(str.maketrans('', '', string.punctuation))
 
 def download_from_s3(output_uri, base_uri, bucket_name):
     tarFileName = "comprehend_output.tar.gz"
