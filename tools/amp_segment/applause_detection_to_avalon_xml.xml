@@ -2,14 +2,6 @@
   <description>Converts AMP Applause Detection Segmentation to Avalon Structural Metadata XML</description>
   <requirements>
 	<requirement type="package" version="3.8">python</requirement>
-    <requirement type="package" version="0.7.2">librosa</requirement>
-	<requirement type="package" version="1.17.4">numpy</requirement>
-    <requirement type="package" version="0.9.2">numpydoc</requirement>
-	<requirement type="package" version="0.48">numba</requirement>
-    <requirement type="package" version="1.4.1">scipy</requirement>
-    <requirement type="package" version="0.22.1">scikit-learn</requirement>
-    <requirement type="package" version="0.2.0">ffmpeg-python</requirement>
-    <requirement type="package" version="2.0.1">tensorflow</requirement>
   </requirements>
   <command detect_errors="exit_code">
   	'$__tool_directory__/applause_detection_to_avalon_xml.py' '$input_segments' '$context_json' '$avalon_xml'
