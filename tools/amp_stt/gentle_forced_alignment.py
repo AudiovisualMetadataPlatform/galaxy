@@ -21,7 +21,7 @@ def main():
 		tmpTranscriptName = str(uuid.uuid4())
 
 		# Define directory accessible to singularity container
-		tmpdir = '/tmp'
+		tmpdir = '/Users/dan'
 
 		# Create temp file paths
 		temp_audio_file = f"{tmpdir}/{tmpAudioName}.dat"
@@ -85,7 +85,6 @@ def write_amp_json(temp_gentle_output, original_transcript, amp_transcript_outpu
 			# Make sure we have all the data
 			if word["case"] == 'success':
 				previous_end = word["end"]
-				last_success_index = gentle_output["words"].index(word)
 				output["results"]["words"].append(
 						{
 							"type": "pronunciation", 
@@ -98,7 +97,6 @@ def write_amp_json(temp_gentle_output, original_transcript, amp_transcript_outpu
 							} 
 						}
 					)
-				prepend = ""
 			else:
 				word_index = gentle_output["words"].index(word)
 				next_success_index = find_next_success(gentle_output, word_index)
@@ -135,6 +133,7 @@ def write_amp_json(temp_gentle_output, original_transcript, amp_transcript_outpu
 						} 
 					}
 				)
+			last_success_index = gentle_output["words"].index(word)
 					
 
 			

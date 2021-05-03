@@ -127,8 +127,8 @@ def create_temp_transcript_file(jobName, transcript):
 
 def clean_entity_word(entity_word):
     cleaned_word = entity_word
-    if(entity_word.endswith('\'s')):
-        cleaned_word = entity_word.replace('\'s', '')
+    #if(entity_word.endswith('\'s')):
+    #    cleaned_word = entity_word.replace('\'s', '')
     return cleaned_word.translate(str.maketrans('', '', string.punctuation))
 
 def download_from_s3(output_uri, base_uri, bucket_name):
