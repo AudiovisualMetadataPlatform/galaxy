@@ -2,10 +2,7 @@
 
 import os
 import os.path
-import shutil
-import subprocess
 import sys
-import tempfile
 import json
 import xml.etree.ElementTree as ET
 import time
@@ -26,7 +23,7 @@ def main():
     with open(input_file,'r') as json_file:
         applause_segments = json.load(json_file)
         segment_start = None
-        n = 0
+        n = 1
         item = ET.Element('Item')
         item.set('label', item_name)
         primary_file = ET.SubElement(item, 'Div')
@@ -40,6 +37,7 @@ def main():
                     segment_start = segment["start"]
                 #  Applause item, create the element
                 create_work_item(primary_file, segment_start, segment["end"], n)
+                n+=1
                 segment_start = None
             elif segment["label"] == "non-applause":
                 # Non applause should be added to the next applause segment
@@ -47,6 +45,7 @@ def main():
                 # If this is the last segment, output it
                 if n == len(applause_segments["segments"]):
                     create_work_item(primary_file, segment_start, segment["end"], n)
+                    n+=1
                     segment_start = None
         
         mydata = ET.tostring(element=item, method="xml")

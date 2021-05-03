@@ -119,15 +119,15 @@ def main():
                 i += 1
                 j += 1
             print("i: " + str(i) + " j:" + str(j))
-                
+            
         # Create the media object
         media = SpeechToTextMedia(duration, original_transcript)
     
         # Create the final object
-        outputFile = SpeechToText(media, results)
+        stt = SpeechToText(media, results)
     
         # Write the output
-        write_output_json(outputFile, to_transcript)
+        mgm_utils.write_json_file(stt, to_transcript)
         print("Successfully converted from DraftJs " + from_draftjs + " to Transcript " + to_transcript)
         # as the last command in HMGM, implicitly exit 0 here to let the whole job complete in success
     except Exception as e:
@@ -136,12 +136,6 @@ def main():
         traceback.print_exc()
         sys.stdout.flush()
         exit(-1)            
-
-
-# Serialize schema obj and write it to output file
-def write_output_json(input_json, json_file):
-	with open(json_file, 'w') as outfile:
-		json.dump(input_json, outfile, default=lambda x: x.__dict__)
 
 
 if __name__ == "__main__":

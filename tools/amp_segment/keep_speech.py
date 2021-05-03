@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.abspath('../../../../../tools/amp_schema'))
 from segmentation import Segmentation
 
 # Seconds to buffer beginning and end of audio segments by
-buffer = 1
+buffer = 5
 
 def main():
 	(input_file, input_segmentation_json, remove_type, output_file, kept_segments_file) = sys.argv[1:6]
