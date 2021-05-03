@@ -5,11 +5,11 @@ import requests
 
 def main():
     # Vars to reference
-    api_key = "504d37d02c10a5c3d1b06af73a538642"
-    api_token = "4b09461fdaf2f91232dccf000b10055551797aa73fecd088b66ffa833130f58d"
-    board_id = "603bf2ad062bd239916683e2"
-    todo_list_id = "603bf2ad062bd239916683e3"
-    done_list_id = "603bf2ad062bd239916683e5"
+    api_key = "API_KEY"
+    api_token = "API_Token"
+    board_id = "BOARD ID"
+    todo_list_id = "TODO LIST_ID"
+    done_list_id = "DONE LIST ID"
 
     client = TrelloClient(
         api_key=api_key,
