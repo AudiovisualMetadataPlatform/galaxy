@@ -4,7 +4,7 @@
 	<requirement type="package" version="3.8">python</requirement>
   </requirements>
   <command detect_errors="exit_code">
-  	'$__tool_directory__/applause_detection_to_avalon_xml.py' '$amp_applause_segments' '$context_json' '$avalon_applause'
+  	'$__tool_directory__/applause_detection_to_avalon_xml.py' '$amp_applause_segments' '$context_json' '$avalon_applause_sme'
   </command>
   <inputs>
     <param name="amp_applause_segments" type="data" format="segment" label="Input Applause Segments" help="Input applause detection segmentation"/>
@@ -14,7 +14,7 @@
 	</param>
   </inputs>
   <outputs>
-    <data name="avalon_applause" format="xml" label="Avalon structural metadata XML"/>
+    <data name="avalon_applause_sme" format="xml" label="Avalon Applause Structural Metadata"/>
   </outputs>
   <tests>
   </tests>
