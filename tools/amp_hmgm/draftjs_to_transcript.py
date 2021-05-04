@@ -4,6 +4,7 @@ import difflib
 
 
 import json
+import string
 import sys
 import traceback
 import os
