@@ -23,7 +23,7 @@ def main():
     with open(input_file,'r') as json_file:
         applause_segments = json.load(json_file)
         segment_start = None
-        n = 1
+        segment_count = 1
         item = ET.Element('Item')
         item.set('label', item_name)
         primary_file = ET.SubElement(item, 'Div')
@@ -36,30 +36,27 @@ def main():
                 if segment_start is None:
                     segment_start = segment["start"]
                 #  Applause item, create the element
-                create_work_item(primary_file, segment_start, segment["end"], n)
-                n+=1
+                create_work_item(primary_file, segment_start, segment["end"], 'Work')
                 segment_start = None
             elif segment["label"] == "non-applause":
                 # Non applause should be added to the next applause segment
                 segment_start = segment["start"]
                 # If this is the last segment, output it
-                if n == len(applause_segments["segments"]):
-                    create_work_item(primary_file, segment_start, segment["end"], n)
-                    n+=1
+                if segment_count == len(applause_segments["segments"]):
+                    create_work_item(primary_file, segment_start, segment["end"], 'Other')
                     segment_start = None
-        
+            segment_count+=1
         mydata = ET.tostring(element=item, method="xml")
         myfile = open(output_xml, "wb")
         myfile.write(mydata)
     
     exit(0)
 
-def create_work_item(xml_parent, begin, end, number):
-    number+=1
+def create_work_item(xml_parent, begin, end, label):
     work_item = ET.SubElement(xml_parent, 'Span')
     work_item.set('begin', to_time_string(begin))
     work_item.set('end', to_time_string(end))
-    work_item.set('label', 'Work' + str(len(xml_parent.getchildren())))
+    work_item.set('label', label + str(len(xml_parent.getchildren())))
 
 def to_time_string(seconds):
     dt = datetime.utcfromtimestamp(seconds)
