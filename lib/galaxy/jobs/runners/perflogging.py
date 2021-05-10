@@ -3,7 +3,7 @@ import time
 #
 # AMP - gather job performance infomation
 #
-# A pointless change.
+# 
 
 
 def common_fields(msgtype, job_wrapper, runner):
