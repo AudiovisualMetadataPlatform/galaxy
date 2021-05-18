@@ -10,6 +10,9 @@ import shlex
 import subprocess
 import tempfile
 
+from galaxy.util.checkers import (
+    check_html
+)
 from galaxy.datatypes.data import get_file_peek, Text
 from galaxy.datatypes.metadata import MetadataElement, MetadataParameter
 from galaxy.datatypes.sniff import build_sniff_from_prefix, iter_headers
@@ -52,13 +55,10 @@ class Html(Text):
         >>> Html().sniff( fname )
         True
         """
-        headers = iter_headers(file_prefix, None)
-        for hdr in headers:
-            for h in hdr:
-                if h and h.lower().find('html>') >= 0:
-                    return True
-        return False
-
+        fname = get_test_fname(converted_path)
+        print("Input File Name: " + converted_path)
+        print("Html File Name: " + fname)
+        return check_html(fname)
 
 @build_sniff_from_prefix
 class Json(Text):
