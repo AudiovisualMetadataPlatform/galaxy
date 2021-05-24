@@ -55,10 +55,7 @@ class Html(Text):
         >>> Html().sniff( fname )
         True
         """
-        fname = get_test_fname(converted_path)
-        print("Input File Name: " + converted_path)
-        print("Html File Name: " + fname)
-        return check_html(fname)
+        return check_html(file_prefix.filename)
 
 @build_sniff_from_prefix
 class Json(Text):
