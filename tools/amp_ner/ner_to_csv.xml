@@ -7,10 +7,10 @@
     '$__tool_directory__/ner_to_csv_.py' '$amp_entities' '$amp_entities_csv';
   </command>
   <inputs>
-    <param name="amp_entities" type="data" format="ner" label="AMP Named Entities" help="AMP NER output file" ></param>
+    <param name="amp_entities" type="data" format="ner" label="AMP Entities" help="AMP named entities file" ></param>
   </inputs>
   <outputs>
-    <data name="amp_entities_csv" format="csv" label="AMP Entities CSV Converted"/>
+    <data name="amp_entities_csv" format="csv" label="AMP Entities CSV"/>
   </outputs>
   <tests>
   </tests>
