@@ -12,7 +12,7 @@
     <param name="kept_segments" type="data" format="json" label="Kept segments JSON" help="List of kept segments from RemoveSegments"/>
   </inputs>
   <outputs>
-    <data name="amp_diarization_adjusted" format="segment" label="AMP Diarization Timestamp Adjusted"/>
+    <data name="amp_diarization_adjusted" format="segment" label="AMP Diarization Adjusted"/>
   </outputs>
   <tests>
   </tests>

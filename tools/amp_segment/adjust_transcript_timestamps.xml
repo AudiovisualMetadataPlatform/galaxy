@@ -12,7 +12,7 @@
     <param name="kept_segments" type="data" format="json" label="Kept segments JSON" help="List of kept segments from RemoveSegments"/>
   </inputs>
   <outputs>
-    <data name="amp_transcript_adjusted" format="transcript" label="AMP Transcript Timestamp Adjusted"/>
+    <data name="amp_transcript_adjusted" format="transcript" label="AMP Transcript Adjusted"/>
   </outputs>
   <tests>
   </tests>
