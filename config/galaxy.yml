@@ -120,7 +120,8 @@ uwsgi:
   metric: name=cpu_system,collector=func,arg1=cpu_system,freq=3
   metric: name=cpu_iowait,collector=func,arg1=cpu_iowait,freq=3
   metric: name=cpu_idle,collector=func,arg1=cpu_idle,freq=3
-  req-logger: file:logs/requests.log
+  logger: file:logfile=logs/uwsgi.log,maxsize=100000000
+  req-logger: file:logfile=logs/requests.log,maxsize=100000000
   logformat: 0%(time)|%(wid)|%(core)|%(secs)|%(metric.system_load)|%(metric.system_ram)|%(metric.system_swap)|%(metric.cpu_user)|%(metric.cpu_system)|%(metric.cpu_idle)|%(metric.cpu_iowait)|%(addr)|%(var.X-FORWARDED-FOR)|%(method)|%(uri)
 
 galaxy:
@@ -161,26 +162,93 @@ galaxy:
   # AMP admin users
   admin_users: amppd@iu.edu,amppd-ci@iu.edu
       
-  # AMP Performance Logging configuration
+  # AMP Logging configuration (with performance log added)
   logging:
-    handlers:
-      logfile:
-        class: logging.FileHandler
+    version: 1
+    disable_existing_loggers: False
+    
+    filters: 
+      stack: 
+        (): galaxy.web_stack.application_stack_log_filter
+
+    formatters: 
+      stack: 
+        (): galaxy.web_stack.application_stack_log_formatter  
+#      default:  
+#        format: '%(name)s %(levelname)s %(asctime)s [p:%(process)s,w:%(worker_id)s,m:%(mule_id)s] [%(threadName)s] %(message)s'
+    
+    handlers: 
+      console: 
+        class: logging.StreamHandler
+        level: DEBUG
+        stream: ext://sys.stderr
+        filters: [stack]
+        formatter: stack      
+
+      rootlog:
+        class: logging.handlers.TimedRotatingFileHandler
+        when: midnight
+        level: DEBUG
+        filename: logs/root.log
+        filters: [stack]
+        formatter: stack
+
+      galaxylog:
+        class: logging.handlers.TimedRotatingFileHandler
+        when: midnight
         level: DEBUG
         filename: logs/galaxy.log
-        mode: a
+#        filename_template: logs/galaxy_{pool_name}_{server_id}.log
+        filters: [stack]
+        formatter: stack
+
       perflog:
         class: logging.FileHandler
         level: DEBUG
-        filename: logs/performance.log  
-    loggers:
-      '':        
-        handlers:
-          - logfile
+        filename: logs/performance.log
+
+    root: 
+      handlers: [rootlog]
+      level: DEBUG
+    
+    loggers: 
+      paste.httpserver.ThreadPool: 
+        level: WARN
+        qualname: paste.httpserver.ThreadPool
+        
+      sqlalchemy:
+        level: TRACE  # turn on TRACE temporarily to troubleshoot ORM exception
+        qualname: sqlalchemy
+
+      sqlalchemy_json.track:
+        level: TRACE  # turn on TRACE temporarily to troubleshoot ORM exception
+        qualname: sqlalchemy_json.track
+
+      urllib3.connectionpool: 
+        level: WARN
+        qualname: urllib3.connectionpool
+      
+      routes.middleware: 
+        level: WARN
+        qualname: routes.middleware
+    
+      amqp:
         level: INFO
-      'performance':
-        handlers:
-          - perflog
+        qualname: amqp
+    
+      botocore: 
+        level: INFO
+        qualname: botocore
+
+      galaxy:
+        handlers: [galaxylog]
         level: DEBUG
-    version: 1
+        propagate: False
+        qualname: galaxy
+        
+      performance:  
+        handlers: [perflog]
+        level: DEBUG
+        propagate: False
+
     

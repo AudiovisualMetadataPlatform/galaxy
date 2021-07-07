@@ -926,8 +926,8 @@ class JobWrapper(HasResourceParameters):
           self.__has_tasks = bool(job.tasks)
         except:
           traceback.print_exc()
-          log.error("Caught DetachedInstanceError and set has_tasks to false: job.id = " + str(job.id) + ", job.tool_id = " + str(job.tool_id))
-          print("Caught DetachedInstanceError and set has_tasks to false: job.id = " + str(job.id) + ", job.tool_id = " + str(job.tool_id))
+        # AMP customization: debug for DetachedInstanceError
+          log.error("Caught DetachedInstanceError and set has_tasks to false: job.id = " + str(job.id) + ", job.history_id = " + str(job.history_id) + ", job.tool_id = " + str(job.tool_id) + ", job.tool_version = " + str(job.tool_version))
           self.__has_tasks = False
         # END AMP customization
 
@@ -937,9 +937,8 @@ class JobWrapper(HasResourceParameters):
         self.__working_directory = None
 
         # AMP customization: debug for DetachedInstanceError
-        log.info("Done with job init: job.id = " + str(job.id) + ", job.tool_id = " + str(job.tool_id))
-        print("Done with job init: job.id = " + str(job.id) + ", job.tool_id = " + str(job.tool_id))
-        # END AMP customization
+        log.debug("Done with job init: job.id = " + str(job.id) + ", job.history_id = " + str(job.history_id) + ", job.tool_id = " + str(job.tool_id) + ", job.tool_version = " + str(job.tool_version))
+        
 
     @property
     def external_output_metadata(self):
