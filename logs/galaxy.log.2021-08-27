@@ -1,0 +1,939 @@
+galaxy.web_stack DEBUG 2021-08-27 14:14:24,967 [pN:main,p:2728513,w:0,m:0,tN:MainThread] UWSGIApplicationStack initialized
+galaxy.queue_worker INFO 2021-08-27 14:14:24,967 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Initializing main Galaxy Queue Worker on sqlalchemy+sqlite:////home/bdwheele/projects/AMP/amp_galaxy_data/control.sqlite?isolation_level=IMMEDIATE
+galaxy.tool_shed.tool_shed_registry DEBUG 2021-08-27 14:14:24,980 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loading references to tool sheds from internal default config
+galaxy.tool_shed.tool_shed_registry DEBUG 2021-08-27 14:14:24,980 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded reference to tool shed: Galaxy Main Tool Shed
+galaxy.model.migrate.check INFO 2021-08-27 14:14:24,986 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Creating database for URI [sqlite:////home/bdwheele/projects/AMP/amp_galaxy_data/universe.sqlite?isolation_level=IMMEDIATE]
+galaxy.model.migrate.check INFO 2021-08-27 14:14:25,159 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Creating new database from scratch, skipping migrations
+galaxy.config INFO 2021-08-27 14:15:20,844 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Install database targetting Galaxy's database configuration.
+galaxy.tools.data INFO 2021-08-27 14:15:20,852 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/all_fasta.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,852 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/all_fasta.loc.sample' for 'all_fasta'
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,852 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'all_fasta' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:20,852 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/bfast_indexes.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,853 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/bfast_indexes.loc.sample' for 'bfast_indexes'
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,853 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'bfast_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:20,853 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/blastdb.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,853 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/blastdb.loc.sample' for 'blastdb'
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,853 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'blastdb' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:20,853 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/blastdb_p.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,853 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/blastdb_p.loc.sample' for 'blastdb_p'
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,853 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'blastdb_p' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:20,853 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/blastdb_d.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,853 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/blastdb_d.loc.sample' for 'blastdb_d'
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,853 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'blastdb_d' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data WARNING 2021-08-27 14:15:20,853 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Cannot find index file 'bwa_index.loc' for tool data table 'bwa_indexes'
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,853 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'bwa_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data WARNING 2021-08-27 14:15:20,853 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Cannot find index file 'bwa_index_color.loc' for tool data table 'bwa_indexes_color'
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,854 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'bwa_indexes_color' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:20,854 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/maf_index.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,854 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/maf_index.loc.sample' for 'indexed_maf_files'
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,854 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'indexed_maf_files' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:20,854 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/ngs_sim_fasta.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,854 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/ngs_sim_fasta.loc.sample' for 'ngs_sim_fasta'
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,854 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'ngs_sim_fasta' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:20,854 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/perm_base_index.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,854 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/perm_base_index.loc.sample' for 'perm_base_indexes'
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,854 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'perm_base_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:20,854 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/perm_color_index.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,855 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/perm_color_index.loc.sample' for 'perm_color_indexes'
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,855 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'perm_color_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:20,855 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/picard_index.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,855 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/picard_index.loc.sample' for 'picard_indexes'
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,855 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'picard_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:20,855 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/picard_index.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,855 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/picard_index.loc.sample' for 'srma_indexes'
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,855 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'srma_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:20,855 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/mosaik_index.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,855 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/mosaik_index.loc.sample' for 'mosaik_indexes'
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,855 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'mosaik_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:20,855 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/twobit.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,855 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/twobit.loc.sample' for 'twobit'
+galaxy.tools.data DEBUG 2021-08-27 14:15:20,855 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'twobit' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,023 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loading Data Table URL "http://igv.broadinstitute.org/genomes/genomes.txt" as filename "/home/bdwheele/projects/AMP/amp_galaxy_data/tmp/TTDT_URL_igv_broad_genomes-0giui8w7".
+galaxy.tools.data WARNING 2021-08-27 14:15:21,023 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Line 1 in tool data table 'igv_broad_genomes' is invalid (HINT: '<TAB>' characters must be used to separate fields):
+<Server-Side Genome List>
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,025 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 156 lines from '/home/bdwheele/projects/AMP/amp_galaxy_data/tmp/TTDT_URL_igv_broad_genomes-0giui8w7' for 'igv_broad_genomes'
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,026 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'igv_broad_genomes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:21,026 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/liftOver.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,027 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/liftOver.loc.sample' for 'liftOver'
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,027 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'liftOver' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:21,027 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/bam_iobio.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,028 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 1 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/bam_iobio.loc.sample' for 'bam_iobio'
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,028 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'bam_iobio' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:21,029 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/vcf_iobio.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,029 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 1 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/vcf_iobio.loc.sample' for 'vcf_iobio'
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,029 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'vcf_iobio' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:21,029 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/biom_simple_display.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,029 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 1 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/biom_simple_display.loc.sample' for 'biom_simple_display'
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,029 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'biom_simple_display' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:21,029 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/intermine_simple_display.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,029 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 1 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/intermine_simple_display.loc.sample' for 'intermine_simple_display'
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,029 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'intermine_simple_display' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:15:21,029 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/icn3d_simple_display.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,029 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 1 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/icn3d_simple_display.loc.sample' for 'icn3d_simple_display'
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,029 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'icn3d_simple_display' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,029 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table '__dbkeys__'.
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,029 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table '__dbkeys__'.
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,029 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table '__dbkeys__' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,030 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'all_fasta'.
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,030 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'all_fasta'.
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,030 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loading another instance of data table 'all_fasta' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample', attempting to merge content.
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,030 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'fasta_indexes'.
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,030 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'fasta_indexes'.
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,030 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'fasta_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,030 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'bowtie2_indexes'.
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,030 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'bowtie2_indexes'.
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,030 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'bowtie2_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,030 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'bwa_mem_indexes'.
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,030 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'bwa_mem_indexes'.
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,030 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'bwa_mem_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,030 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'hisat2_indexes'.
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,030 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'hisat2_indexes'.
+galaxy.tools.data DEBUG 2021-08-27 14:15:21,030 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool data table 'hisat2_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.jobs DEBUG 2021-08-27 14:15:21,118 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loading job configuration from /home/bdwheele/projects/AMP/galaxy/config/job_conf.xml
+galaxy.web_stack.handlers INFO 2021-08-27 14:15:21,119 [pN:main,p:2728513,w:0,m:0,tN:MainThread] JobConfiguration: No job handler assignment method is set, defaulting to 'HANDLER_ASSIGNMENT_METHODS.DB_SELF', set the `assign_with` attribute on <handlers> to override the default
+galaxy.jobs INFO 2021-08-27 14:15:21,119 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Job handler assignment methods set to: db-self
+galaxy.web_stack.handlers DEBUG 2021-08-27 14:15:21,119 [pN:main,p:2728513,w:0,m:0,tN:MainThread] default set to child with id or tag 'local'
+galaxy.jobs DEBUG 2021-08-27 14:15:21,119 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Done loading job configuration
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,137 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loading datatypes from /home/bdwheele/projects/AMP/galaxy/config/datatypes_conf.xml
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,140 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:AudioVideo from the datatype registry for extension av.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,140 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:Audio from the datatype registry for extension audio.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,140 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:Video from the datatype registry for extension video.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,140 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_media:Music from the datatype registry for extension music.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,140 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_media:Speech from the datatype registry for extension speech.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,142 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_text:Segment from the datatype registry for extension segment.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,142 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_text:Transcript from the datatype registry for extension transcript.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,142 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_text:Ner from the datatype registry for extension ner.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,142 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_text:Shot from the datatype registry for extension shot.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,142 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_text:VideoOcr from the datatype registry for extension vocr.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,142 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_text:Face from the datatype registry for extension face.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,142 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_text:Vtt from the datatype registry for extension vtt.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,142 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_text:Segments from the datatype registry for extension segments.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,142 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:Wav from the datatype registry for extension wav.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,142 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:Mp3 from the datatype registry for extension mp3.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,142 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:Mkv from the datatype registry for extension mkv.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,142 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:Mp4 from the datatype registry for extension mp4.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,142 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:Flv from the datatype registry for extension flv.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,143 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:Mpg from the datatype registry for extension mpg.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,143 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Pdf from the datatype registry for extension pdf.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,143 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Png from the datatype registry for extension png.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,143 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Gif from the datatype registry for extension gif.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,143 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Jpg from the datatype registry for extension jpg.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,143 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Bmp from the datatype registry for extension bmp.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,143 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Rgb from the datatype registry for extension rgb.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,143 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Tiff from the datatype registry for extension tiff.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,143 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Im from the datatype registry for extension im.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,143 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Nrrd from the datatype registry for extension nrrd.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,143 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Pcd from the datatype registry for extension pcd.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,143 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Pcx from the datatype registry for extension pcx.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,143 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Ppm from the datatype registry for extension ppm.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,143 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Psd from the datatype registry for extension psd.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,144 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Xbm from the datatype registry for extension xbm.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,144 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Xpm from the datatype registry for extension xpm.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,144 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Pbm from the datatype registry for extension pbm.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,144 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Pgm from the datatype registry for extension pgm.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,144 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.binary:CompressedZipArchive from the datatype registry for extension zip.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,144 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.binary:CompressedArchive from the datatype registry for extension tar.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,144 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.binary:Binary from the datatype registry for extension tgz.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,144 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.data:Directory from the datatype registry for extension directory.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,144 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.tabular:CSV from the datatype registry for extension csv.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,144 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.tabular:TSV from the datatype registry for extension tsv.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,144 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.binary:Xlsx from the datatype registry for extension xlsx.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,144 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.binary:ExcelXls from the datatype registry for extension excel.xls.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,146 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.triples:Rdf from the datatype registry for extension rdf.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,146 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.triples:Jsonld from the datatype registry for extension jsonld.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,146 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.text:Json from the datatype registry for extension json.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,146 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.text:ExpressionJson from the datatype registry for extension expression.json.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,146 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.text:Ipynb from the datatype registry for extension ipynb.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,146 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.text:Html from the datatype registry for extension html.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,146 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.xml:GenericXml from the datatype registry for extension xml.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,146 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.data:Data from the datatype registry for extension data.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,146 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.binary:Binary from the datatype registry for extension binary.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,146 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.data:Text from the datatype registry for extension txt.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,146 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:Wav'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,146 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:Mp3'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,146 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:Audio'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,146 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:Mp4'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:Mpg'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:Mkv'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:Flv'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:Video'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:AudioVideo'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.amp_text:Segment'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.amp_text:Transcript'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.amp_text:Ner'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.amp_text:Shot'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.amp_text:VideoOcr'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.amp_text:Face'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.amp_text:Vtt'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Pdf'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Png'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Gif'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Jpg'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Bmp'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Rgb'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Tiff'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Im'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Nrrd'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Pcd'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Pcx'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Ppm'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Psd'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Xbm'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,147 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Xpm'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,148 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Pbm'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,148 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Pgm'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,148 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.text:ExpressionJson'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,148 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.text:Json'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,148 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.xml:GenericXml'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,148 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.text:Html'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,148 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.text:Ipynb'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,148 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.tabular:CSV'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,148 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.tabular:TSV'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,148 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.binary:Xlsx'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,148 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.binary:ExcelXls'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,148 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.triples:Rdf'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,148 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.triples:Jsonld'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,148 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.binary:CompressedZipArchive'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,148 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.binary:CompressedArchive'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,148 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.data:Directory'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,151 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Build site file [tool-data/shared/ucsc/ucsc_build_sites.txt] not found using sample [tool-data/shared/ucsc/ucsc_build_sites.txt.sample].
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,151 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded build site 'ucsc': tool-data/shared/ucsc/ucsc_build_sites.txt.sample with display sites: ['main', 'test', 'archaea', 'ucla']
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,151 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded build site 'gbrowse': tool-data/shared/gbrowse/gbrowse_build_sites.txt with display sites: ['modencode', 'sgd_yeast', 'tair', 'wormbase', 'wormbase_ws120', 'wormbase_ws140', 'wormbase_ws170', 'wormbase_ws180', 'wormbase_ws190', 'wormbase_ws200', 'wormbase_ws204', 'wormbase_ws210', 'wormbase_ws220', 'wormbase_ws225']
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,151 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded build site 'ensembl': tool-data/shared/ensembl/ensembl_sites.txt
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,151 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded build site 'ensembl_data_url': tool-data/shared/ensembl/ensembl_sites_data_URL.txt
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,151 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Build site file [tool-data/shared/igv/igv_build_sites.txt] not found using sample [tool-data/shared/igv/igv_build_sites.txt.sample].
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,151 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded build site 'igv': tool-data/shared/igv/igv_build_sites.txt.sample
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,151 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Build site file [tool-data/shared/rviewer/rviewer_build_sites.txt] not found using sample [tool-data/shared/rviewer/rviewer_build_sites.txt.sample].
+galaxy.datatypes.registry DEBUG 2021-08-27 14:15:21,151 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded build site 'rviewer': tool-data/shared/rviewer/rviewer_build_sites.txt.sample
+galaxy.tools WARNING 2021-08-27 14:15:21,200 [pN:main,p:2728513,w:0,m:0,tN:MainThread] The default shed tool config file (/home/bdwheele/projects/AMP/galaxy/config/shed_tool_conf.xml) has been added to the tool_config_file option, if this is not the desired behavior, please set shed_tool_config_file to your primary shed-enabled tool config file
+galaxy.tools.toolbox.base INFO 2021-08-27 14:15:21,200 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Parsing the tool configuration /home/bdwheele/projects/AMP/galaxy/config/tool_conf.xml
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,200 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Tool path for tool configuration /home/bdwheele/projects/AMP/galaxy/config/tool_conf.xml is None
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,206 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: upload1, version: 1.1.7 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,207 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: supplement, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,207 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: send_to_cloud, version: 0.1.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,208 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: extract_audio, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,209 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: remove_trailing_silence, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,210 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: ina_speech_segmenter, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,210 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: ina_speech_segmenter_hpc, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,211 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: keep_speech, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,212 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: remove_silence_speech, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,213 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: adjust_transcript_timestamps, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,213 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: adjust_diarization_timestamps, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,214 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: applause_detection, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,215 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: applause_detection_to_avalon_xml, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,215 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: aws_transcribe_stt, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,216 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: gentle_forced_alignment, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,217 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: kaldi_stt, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,218 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: kaldi_hpc, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,219 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: transcript_to_webvtt, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,219 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: vocabulary_tagging, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,220 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: spacy_ner, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,221 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: aws_comprehend_ner, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,222 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: ner_to_csv, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,222 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: azure_video_indexer, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,223 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: contact_sheets, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,224 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: collection_contact_sheets, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,225 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: pyscenedetect_shot_detection, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,226 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: azure_shot_detection, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,227 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: dlib_face_recognition, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,227 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: tesseract_video_ocr, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,228 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: azure_video_ocr, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,229 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: vocr_to_csv, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,229 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: hmgm_sample, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,230 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: hmgm_transcript, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,231 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: hmgm_ner, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,232 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: hmgm_segmentation, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,233 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: remove_silence_music, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,233 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tool id: vtt_generator, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base INFO 2021-08-27 14:15:21,233 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Parsing the tool configuration /home/bdwheele/projects/AMP/galaxy/config/shed_tool_conf.xml
+galaxy.tools.toolbox.base INFO 2021-08-27 14:15:21,233 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Shed-enabled tool configuration file does not exist, but will be created on demand: /home/bdwheele/projects/AMP/galaxy/config/shed_tool_conf.xml
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:15:21,233 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Reading tools from config files finished (33.622 ms)
+galaxy.tools.toolbox.integrated_panel DEBUG 2021-08-27 14:15:21,234 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Writing integrated tool panel config file to '/home/bdwheele/projects/AMP/galaxy/config/integrated_tool_panel.xml'
+galaxy.tool_util.deps WARNING 2021-08-27 14:15:21,234 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Path '/home/bdwheele/projects/AMP/amp_galaxy_data/dependencies' does not exist, ignoring
+galaxy.tool_util.deps WARNING 2021-08-27 14:15:21,234 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Path '/home/bdwheele/projects/AMP/amp_galaxy_data/dependencies' is not directory, ignoring
+galaxy.tool_util.deps.conda_util INFO 2021-08-27 14:15:21,247 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Installing conda, this may take several minutes.
+galaxy.tool_util.deps.conda_util DEBUG 2021-08-27 14:15:29,132 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Executing command: /home/bdwheele/projects/AMP/amp_galaxy_data/dependencies/_conda/bin/conda install -y --override-channels --channel conda-forge --channel bioconda --channel defaults conda=4.6.14
+galaxy.datatypes.registry DEBUG 2021-08-27 14:16:30,441 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded converter: CONVERTER_tar_to_directory
+galaxy.datatypes.registry DEBUG 2021-08-27 14:16:30,442 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded converter: csv_to_tabular
+galaxy.tools.parameters.basic WARNING 2021-08-27 14:16:30,443 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Datatype class not found for extension 'tabular', which is used in the 'format' attribute of parameter 'tabular'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:16:30,443 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded converter: tabular_to_csv
+galaxy.datatypes.registry DEBUG 2021-08-27 14:16:30,445 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded external metadata tool: __SET_METADATA__
+galaxy.tools.special_tools DEBUG 2021-08-27 14:16:30,447 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded history export tool: __EXPORT_HISTORY__
+galaxy.tools.special_tools DEBUG 2021-08-27 14:16:30,448 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded history export to uri tool: __EXPORT_HISTORY_TO_URI__
+galaxy.tools.special_tools DEBUG 2021-08-27 14:16:30,448 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded history import tool: __IMPORT_HISTORY__
+galaxy.tools.special_tools DEBUG 2021-08-27 14:16:30,449 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded data fetch tool: __DATA_FETCH__
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,450 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: aequatus
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,451 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: annotate_image
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:16:30,452 [pN:main,p:2728513,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,452 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: chiraviz
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:16:30,452 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Visualizations plugin disabled: Circster. Skipping...
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:16:30,452 [pN:main,p:2728513,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,453 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: csg
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,453 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: cytoscape
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,454 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: drawrna
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,454 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: editor
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,455 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: example
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:16:30,455 [pN:main,p:2728513,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,455 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: graphviz
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,457 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: heatmap_cluster
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,458 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: heatmap_default
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:16:30,459 [pN:main,p:2728513,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,459 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: hivtrace
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:16:30,459 [pN:main,p:2728513,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,459 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: hyphyvision
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,461 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: jqplot_bar
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,462 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: jqplot_box
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,464 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: jqplot_histogram
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,465 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: jqplot_line
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,466 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: jqplot_scatter
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:16:30,467 [pN:main,p:2728513,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,467 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: audio_player
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:16:30,468 [pN:main,p:2728513,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,468 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: video_player
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,470 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: msa
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:16:30,470 [pN:main,p:2728513,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,470 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: mvpapp
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,471 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: ngl
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,472 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nora
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,474 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_bar
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,475 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_bar_stacked
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,476 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_histogram
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,478 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_histogram_discrete
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,479 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_horizontal
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,481 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_horizontal_stacked
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,482 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_line
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,484 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_line_focus
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,485 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_pie
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,486 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_scatter
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,487 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_stackedarea
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,489 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_stackedarea_full
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,490 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_stackedarea_stream
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,491 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: openlayers
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,491 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: openseadragon
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,492 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: phylocanvas
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,493 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: phyloviz
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,494 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: pv
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,494 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: scatterplot
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:16:30,494 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Visualizations plugin disabled: Sweepster. Skipping...
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,495 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: trackster
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:16:30,495 [pN:main,p:2728513,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,495 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: unipept
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:16:30,496 [pN:main,p:2728513,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: venn
+galaxy.tours._impl INFO 2021-08-27 14:16:30,512 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tour 'core.galaxy_ui'
+galaxy.tours._impl INFO 2021-08-27 14:16:30,524 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tour 'core.history'
+galaxy.tours._impl INFO 2021-08-27 14:16:30,530 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded tour 'core.scratchbook'
+galaxy.jobs.manager DEBUG 2021-08-27 14:16:30,543 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Initializing job handler
+galaxy.jobs INFO 2021-08-27 14:16:30,544 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Handler 'main' will load all configured runner plugins
+galaxy.jobs.runners.state_handler_factory DEBUG 2021-08-27 14:16:30,548 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 'failure' state handler from module galaxy.jobs.runners.state_handlers.resubmit
+galaxy.jobs.runners DEBUG 2021-08-27 14:16:30,548 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Starting 3 LocalRunner workers
+galaxy.jobs DEBUG 2021-08-27 14:16:30,548 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded job runner 'galaxy.jobs.runners.local:LocalJobRunner' as 'local'
+galaxy.jobs.runners.state_handler_factory DEBUG 2021-08-27 14:16:30,549 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded 'failure' state handler from module galaxy.jobs.runners.state_handlers.resubmit
+galaxy.jobs.runners DEBUG 2021-08-27 14:16:30,550 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Starting 1 HmgmRunner workers
+galaxy.jobs.runners.amp_hmgm INFO 2021-08-27 14:16:30,550 [pN:main,p:2728513,w:0,m:0,tN:MainThread] initializing hmgm job runner
+galaxy.jobs DEBUG 2021-08-27 14:16:30,550 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded job runner 'galaxy.jobs.runners.amp_hmgm:HmgmRunner' as 'hmgm'
+galaxy.jobs.handler DEBUG 2021-08-27 14:16:30,550 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Loaded job runners plugins: local:hmgm
+galaxy.jobs.handler INFO 2021-08-27 14:16:30,550 [pN:main,p:2728513,w:0,m:0,tN:MainThread] job handler stop queue started
+galaxy.workflow.scheduling_manager INFO 2021-08-27 14:16:30,558 [pN:main,p:2728513,w:0,m:0,tN:MainThread] No workflow schedulers plugin config file defined, using default scheduler.
+galaxy.workflow.scheduling_manager DEBUG 2021-08-27 14:16:30,558 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Starting workflow schedulers
+galaxy.app INFO 2021-08-27 14:16:30,558 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Galaxy app startup finished (125645.793 ms)
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,586 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'admin' controller, class: AdminGalaxy
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,759 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'admin_toolshed' controller, class: AdminGalaxy
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,760 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'admin_toolshed' controller, class: AdminToolshed
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,761 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'async' controller, class: ASync
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,766 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'authnz' controller, class: JSAppLauncher
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,767 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'authnz' controller, class: OIDC
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,768 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'data_manager' controller, class: DataManager
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,777 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'dataset' controller, class: DatasetInterface
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,778 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'error' controller, class: Error
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,780 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'forms' controller, class: Forms
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,791 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'history' controller, class: HistoryController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,792 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'interactive_environments' controller, class: InteractiveEnvironmentsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,793 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'library' controller, class: Library
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,814 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'openid' controller, class: OpenID
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,866 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'page' controller, class: PageController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,869 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'root' controller, class: RootController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,870 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'shed_tool_static' controller, class: ShedToolStatic
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,872 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'tag' controller, class: TagsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,873 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'tool_runner' controller, class: ToolRunner
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,875 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'user' controller, class: User
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,875 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'userskeys' controller, class: User
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,880 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'visualization' controller, class: VisualizationController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,912 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'workflow' controller, class: WorkflowController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,966 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'history_annotations' API controller, class: HistoryAnnotationsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,966 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'history_content_annotations' API controller, class: HistoryContentAnnotationsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,966 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'workflow_annotations' API controller, class: WorkflowAnnotationsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,967 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'authenticate' API controller, class: AuthenticationController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,973 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'cloud' API controller, class: CloudController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,975 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'cloudauthz' API controller, class: CloudAuthzController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,976 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'configuration' API controller, class: ConfigurationController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,977 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'container_resolution' API controller, class: ContainerResolutionAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,978 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'dataset_collections' API controller, class: DatasetCollectionsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,981 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'datasets' API controller, class: DatasetsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,982 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'datatypes' API controller, class: DatatypesController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,983 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'display_applications' API controller, class: DisplayApplicationsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,983 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'dynamic_tools' API controller, class: DynamicToolsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,984 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'history_dataset_extended_metadata' API controller, class: HistoryDatasetExtendMetadataController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,984 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'library_dataset_extended_metadata' API controller, class: LibraryDatasetExtendMetadataController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,986 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'folder_contents' API controller, class: FolderContentsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,987 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'folders' API controller, class: FoldersController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,990 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'forms' API controller, class: FormDefinitionAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,991 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'genomes' API controller, class: GenomesController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,992 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'group_roles' API controller, class: GroupRolesAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,993 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'group_users' API controller, class: GroupUsersAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,994 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'groups' API controller, class: GroupAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:30,997 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'histories' API controller, class: HistoriesController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,002 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'history_contents' API controller, class: HistoryContentsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,002 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'history_content_tags' API controller, class: HistoryContentTagsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,003 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'history_tags' API controller, class: HistoryTagsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,003 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'workflow_tags' API controller, class: WorkflowTagsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,004 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'job_files' API controller, class: JobFilesAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,009 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'job_ports' API controller, class: JobPortsAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,016 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'jobs' API controller, class: JobController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,018 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'libraries' API controller, class: LibrariesController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,022 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'library_contents' API controller, class: LibraryContentsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,026 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'library_datasets' API controller, class: LibraryDatasetsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,039 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'licenses' API controller, class: LicensesController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,039 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'metrics' API controller, class: MetricsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,040 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'page_revisions' API controller, class: PageRevisionsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,041 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'pages' API controller, class: PagesController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,042 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'plugins' API controller, class: PluginsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,043 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'history_content_provenance' API controller, class: HDAProvenanceController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,043 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'ldda_provenance' API controller, class: LDDAProvenanceController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,044 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'quotas' API controller, class: QuotaAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,046 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'remote_files' API controller, class: RemoteFilesAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,061 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'roles' API controller, class: RoleAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,072 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'search' API controller, class: SearchController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,072 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'tags' API controller, class: TagsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,073 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'tool_data' API controller, class: ToolData
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,075 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'tool_dependencies' API controller, class: ToolDependenciesAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,076 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'tool_entry_points' API controller, class: ToolEntryPointsAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,078 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'tool_shed_repositories' API controller, class: ToolShedRepositoriesController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,082 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'tools' API controller, class: ToolsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,082 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'toolshed' API controller, class: ToolShedController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,097 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'tours' API controller, class: ToursController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,097 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'trs_consumer' API controller, class: TrsConsumeAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,098 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'trs_search' API controller, class: TrsSearchAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,099 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'uploads' API controller, class: UploadsAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,103 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'users' API controller, class: UserAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,105 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'visualizations' API controller, class: VisualizationsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,105 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'webhooks' API controller, class: WebhooksController
+galaxy.web.framework.base DEBUG 2021-08-27 14:16:31,113 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'workflows' API controller, class: WorkflowsAPIController
+galaxy.webapps.util DEBUG 2021-08-27 14:16:31,354 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'paste.httpexceptions' middleware
+galaxy.webapps.util DEBUG 2021-08-27 14:16:31,355 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'RecursiveMiddleware' middleware
+galaxy.webapps.util DEBUG 2021-08-27 14:16:31,355 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'ErrorMiddleware' middleware
+galaxy.webapps.util DEBUG 2021-08-27 14:16:31,356 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'TransLogger' middleware
+galaxy.webapps.util DEBUG 2021-08-27 14:16:31,356 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'XForwardedHostMiddleware' middleware
+galaxy.webapps.util DEBUG 2021-08-27 14:16:31,356 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'RequestIDMiddleware' middleware
+galaxy.webapps.util DEBUG 2021-08-27 14:16:31,356 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Enabling 'BatchMiddleware' middleware
+galaxy.webapps.util WARNING 2021-08-27 14:16:31,356 [pN:main,p:2728513,w:0,m:0,tN:MainThread] 'wrap_in_static' is enabled in your configuration but the uWSGI application stack does not support it, this middleware has been disabled
+galaxy.webapps.galaxy.buildapp DEBUG 2021-08-27 14:16:31,357 [pN:main,p:2728513,w:0,m:0,tN:MainThread] Prior to webapp return, Galaxy thread <_MainThread(MainThread, started 140436459108160)> is alive.
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,368 [pN:main,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <bound method ApplicationStack.set_postfork_server_name of <galaxy.web_stack.UWSGIApplicationStack object at 0x7fb9d33b94f0>>
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,372 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] server_name set to: main.web.1
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,373 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <bound method Thread.start of <Thread(LocalRunner.work_thread-0, initial daemon)>>
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,373 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <bound method Thread.start of <Thread(LocalRunner.work_thread-1, initial daemon)>>
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,373 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <bound method Thread.start of <Thread(LocalRunner.work_thread-2, initial daemon)>>
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,373 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <bound method Monitors.start_monitoring of <galaxy.jobs.runners.amp_hmgm.HmgmRunner object at 0x7fb9d2148610>>
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,373 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <bound method Thread.start of <Thread(HmgmRunner.work_thread-0, initial daemon)>>
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,374 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <bound method Monitors.start_monitoring of <galaxy.jobs.handler.JobHandlerQueue object at 0x7fb9d2148640>>
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,374 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <bound method Monitors.start_monitoring of <galaxy.jobs.handler.JobHandlerStopQueue object at 0x7fb9d2148c40>>
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,374 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <bound method JobManager.start of <galaxy.jobs.manager.JobManager object at 0x7fb9d2139640>>
+galaxy.jobs.handler DEBUG 2021-08-27 14:16:31,374 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Handler queue starting for jobs assigned to handler: main.web.1
+galaxy.web_stack.message DEBUG 2021-08-27 14:16:31,386 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Bound default message handler 'JobHandlerMessage.default_handler' to <bound method TaskMessage.default_handler of <galaxy.jobs.handler.JobHandlerQueue object at 0x7fb9d2148640>>
+galaxy.jobs.handler INFO 2021-08-27 14:16:31,386 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] job handler queue started
+galaxy.jobs.handler INFO 2021-08-27 14:16:31,387 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] job handler stop queue started
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,388 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <bound method Monitors.start_monitoring of <galaxy.workflow.scheduling_manager.WorkflowRequestMonitor object at 0x7fb9d21a5880>>
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,388 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <bound method WorkflowRequestMonitor.start of <galaxy.workflow.scheduling_manager.WorkflowRequestMonitor object at 0x7fb9d21a5880>>
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,388 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <bound method DatabaseHeartbeat.start of <galaxy.model.database_heartbeat.DatabaseHeartbeat object at 0x7fb9d21a5d00>>
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,390 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <bound method UWSGIApplicationStack.start of <galaxy.web_stack.UWSGIApplicationStack object at 0x7fb9d33b94f0>>
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,390 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <bound method GalaxyQueueWorker.bind_and_start of <GalaxyQueueWorker(Thread-1, initial daemon)>>
+galaxy.queue_worker INFO 2021-08-27 14:16:31,391 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Binding and starting galaxy control worker for main.web.1
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,406 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <function UniverseApplication.__init__.<locals>.<lambda> at 0x7fb9d213fee0>
+galaxy.queue_worker INFO 2021-08-27 14:16:31,407 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Queuing async task rebuild_toolbox_search_index for main.web.1.
+galaxy.model.database_heartbeat DEBUG 2021-08-27 14:16:31,522 [pN:main.web.1,p:2729762,w:1,m:0,tN:database_heartbeart_main.web.1.thread] main.web.1 is config watcher
+galaxy.util.watcher DEBUG 2021-08-27 14:16:31,535 [pN:main.web.1,p:2729762,w:1,m:0,tN:database_heartbeart_main.web.1.thread] Watching for changes to file: /home/bdwheele/projects/AMP/galaxy/config/galaxy.yml
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,941 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <built-in function register>
+galaxy.web_stack DEBUG 2021-08-27 14:16:31,942 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Calling postfork function: <function postfork_setup at 0x7fb9d2d94e50>
+galaxy.web_stack INFO 2021-08-27 14:16:31,943 [pN:main.web.1,p:2729762,w:1,m:0,tN:MainThread] Galaxy server instance 'main.web.1' is running
+Starting server in PID 2729761.
+serving on http://127.0.0.1:8300
+galaxy.queue_worker INFO 2021-08-27 14:16:32,059 [pN:main.web.1,p:2729762,w:1,m:0,tN:Thread-1] Instance 'main.web.1' received 'rebuild_toolbox_search_index' task, executing now.
+galaxy.tools.search DEBUG 2021-08-27 14:16:32,059 [pN:main.web.1,p:2729762,w:1,m:0,tN:Thread-1] Starting to build toolbox index.
+galaxy.tools.search DEBUG 2021-08-27 14:16:32,223 [pN:main.web.1,p:2729762,w:1,m:0,tN:Thread-1] Toolbox index finished (163.814 ms)
+galaxy.tool_util.deps WARNING 2021-08-27 14:17:05,505 [pN:MainProcess,p:2730027,tN:MainThread] Path 'database/dependencies' does not exist, ignoring
+galaxy.tool_util.deps WARNING 2021-08-27 14:17:05,505 [pN:MainProcess,p:2730027,tN:MainThread] Path 'database/dependencies' is not directory, ignoring
+galaxy.tool_util.deps.conda_util INFO 2021-08-27 14:17:05,508 [pN:MainProcess,p:2730027,tN:MainThread] Installing conda, this may take several minutes.
+galaxy.tool_util.deps.conda_util DEBUG 2021-08-27 14:17:15,195 [pN:MainProcess,p:2730027,tN:MainThread] Executing command: /home/bdwheele/projects/AMP/galaxy/database/dependencies/_conda/bin/conda install -y --override-channels --channel conda-forge --channel bioconda --channel defaults conda=4.6.14
+galaxy.app DEBUG 2021-08-27 14:18:18,211 [pN:main.web.1,p:2729762,w:1,m:0,tN:uWSGIWorker1Core0] Shutting down
+galaxy.queue_worker INFO 2021-08-27 14:18:19,603 [pN:main.web.1,p:2729762,w:1,m:0,tN:uWSGIWorker1Core0] Sending reconfigure_watcher control task.
+galaxy.util.monitors DEBUG 2021-08-27 14:18:19,660 [pN:main.web.1,p:2729762,w:1,m:0,tN:uWSGIWorker1Core0] Joining monitor thread
+galaxy.app DEBUG 2021-08-27 14:18:19,662 [pN:main.web.1,p:2729762,w:1,m:0,tN:uWSGIWorker1Core0] Finished shutting down
+galaxy.web_stack DEBUG 2021-08-27 14:19:22,483 [pN:main,p:2731691,w:0,m:0,tN:MainThread] UWSGIApplicationStack initialized
+galaxy.queue_worker INFO 2021-08-27 14:19:22,483 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Initializing main Galaxy Queue Worker on sqlalchemy+sqlite:////home/bdwheele/projects/AMP/amp_galaxy_data/control.sqlite?isolation_level=IMMEDIATE
+galaxy.tool_shed.tool_shed_registry DEBUG 2021-08-27 14:19:22,494 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading references to tool sheds from internal default config
+galaxy.tool_shed.tool_shed_registry DEBUG 2021-08-27 14:19:22,494 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded reference to tool shed: Galaxy Main Tool Shed
+galaxy.model.migrate.check INFO 2021-08-27 14:19:22,551 [pN:main,p:2731691,w:0,m:0,tN:MainThread] At database version 172
+galaxy.config INFO 2021-08-27 14:19:22,564 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Install database targetting Galaxy's database configuration.
+galaxy.tools.data INFO 2021-08-27 14:19:22,569 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/all_fasta.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,569 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/all_fasta.loc.sample' for 'all_fasta'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,569 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'all_fasta' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,569 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/bfast_indexes.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,569 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/bfast_indexes.loc.sample' for 'bfast_indexes'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,569 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'bfast_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,570 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/blastdb.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,570 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/blastdb.loc.sample' for 'blastdb'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,570 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'blastdb' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,570 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/blastdb_p.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,570 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/blastdb_p.loc.sample' for 'blastdb_p'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,570 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'blastdb_p' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,570 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/blastdb_d.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,570 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/blastdb_d.loc.sample' for 'blastdb_d'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,570 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'blastdb_d' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data WARNING 2021-08-27 14:19:22,570 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Cannot find index file 'bwa_index.loc' for tool data table 'bwa_indexes'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,570 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'bwa_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data WARNING 2021-08-27 14:19:22,571 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Cannot find index file 'bwa_index_color.loc' for tool data table 'bwa_indexes_color'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,571 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'bwa_indexes_color' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,571 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/maf_index.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,571 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/maf_index.loc.sample' for 'indexed_maf_files'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,571 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'indexed_maf_files' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,571 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/ngs_sim_fasta.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,571 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/ngs_sim_fasta.loc.sample' for 'ngs_sim_fasta'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,571 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'ngs_sim_fasta' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,571 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/perm_base_index.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,571 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/perm_base_index.loc.sample' for 'perm_base_indexes'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,571 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'perm_base_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,571 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/perm_color_index.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,571 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/perm_color_index.loc.sample' for 'perm_color_indexes'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,572 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'perm_color_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,572 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/picard_index.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,572 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/picard_index.loc.sample' for 'picard_indexes'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,572 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'picard_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,572 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/picard_index.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,572 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/picard_index.loc.sample' for 'srma_indexes'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,572 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'srma_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,572 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/mosaik_index.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,572 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/mosaik_index.loc.sample' for 'mosaik_indexes'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,572 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'mosaik_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,572 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/twobit.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,573 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/twobit.loc.sample' for 'twobit'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,573 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'twobit' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,694 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading Data Table URL "http://igv.broadinstitute.org/genomes/genomes.txt" as filename "/home/bdwheele/projects/AMP/amp_galaxy_data/tmp/TTDT_URL_igv_broad_genomes-h8v5s43i".
+galaxy.tools.data WARNING 2021-08-27 14:19:22,695 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Line 1 in tool data table 'igv_broad_genomes' is invalid (HINT: '<TAB>' characters must be used to separate fields):
+<Server-Side Genome List>
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,697 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 156 lines from '/home/bdwheele/projects/AMP/amp_galaxy_data/tmp/TTDT_URL_igv_broad_genomes-h8v5s43i' for 'igv_broad_genomes'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,697 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'igv_broad_genomes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,698 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/liftOver.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,698 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 0 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/liftOver.loc.sample' for 'liftOver'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,698 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'liftOver' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,699 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/bam_iobio.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,699 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 1 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/bam_iobio.loc.sample' for 'bam_iobio'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,699 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'bam_iobio' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,700 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/vcf_iobio.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,700 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 1 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/vcf_iobio.loc.sample' for 'vcf_iobio'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,700 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'vcf_iobio' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,700 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/biom_simple_display.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,700 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 1 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/biom_simple_display.loc.sample' for 'biom_simple_display'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,700 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'biom_simple_display' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,701 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/intermine_simple_display.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,701 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 1 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/intermine_simple_display.loc.sample' for 'intermine_simple_display'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,701 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'intermine_simple_display' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data INFO 2021-08-27 14:19:22,701 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Could not find tool data /home/bdwheele/projects/AMP/galaxy/tool-data/icn3d_simple_display.loc, reading sample
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,701 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 1 lines from '/home/bdwheele/projects/AMP/galaxy/tool-data/icn3d_simple_display.loc.sample' for 'icn3d_simple_display'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,701 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'icn3d_simple_display' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,701 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table '__dbkeys__'.
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,701 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table '__dbkeys__'.
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,701 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table '__dbkeys__' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,701 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'all_fasta'.
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,701 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'all_fasta'.
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,701 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading another instance of data table 'all_fasta' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample', attempting to merge content.
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,701 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'fasta_indexes'.
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,701 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'fasta_indexes'.
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,701 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'fasta_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,701 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'bowtie2_indexes'.
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,702 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'bowtie2_indexes'.
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,702 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'bowtie2_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,702 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'bwa_mem_indexes'.
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,702 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'bwa_mem_indexes'.
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,702 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'bwa_mem_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,702 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'hisat2_indexes'.
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,702 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Encountered a file element (<file from_config="refgenie_config_file"/>) that does not contain a path value when loading tool data table 'hisat2_indexes'.
+galaxy.tools.data DEBUG 2021-08-27 14:19:22,702 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool data table 'hisat2_indexes' from file '/home/bdwheele/projects/AMP/galaxy/lib/galaxy/config/sample/tool_data_table_conf.xml.sample'
+galaxy.jobs DEBUG 2021-08-27 14:19:22,720 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading job configuration from /home/bdwheele/projects/AMP/galaxy/config/job_conf.xml
+galaxy.web_stack.handlers INFO 2021-08-27 14:19:22,721 [pN:main,p:2731691,w:0,m:0,tN:MainThread] JobConfiguration: No job handler assignment method is set, defaulting to 'HANDLER_ASSIGNMENT_METHODS.DB_SELF', set the `assign_with` attribute on <handlers> to override the default
+galaxy.jobs INFO 2021-08-27 14:19:22,721 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Job handler assignment methods set to: db-self
+galaxy.web_stack.handlers DEBUG 2021-08-27 14:19:22,721 [pN:main,p:2731691,w:0,m:0,tN:MainThread] default set to child with id or tag 'local'
+galaxy.jobs DEBUG 2021-08-27 14:19:22,721 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Done loading job configuration
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,795 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading datatypes from /home/bdwheele/projects/AMP/galaxy/config/datatypes_conf.xml
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,797 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:AudioVideo from the datatype registry for extension av.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,797 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:Audio from the datatype registry for extension audio.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,797 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:Video from the datatype registry for extension video.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,797 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_media:Music from the datatype registry for extension music.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,797 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_media:Speech from the datatype registry for extension speech.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,798 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_text:Segment from the datatype registry for extension segment.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,798 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_text:Transcript from the datatype registry for extension transcript.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,798 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_text:Ner from the datatype registry for extension ner.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,798 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_text:Shot from the datatype registry for extension shot.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,798 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_text:VideoOcr from the datatype registry for extension vocr.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,798 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_text:Face from the datatype registry for extension face.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,798 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_text:Vtt from the datatype registry for extension vtt.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,798 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.amp_text:Segments from the datatype registry for extension segments.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,798 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:Wav from the datatype registry for extension wav.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,799 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:Mp3 from the datatype registry for extension mp3.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,799 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:Mkv from the datatype registry for extension mkv.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,799 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:Mp4 from the datatype registry for extension mp4.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,799 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:Flv from the datatype registry for extension flv.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,799 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.media:Mpg from the datatype registry for extension mpg.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,799 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Pdf from the datatype registry for extension pdf.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,799 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Png from the datatype registry for extension png.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,799 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Gif from the datatype registry for extension gif.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,799 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Jpg from the datatype registry for extension jpg.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,799 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Bmp from the datatype registry for extension bmp.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,799 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Rgb from the datatype registry for extension rgb.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,799 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Tiff from the datatype registry for extension tiff.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,799 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Im from the datatype registry for extension im.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,799 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Nrrd from the datatype registry for extension nrrd.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,799 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Pcd from the datatype registry for extension pcd.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,800 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Pcx from the datatype registry for extension pcx.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,800 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Ppm from the datatype registry for extension ppm.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,800 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Psd from the datatype registry for extension psd.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,800 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Xbm from the datatype registry for extension xbm.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,800 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Xpm from the datatype registry for extension xpm.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,800 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Pbm from the datatype registry for extension pbm.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,800 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.images:Pgm from the datatype registry for extension pgm.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,800 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.binary:CompressedZipArchive from the datatype registry for extension zip.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,800 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.binary:CompressedArchive from the datatype registry for extension tar.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,800 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.binary:Binary from the datatype registry for extension tgz.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,800 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.data:Directory from the datatype registry for extension directory.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,800 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.tabular:CSV from the datatype registry for extension csv.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,800 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.tabular:TSV from the datatype registry for extension tsv.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,800 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.binary:Xlsx from the datatype registry for extension xlsx.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,801 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.binary:ExcelXls from the datatype registry for extension excel.xls.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,801 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.triples:Rdf from the datatype registry for extension rdf.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,801 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.triples:Jsonld from the datatype registry for extension jsonld.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,801 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.text:Json from the datatype registry for extension json.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,801 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.text:ExpressionJson from the datatype registry for extension expression.json.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.text:Ipynb from the datatype registry for extension ipynb.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.text:Html from the datatype registry for extension html.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.xml:GenericXml from the datatype registry for extension xml.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.data:Data from the datatype registry for extension data.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.binary:Binary from the datatype registry for extension binary.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Retrieved datatype module galaxy.datatypes.data:Text from the datatype registry for extension txt.
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:Wav'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:Mp3'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:Audio'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:Mp4'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:Mpg'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:Mkv'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:Flv'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:Video'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.media:AudioVideo'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.amp_text:Segment'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.amp_text:Transcript'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,802 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.amp_text:Ner'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.amp_text:Shot'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.amp_text:VideoOcr'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.amp_text:Face'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.amp_text:Vtt'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Pdf'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Png'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Gif'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Jpg'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Bmp'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Rgb'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Tiff'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Im'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Nrrd'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Pcd'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Pcx'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Ppm'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Psd'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Xbm'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Xpm'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Pbm'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.images:Pgm'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.text:ExpressionJson'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.text:Json'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.xml:GenericXml'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,803 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.text:Html'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,804 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.text:Ipynb'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,804 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.tabular:CSV'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,804 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.tabular:TSV'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,804 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.binary:Xlsx'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,804 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.binary:ExcelXls'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,804 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.triples:Rdf'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,804 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.triples:Jsonld'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,804 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.binary:CompressedZipArchive'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,804 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.binary:CompressedArchive'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,804 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded sniffer for datatype 'galaxy.datatypes.data:Directory'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,807 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Build site file [tool-data/shared/ucsc/ucsc_build_sites.txt] not found using sample [tool-data/shared/ucsc/ucsc_build_sites.txt.sample].
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,807 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded build site 'ucsc': tool-data/shared/ucsc/ucsc_build_sites.txt.sample with display sites: ['main', 'test', 'archaea', 'ucla']
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,807 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded build site 'gbrowse': tool-data/shared/gbrowse/gbrowse_build_sites.txt with display sites: ['modencode', 'sgd_yeast', 'tair', 'wormbase', 'wormbase_ws120', 'wormbase_ws140', 'wormbase_ws170', 'wormbase_ws180', 'wormbase_ws190', 'wormbase_ws200', 'wormbase_ws204', 'wormbase_ws210', 'wormbase_ws220', 'wormbase_ws225']
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,807 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded build site 'ensembl': tool-data/shared/ensembl/ensembl_sites.txt
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,807 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded build site 'ensembl_data_url': tool-data/shared/ensembl/ensembl_sites_data_URL.txt
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,807 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Build site file [tool-data/shared/igv/igv_build_sites.txt] not found using sample [tool-data/shared/igv/igv_build_sites.txt.sample].
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,807 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded build site 'igv': tool-data/shared/igv/igv_build_sites.txt.sample
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,807 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Build site file [tool-data/shared/rviewer/rviewer_build_sites.txt] not found using sample [tool-data/shared/rviewer/rviewer_build_sites.txt.sample].
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,807 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded build site 'rviewer': tool-data/shared/rviewer/rviewer_build_sites.txt.sample
+galaxy.tools WARNING 2021-08-27 14:19:22,836 [pN:main,p:2731691,w:0,m:0,tN:MainThread] The default shed tool config file (/home/bdwheele/projects/AMP/galaxy/config/shed_tool_conf.xml) has been added to the tool_config_file option, if this is not the desired behavior, please set shed_tool_config_file to your primary shed-enabled tool config file
+galaxy.tools.toolbox.base INFO 2021-08-27 14:19:22,836 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Parsing the tool configuration /home/bdwheele/projects/AMP/galaxy/config/tool_conf.xml
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,836 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Tool path for tool configuration /home/bdwheele/projects/AMP/galaxy/config/tool_conf.xml is None
+galaxy.tools.toolbox.base INFO 2021-08-27 14:19:22,862 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Parsing the tool configuration /home/bdwheele/projects/AMP/galaxy/config/shed_tool_conf.xml
+galaxy.tools.toolbox.base INFO 2021-08-27 14:19:22,862 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Shed-enabled tool configuration file does not exist, but will be created on demand: /home/bdwheele/projects/AMP/galaxy/config/shed_tool_conf.xml
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,862 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Reading tools from config files finished (25.875 ms)
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,862 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading section: Get Data
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,862 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: upload1, version: 1.1.7 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,862 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: supplement, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,862 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading section: Send Data
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,862 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: send_to_cloud, version: 0.1.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,862 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading section: Audio Extraction
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,862 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: extract_audio, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,862 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: remove_trailing_silence, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,862 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading section: Segmentation
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,862 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: ina_speech_segmenter, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,862 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: ina_speech_segmenter_hpc, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,862 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: keep_speech, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: remove_silence_speech, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: adjust_transcript_timestamps, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: adjust_diarization_timestamps, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: applause_detection, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: applause_detection_to_avalon_xml, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading section: Speech to Text
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: aws_transcribe_stt, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: gentle_forced_alignment, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: kaldi_stt, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: kaldi_hpc, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: transcript_to_webvtt, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: vocabulary_tagging, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading section: Named Entity Recognition
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: spacy_ner, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: aws_comprehend_ner, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: ner_to_csv, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,863 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading section: Video Indexing
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: azure_video_indexer, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: contact_sheets, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: collection_contact_sheets, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading section: Shot Detection
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: pyscenedetect_shot_detection, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: azure_shot_detection, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading section: Facial Recognition
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: dlib_face_recognition, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading section: Video Optical Charater Recognition
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: tesseract_video_ocr, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: azure_video_ocr, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: vocr_to_csv, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading section: Music Optical Charater Recognition
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading section: Human MGM Editor
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: hmgm_sample, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: hmgm_transcript, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: hmgm_ner, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: hmgm_segmentation, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading section: Obsolete MGMs
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,864 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: remove_silence_music, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,865 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tool id: vtt_generator, version: 1.0.0 into tool panel..
+galaxy.tools.toolbox.base DEBUG 2021-08-27 14:19:22,865 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loading tool panel finished (2.653 ms)
+galaxy.tools.toolbox.integrated_panel DEBUG 2021-08-27 14:19:22,865 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Writing integrated tool panel config file to '/home/bdwheele/projects/AMP/galaxy/config/integrated_tool_panel.xml'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,881 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded converter: CONVERTER_tar_to_directory
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,882 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded converter: csv_to_tabular
+galaxy.tools.parameters.basic WARNING 2021-08-27 14:19:22,883 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Datatype class not found for extension 'tabular', which is used in the 'format' attribute of parameter 'tabular'
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,883 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded converter: tabular_to_csv
+galaxy.datatypes.registry DEBUG 2021-08-27 14:19:22,884 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded external metadata tool: __SET_METADATA__
+galaxy.tools.special_tools DEBUG 2021-08-27 14:19:22,886 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded history export tool: __EXPORT_HISTORY__
+galaxy.tools.special_tools DEBUG 2021-08-27 14:19:22,886 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded history export to uri tool: __EXPORT_HISTORY_TO_URI__
+galaxy.tools.special_tools DEBUG 2021-08-27 14:19:22,887 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded history import tool: __IMPORT_HISTORY__
+galaxy.tools.special_tools DEBUG 2021-08-27 14:19:22,888 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded data fetch tool: __DATA_FETCH__
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,888 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: aequatus
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,889 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: annotate_image
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:19:22,889 [pN:main,p:2731691,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,889 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: chiraviz
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:19:22,890 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Visualizations plugin disabled: Circster. Skipping...
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:19:22,890 [pN:main,p:2731691,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,890 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: csg
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,891 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: cytoscape
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,891 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: drawrna
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,891 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: editor
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,892 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: example
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:19:22,892 [pN:main,p:2731691,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,893 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: graphviz
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,894 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: heatmap_cluster
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,895 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: heatmap_default
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:19:22,896 [pN:main,p:2731691,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,896 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: hivtrace
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:19:22,896 [pN:main,p:2731691,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,896 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: hyphyvision
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,898 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: jqplot_bar
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,899 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: jqplot_box
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,901 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: jqplot_histogram
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,902 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: jqplot_line
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,903 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: jqplot_scatter
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:19:22,904 [pN:main,p:2731691,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,904 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: audio_player
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:19:22,904 [pN:main,p:2731691,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,904 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: video_player
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,905 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: msa
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:19:22,905 [pN:main,p:2731691,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,905 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: mvpapp
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,906 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: ngl
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,907 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nora
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,908 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_bar
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,910 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_bar_stacked
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,911 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_histogram
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,912 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_histogram_discrete
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,913 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_horizontal
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,915 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_horizontal_stacked
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,916 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_line
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,918 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_line_focus
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,918 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_pie
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,920 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_scatter
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,921 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_stackedarea
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,923 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_stackedarea_full
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,924 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: nvd3_stackedarea_stream
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,925 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: openlayers
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,925 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: openseadragon
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,926 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: phylocanvas
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,926 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: phyloviz
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,927 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: pv
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,927 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: scatterplot
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:19:22,928 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Visualizations plugin disabled: Sweepster. Skipping...
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,928 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: trackster
+galaxy.visualization.plugins.config_parser INFO 2021-08-27 14:19:22,928 [pN:main,p:2731691,w:0,m:0,tN:MainThread] template syntax is deprecated: use entry_point instead
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,928 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: unipept
+galaxy.visualization.plugins.registry INFO 2021-08-27 14:19:22,929 [pN:main,p:2731691,w:0,m:0,tN:MainThread] VisualizationsRegistry, loaded plugin: venn
+galaxy.tours._impl INFO 2021-08-27 14:19:22,945 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tour 'core.galaxy_ui'
+galaxy.tours._impl INFO 2021-08-27 14:19:22,957 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tour 'core.history'
+galaxy.tours._impl INFO 2021-08-27 14:19:22,963 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded tour 'core.scratchbook'
+galaxy.jobs.manager DEBUG 2021-08-27 14:19:22,965 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Initializing job handler
+galaxy.jobs INFO 2021-08-27 14:19:22,965 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Handler 'main' will load all configured runner plugins
+galaxy.jobs.runners.state_handler_factory DEBUG 2021-08-27 14:19:22,967 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 'failure' state handler from module galaxy.jobs.runners.state_handlers.resubmit
+galaxy.jobs.runners DEBUG 2021-08-27 14:19:22,967 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Starting 3 LocalRunner workers
+galaxy.jobs DEBUG 2021-08-27 14:19:22,967 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded job runner 'galaxy.jobs.runners.local:LocalJobRunner' as 'local'
+galaxy.jobs.runners.state_handler_factory DEBUG 2021-08-27 14:19:22,967 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded 'failure' state handler from module galaxy.jobs.runners.state_handlers.resubmit
+galaxy.jobs.runners DEBUG 2021-08-27 14:19:22,967 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Starting 1 HmgmRunner workers
+galaxy.jobs.runners.amp_hmgm INFO 2021-08-27 14:19:22,967 [pN:main,p:2731691,w:0,m:0,tN:MainThread] initializing hmgm job runner
+galaxy.jobs DEBUG 2021-08-27 14:19:22,968 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded job runner 'galaxy.jobs.runners.amp_hmgm:HmgmRunner' as 'hmgm'
+galaxy.jobs.handler DEBUG 2021-08-27 14:19:22,968 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Loaded job runners plugins: local:hmgm
+galaxy.jobs.handler INFO 2021-08-27 14:19:22,968 [pN:main,p:2731691,w:0,m:0,tN:MainThread] job handler stop queue started
+galaxy.workflow.scheduling_manager INFO 2021-08-27 14:19:22,969 [pN:main,p:2731691,w:0,m:0,tN:MainThread] No workflow schedulers plugin config file defined, using default scheduler.
+galaxy.workflow.scheduling_manager DEBUG 2021-08-27 14:19:22,969 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Starting workflow schedulers
+galaxy.app INFO 2021-08-27 14:19:22,969 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Galaxy app startup finished (537.646 ms)
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:22,973 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'admin' controller, class: AdminGalaxy
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,016 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'admin_toolshed' controller, class: AdminGalaxy
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,016 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'admin_toolshed' controller, class: AdminToolshed
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,016 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'async' controller, class: ASync
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,019 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'authnz' controller, class: JSAppLauncher
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,019 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'authnz' controller, class: OIDC
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,019 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'data_manager' controller, class: DataManager
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,020 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'dataset' controller, class: DatasetInterface
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,020 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'error' controller, class: Error
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,021 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'forms' controller, class: Forms
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,024 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'history' controller, class: HistoryController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,025 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'interactive_environments' controller, class: InteractiveEnvironmentsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,025 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'library' controller, class: Library
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,035 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'openid' controller, class: OpenID
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,074 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'page' controller, class: PageController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,075 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'root' controller, class: RootController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,075 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'shed_tool_static' controller, class: ShedToolStatic
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,075 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'tag' controller, class: TagsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,075 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'tool_runner' controller, class: ToolRunner
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,076 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'user' controller, class: User
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,076 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'userskeys' controller, class: User
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,077 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'visualization' controller, class: VisualizationController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,099 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'workflow' controller, class: WorkflowController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,145 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'history_annotations' API controller, class: HistoryAnnotationsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,145 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'history_content_annotations' API controller, class: HistoryContentAnnotationsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,145 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'workflow_annotations' API controller, class: WorkflowAnnotationsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,145 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'authenticate' API controller, class: AuthenticationController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,147 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'cloud' API controller, class: CloudController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,148 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'cloudauthz' API controller, class: CloudAuthzController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,149 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'configuration' API controller, class: ConfigurationController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,149 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'container_resolution' API controller, class: ContainerResolutionAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,149 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'dataset_collections' API controller, class: DatasetCollectionsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,150 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'datasets' API controller, class: DatasetsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,150 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'datatypes' API controller, class: DatatypesController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,151 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'display_applications' API controller, class: DisplayApplicationsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,151 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'dynamic_tools' API controller, class: DynamicToolsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,151 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'history_dataset_extended_metadata' API controller, class: HistoryDatasetExtendMetadataController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,151 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'library_dataset_extended_metadata' API controller, class: LibraryDatasetExtendMetadataController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,152 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'folder_contents' API controller, class: FolderContentsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,152 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'folders' API controller, class: FoldersController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,153 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'forms' API controller, class: FormDefinitionAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,153 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'genomes' API controller, class: GenomesController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,153 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'group_roles' API controller, class: GroupRolesAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,154 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'group_users' API controller, class: GroupUsersAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,154 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'groups' API controller, class: GroupAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,154 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'histories' API controller, class: HistoriesController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,155 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'history_contents' API controller, class: HistoryContentsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,156 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'history_content_tags' API controller, class: HistoryContentTagsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,156 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'history_tags' API controller, class: HistoryTagsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,156 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'workflow_tags' API controller, class: WorkflowTagsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,156 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'job_files' API controller, class: JobFilesAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,160 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'job_ports' API controller, class: JobPortsAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,164 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'jobs' API controller, class: JobController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,164 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'libraries' API controller, class: LibrariesController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,165 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'library_contents' API controller, class: LibraryContentsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,165 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'library_datasets' API controller, class: LibraryDatasetsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,176 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'licenses' API controller, class: LicensesController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,177 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'metrics' API controller, class: MetricsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,177 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'page_revisions' API controller, class: PageRevisionsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,177 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'pages' API controller, class: PagesController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,178 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'plugins' API controller, class: PluginsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,178 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'history_content_provenance' API controller, class: HDAProvenanceController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,178 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'ldda_provenance' API controller, class: LDDAProvenanceController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,178 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'quotas' API controller, class: QuotaAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,179 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'remote_files' API controller, class: RemoteFilesAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,192 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'roles' API controller, class: RoleAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,197 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'search' API controller, class: SearchController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,198 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'tags' API controller, class: TagsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,198 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'tool_data' API controller, class: ToolData
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,198 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'tool_dependencies' API controller, class: ToolDependenciesAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,199 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'tool_entry_points' API controller, class: ToolEntryPointsAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,200 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'tool_shed_repositories' API controller, class: ToolShedRepositoriesController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,200 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'tools' API controller, class: ToolsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,201 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'toolshed' API controller, class: ToolShedController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,215 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'tours' API controller, class: ToursController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,215 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'trs_consumer' API controller, class: TrsConsumeAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,215 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'trs_search' API controller, class: TrsSearchAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,215 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'uploads' API controller, class: UploadsAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,216 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'users' API controller, class: UserAPIController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,216 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'visualizations' API controller, class: VisualizationsController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,217 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'webhooks' API controller, class: WebhooksController
+galaxy.web.framework.base DEBUG 2021-08-27 14:19:23,218 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'workflows' API controller, class: WorkflowsAPIController
+galaxy.webapps.util DEBUG 2021-08-27 14:19:23,449 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'paste.httpexceptions' middleware
+galaxy.webapps.util DEBUG 2021-08-27 14:19:23,449 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'RecursiveMiddleware' middleware
+galaxy.webapps.util DEBUG 2021-08-27 14:19:23,449 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'ErrorMiddleware' middleware
+galaxy.webapps.util DEBUG 2021-08-27 14:19:23,450 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'TransLogger' middleware
+galaxy.webapps.util DEBUG 2021-08-27 14:19:23,450 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'XForwardedHostMiddleware' middleware
+galaxy.webapps.util DEBUG 2021-08-27 14:19:23,450 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'RequestIDMiddleware' middleware
+galaxy.webapps.util DEBUG 2021-08-27 14:19:23,450 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Enabling 'BatchMiddleware' middleware
+galaxy.webapps.util WARNING 2021-08-27 14:19:23,450 [pN:main,p:2731691,w:0,m:0,tN:MainThread] 'wrap_in_static' is enabled in your configuration but the uWSGI application stack does not support it, this middleware has been disabled
+galaxy.webapps.galaxy.buildapp DEBUG 2021-08-27 14:19:23,450 [pN:main,p:2731691,w:0,m:0,tN:MainThread] Prior to webapp return, Galaxy thread <_MainThread(MainThread, started 140404789929792)> is alive.
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,460 [pN:main,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <bound method ApplicationStack.set_postfork_server_name of <galaxy.web_stack.UWSGIApplicationStack object at 0x7fb27c498be0>>
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,464 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] server_name set to: main.web.1
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,464 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <bound method Thread.start of <Thread(LocalRunner.work_thread-0, initial daemon)>>
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,465 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <bound method Thread.start of <Thread(LocalRunner.work_thread-1, initial daemon)>>
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,465 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <bound method Thread.start of <Thread(LocalRunner.work_thread-2, initial daemon)>>
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,465 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <bound method Monitors.start_monitoring of <galaxy.jobs.runners.amp_hmgm.HmgmRunner object at 0x7fb272814190>>
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,465 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <bound method Thread.start of <Thread(HmgmRunner.work_thread-0, initial daemon)>>
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,465 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <bound method Monitors.start_monitoring of <galaxy.jobs.handler.JobHandlerQueue object at 0x7fb2728549a0>>
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,465 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <bound method Monitors.start_monitoring of <galaxy.jobs.handler.JobHandlerStopQueue object at 0x7fb27279b4c0>>
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,465 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <bound method JobManager.start of <galaxy.jobs.manager.JobManager object at 0x7fb2727d81c0>>
+galaxy.jobs.handler DEBUG 2021-08-27 14:19:23,465 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Handler queue starting for jobs assigned to handler: main.web.1
+galaxy.web_stack.message DEBUG 2021-08-27 14:19:23,478 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Bound default message handler 'JobHandlerMessage.default_handler' to <bound method TaskMessage.default_handler of <galaxy.jobs.handler.JobHandlerQueue object at 0x7fb2728549a0>>
+galaxy.jobs.handler INFO 2021-08-27 14:19:23,478 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] job handler queue started
+galaxy.jobs.handler INFO 2021-08-27 14:19:23,479 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] job handler stop queue started
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,479 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <bound method Monitors.start_monitoring of <galaxy.workflow.scheduling_manager.WorkflowRequestMonitor object at 0x7fb27279ba30>>
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,479 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <bound method WorkflowRequestMonitor.start of <galaxy.workflow.scheduling_manager.WorkflowRequestMonitor object at 0x7fb27279ba30>>
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,480 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <bound method DatabaseHeartbeat.start of <galaxy.model.database_heartbeat.DatabaseHeartbeat object at 0x7fb2727ac250>>
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,482 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <bound method UWSGIApplicationStack.start of <galaxy.web_stack.UWSGIApplicationStack object at 0x7fb27c498be0>>
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,482 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <bound method GalaxyQueueWorker.bind_and_start of <GalaxyQueueWorker(Thread-1, initial daemon)>>
+galaxy.queue_worker INFO 2021-08-27 14:19:23,482 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Binding and starting galaxy control worker for main.web.1
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,492 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <function UniverseApplication.__init__.<locals>.<lambda> at 0x7fb2727a8b80>
+galaxy.queue_worker INFO 2021-08-27 14:19:23,492 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Queuing async task rebuild_toolbox_search_index for main.web.1.
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,613 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <built-in function register>
+galaxy.web_stack DEBUG 2021-08-27 14:19:23,614 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Calling postfork function: <function postfork_setup at 0x7fb273336430>
+galaxy.web_stack INFO 2021-08-27 14:19:23,615 [pN:main.web.1,p:2731723,w:1,m:0,tN:MainThread] Galaxy server instance 'main.web.1' is running
+Starting server in PID 2731722.
+serving on http://127.0.0.1:8300
+galaxy.model.database_heartbeat DEBUG 2021-08-27 14:19:23,654 [pN:main.web.1,p:2731723,w:1,m:0,tN:database_heartbeart_main.web.1.thread] main.web.1 is config watcher
+galaxy.util.watcher DEBUG 2021-08-27 14:19:23,661 [pN:main.web.1,p:2731723,w:1,m:0,tN:database_heartbeart_main.web.1.thread] Watching for changes to file: /home/bdwheele/projects/AMP/galaxy/config/galaxy.yml
+galaxy.queue_worker INFO 2021-08-27 14:19:23,721 [pN:main.web.1,p:2731723,w:1,m:0,tN:Thread-1] Instance 'main.web.1' received 'rebuild_toolbox_search_index' task, executing now.
+galaxy.tools.search DEBUG 2021-08-27 14:19:23,721 [pN:main.web.1,p:2731723,w:1,m:0,tN:Thread-1] Starting to build toolbox index.
+galaxy.tools.search DEBUG 2021-08-27 14:19:23,730 [pN:main.web.1,p:2731723,w:1,m:0,tN:Thread-1] Toolbox index finished (8.457 ms)
