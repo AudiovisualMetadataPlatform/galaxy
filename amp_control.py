@@ -9,6 +9,7 @@ from pathlib import Path
 import subprocess
 import sys
 import os
+from amp_bootstrap_utils import get_amp_root
 
 def main():
     parser = argparse.ArgumentParser()
@@ -23,6 +24,10 @@ def main():
     galaxydir = Path(sys.path[0]).resolve()
     logging.debug(f"Moving to galaxy directory {galaxydir}")
     os.chdir(galaxydir)
+
+    # we need to set the SINGULARITY_BIND directory to include the entire AMP installation
+    os.environ['SINGULARITY_BIND'] = str(get_amp_root().resolve())
+
     subprocess.run(["./run.sh", args.action])
 
 

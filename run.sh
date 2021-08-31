@@ -52,8 +52,8 @@ fi
 
 
 # AMP customization START
-#. ./scripts/amp_startup_functions.sh
-#add_amp_paths
+. ./scripts/amp_startup_functions.sh
+add_amp_paths
 #setup_amp_metrics
 # AMP customization END
 
