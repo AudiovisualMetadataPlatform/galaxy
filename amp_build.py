@@ -85,7 +85,7 @@ def main():
             # write metadata file
             metafile = tarfile.TarInfo(name=f"{basedir}/amp_package.yaml")
             metafile_data = yaml.safe_dump({
-                'name': 'amp_ui',
+                'name': 'amp_galaxy',
                 'version': args.version,
                 'build_date': buildtime,
                 'install_path': 'galaxy'
