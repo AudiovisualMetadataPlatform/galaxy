@@ -27,13 +27,21 @@ def main():
     logging.basicConfig(format="%(asctime)s [%(levelname)-8s] (%(filename)s:%(lineno)d)  %(message)s",
                         level=logging.DEBUG if args.debug else logging.INFO)
 
+    # force a download of the requirements and rebuild the client if necessary.
+    logging.info("Building environment")
+    subprocess.run(['scripts/common_startup.sh'], check=True)
+
     if not args.package:
-        logging.info("No need to build -- galaxy will bootstrap itself")
+        logging.info("Galaxy should be ready for use")
         exit(0)
 
     if not args.destdir:
         logging.error("A destination directory must be specified when creating a package")
         exit(1)
+
+    
+
+
 
     # get our directories
     here = Path.cwd().resolve()
