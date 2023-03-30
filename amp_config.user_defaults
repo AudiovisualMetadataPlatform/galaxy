@@ -7,8 +7,7 @@ galaxy:
     admin_username: myuser@example.edu
     admin_password: my admin password
 
-    # this section is for populating the menu in the galaxy
-    # workflow editor.
+    # this section is for populating the menu in the galaxy workflow editor.
     toolbox:
         Get Data:
             - data_source/upload.xml
@@ -30,6 +29,7 @@ galaxy:
         Speech to Text:
             - amp_mgms/aws_transcribe.xml
             - amp_mgms/gentle_forced_alignment.xml
+            - amp_mgms/gentle_forced_alignment_txt.xml
             - amp_mgms/kaldi.xml
             - amp_mgms/transcript_to_webvtt.xml
             - amp_mgms/vocabulary_tagging.xml
@@ -37,8 +37,10 @@ galaxy:
             - amp_mgms/spacy.xml
             - amp_mgms/aws_comprehend.xml
             - amp_mgms/ner_to_csv.xml
+            - amp_mgms/ner_to_webvtt.xml
         Video Indexing:
             - amp_mgms/azure_video_indexer.xml
+        Contact Sheet:            
             - amp_mgms/contact_sheet_frame.xml
             - amp_mgms/contact_sheet_face.xml
             - amp_mgms/contact_sheet_shot.xml
@@ -48,6 +50,7 @@ galaxy:
             - amp_mgms/azure_shot_detection.xml
         Facial Recognition:
             - amp_mgms/dlib_face_recognition.xml  
+            - amp_mgms/fr_to_webvtt.xml  
         Video Optical Charater Recognition:
             - amp_mgms/tesseract.xml
             - amp_mgms/azure_video_ocr.xml
