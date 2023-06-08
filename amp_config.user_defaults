@@ -33,6 +33,7 @@ galaxy:
             - amp_mgms/kaldi.xml
             - amp_mgms/transcript_to_webvtt.xml
             - amp_mgms/vocabulary_tagging.xml
+            - whisper/whisper.xml
         Named Entity Recognition:
             - amp_mgms/spacy.xml
             - amp_mgms/aws_comprehend.xml
