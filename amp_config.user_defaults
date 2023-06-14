@@ -28,10 +28,10 @@ galaxy:
             - mgms/applause_detection_to_avalon_xml.xml
         Speech to Text:
             - aws/aws_transcribe.xml
-            - gentle/gentle_forced_alignment.xml
-            - kaldi/kaldi.xml
+            - gentle/gentle_forced_alignment.xml            
             - mgms/transcript_to_webvtt.xml
             - mgms/vocabulary_tagging.xml
+            - whisper/whisper.xml
         Named Entity Recognition:
             - mgms/spacy.xml
             - aws/aws_comprehend.xml
