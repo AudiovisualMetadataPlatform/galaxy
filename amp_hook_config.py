@@ -79,6 +79,30 @@ def main():
         f.write(yaml.safe_dump({'galaxy': galaxy}))
         f.write("\n")
 
+    # set up job_conf.xml for LWLW jobs
+    with open(amp_root / "galaxy/config/job_conf.xml", "w") as f:
+        f.write("""<?xml version="1.0"?>
+<job_conf>
+    <plugins workers="4">
+        <!-- "workers" is the number of threads for the runner's work queue.
+             The default from <plugins> is used if not defined for a <plugin>.
+          -->
+        <plugin id="local" type="runner" load="galaxy.jobs.runners.local:LocalJobRunner" workers="4"/>
+        <plugin id="lwlw" type="runner" load="galaxy.jobs.runners.amp_lwlw:LwlwRunner" workers="1"/>
+     </plugins>
+    <destinations default="local">
+        <destination id="local" runner="local"/>
+        <destination id="lwlw-container" runner="lwlw"/>
+    </destinations>
+    <tools>\n""")        
+        if 'lwlw_mgms' in config['galaxy']:
+            for tool in config['galaxy']['lwlw_mgms']:
+                if config['galaxy']['lwlw_mgms'][tool]:
+                    f.write(f'        <tool id="{tool}" destination="lwlw-container"/>\n')
+        f.write("""    </tools>
+</job_conf>\n""")
+
+
     # set up the galaxy python
     logging.info("Installing galaxy python and node")
     os.environ['GALAXY_ROOT'] = str(amp_root / "galaxy")

@@ -54,9 +54,6 @@ fi
 # AMP customization START
 . ./scripts/amp_startup_functions.sh
 add_amp_paths
-# This adds an additional deployment dependency that we should avoid.
-# commenting it out will remove that dependency.
-#setup_amp_metrics
 # AMP customization END
 
 [ -n "$GALAXY_UWSGI" ] && APP_WEBSERVER='uwsgi'
