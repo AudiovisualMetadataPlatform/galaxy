@@ -38,6 +38,7 @@ galaxy:
             - mgms/ner_to_csv.xml
         Video Indexing:
             - azure/azure_video_indexer.xml
+        Contact Sheets:
             - mgms/contact_sheet_frame.xml
             - mgms/contact_sheet_face.xml
             - mgms/contact_sheet_shot.xml
