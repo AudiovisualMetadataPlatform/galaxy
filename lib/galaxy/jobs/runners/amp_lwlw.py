@@ -206,6 +206,16 @@ class LwlwRunner(AsynchronousJobRunner):
             stderr_file = tempfile.NamedTemporaryFile(mode='wb+', suffix='_stderr', dir=job_wrapper.working_directory)
             log.debug('(%s) executing job script: %s' % (job_id, command_line))
 
+            # get rid of all of the tmp.* directories in the working directory
+            # since they're pointless.
+            from pathlib import Path
+            for tdir in Path(job_wrapper.working_directory).glob("tmp.*"):
+                try:
+                    tdir.rmdir()
+                    log.debug(f"Removing temporary directory {tdir!s}")
+                except Exception:
+                    pass
+                    
             proc = subprocess.Popen(args=command_line,
                                     shell=True,
                                     cwd=job_wrapper.working_directory,
