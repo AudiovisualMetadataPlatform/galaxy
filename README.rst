@@ -1,61 +1,15 @@
-.. figure:: https://galaxyproject.org/images/galaxy-logos/galaxy_project_logo.jpg
-   :alt: Galaxy Logo
+# AMP galaxy
 
-The latest information about Galaxy can be found on the `Galaxy Community Hub <https://galaxyproject.org/>`__.
+The AMP galaxy repository is forked from the [original Galaxy repository](https://github.com/galaxyproject/galaxy), with various AMP extensions and customizations.
 
-Community support is available at `Galaxy Help <https://help.galaxyproject.org/>`__.
+The major changes to the original galaxy code base include but are not limited to:
+- extensions to data types related various media formats, as well as workflow outputs in AMP specific JSON formats.
+- extensions to JobRunner, mainly for the purpose of running LWLW (light-weight-long-waiting) jobs, such as Human MGMs and various clound-based MGMs.
+- extension to workflow search criteria
+- bug fixes
 
-.. image:: https://img.shields.io/badge/chat-gitter-blue.svg
-    :target: https://gitter.im/galaxyproject/Lobby
-    :alt: Chat on gitter
+Note that some of the above changes are general enough that they have been or could be contributed back to the original Galaxy project; yet some are pretty AMP specific and might not be applicable to other applications using Galaxy.
 
-.. image:: https://img.shields.io/badge/chat-irc.freenode.net%23galaxyproject-blue.svg
-    :target: https://webchat.freenode.net/?channels=galaxyproject
-    :alt: Chat on irc
+AMP Galaxy can be run as a standalone application but its UI is advised to be only accessible to AMP Admin and not available to end users. Galaxy APIs are also wrapped by AMP backend and are hiden from external clients for security reasons. AMP Galaxy instance is a required dependency of AMP backend. Detailed information about this component in relationship to other AMP components is described in [AMP System Architecture](https://uisapp2.iu.edu/confluence-prd/display/AMP/System+Architecture?src=contextnavpagetreemode).
 
-.. image:: https://img.shields.io/badge/release-documentation-blue.svg
-    :target: https://docs.galaxyproject.org/en/master/
-    :alt: Release Documentation
-
-.. image:: https://travis-ci.org/galaxyproject/galaxy.svg?branch=dev
-    :target: https://travis-ci.org/galaxyproject/galaxy
-    :alt: Inspect the test results
-
-Galaxy Quickstart
-=================
-
-Galaxy requires Python 3.6 . To check your Python version, run:
-
-.. code:: console
-
-    $ python -V
-    Python 3.6.10
-
-Start Galaxy:
-
-.. code:: console
-
-    $ sh run.sh
-
-Once Galaxy completes startup, you should be able to view Galaxy in your
-browser at: http://localhost:8080
-
-For more installation details please see: https://getgalaxy.org/
-
-Documentation is available at: https://docs.galaxyproject.org/
-
-Tutorials on how to use Galaxy, perform scientific analyses with it, develop Galaxy and its tools, and admin a Galaxy server are at: https://training.galaxyproject.org/
-
-Tools
-=====
-
-Tools can be either installed from the Tool Shed or added manually.
-For details please see the `tutorial <https://galaxyproject.org/admin/tools/add-tool-from-toolshed-tutorial/>`__.
-Note that not all dependencies for the tools provided in the
-``tool_conf.xml.sample`` are included. To install them please visit
-"Manage dependencies" in the admin interface.
-
-Issues and Galaxy Development
-=============================
-
-Please see `CONTRIBUTING.md <CONTRIBUTING.md>`_ .
+To install, config, run AMP Galaxy, as well as contribute to the AMP project, please refer to the instructions on [AMP Bootstrap](https://github.com/AudiovisualMetadataPlatform/amp_bootstrap)
