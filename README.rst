@@ -1,4 +1,4 @@
-# AMP galaxy
+# About
 
 The AMP galaxy repository is forked from the [original Galaxy repository](https://github.com/galaxyproject/galaxy), with various AMP extensions and customizations.
 
@@ -9,6 +9,8 @@ The major changes to the original galaxy code base include but are not limited t
 - bug fixes
 
 Note that some of the above changes are general enough that they have been or could be contributed back to the original Galaxy project; yet some are pretty AMP specific and might not be applicable to other applications using Galaxy.
+
+# Usage
 
 AMP Galaxy can be run as a standalone application but its UI is advised to be only accessible to AMP Admin and not available to end users. Galaxy APIs are also wrapped by AMP backend and are hiden from external clients for security reasons. AMP Galaxy instance is a required dependency of AMP backend. Detailed information about this component in relationship to other AMP components is described in [AMP System Architecture](https://uisapp2.iu.edu/confluence-prd/display/AMP/System+Architecture?src=contextnavpagetreemode).
 
