@@ -29,6 +29,7 @@ galaxy:
         Speech to Text:
             - aws/aws_transcribe.xml
             - gentle/gentle_forced_alignment.xml            
+            - gentle/gentle_forced_alignment_txt.xml            
             - mgms/transcript_to_webvtt.xml
             - mgms/vocabulary_tagging.xml
             - whisper/whisper.xml
