@@ -33,6 +33,7 @@ galaxy:
             - mgms/transcript_to_webvtt.xml
             - mgms/vocabulary_tagging.xml
             - whisper/whisper.xml
+            - mgms/cluster_whisper.xml
         Named Entity Recognition:
             - mgms/spacy.xml
             - aws/aws_comprehend.xml
