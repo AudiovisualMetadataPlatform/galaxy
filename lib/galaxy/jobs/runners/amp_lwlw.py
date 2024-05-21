@@ -68,6 +68,9 @@ class LwlwRunner(AsynchronousJobRunner):
             new_watched = []
             for async_job_state in self.watched:
                 # AMPPD - don't fail the whole thing if we have a single error. 
+                #log.debug(f"Job wrapper: {vars(async_job_state.job_wrapper)}")
+                if 'environment_variables' not in vars(async_job_state.job_wrapper):
+                    async_job_state.job_wrapper.environment_variables=[]
                 try:
                     new_async_job_state = self.check_watched_item(async_job_state)
                     if new_async_job_state:
@@ -80,6 +83,8 @@ class LwlwRunner(AsynchronousJobRunner):
                         if async_job_state is not None:
                             log.debug("*** Async Job State: ****")
                             log.debug(repr(async_job_state))
+                            log.debug(vars(async_job_state))
+                            log.debug(vars(async_job_state.job_wrapper))
                             log.debug("*** End Async Job State: ****")
                             self._fail_job_local(async_job_state.job_wrapper, "Exception checking LWLW watched item")
                         else:
@@ -276,7 +281,20 @@ class LwlwRunner(AsynchronousJobRunner):
         self.prepare_job(job_wrapper)
         job_destination = job_wrapper.job_destination
         ajs = AsynchronousJobState(files_dir=job_wrapper.working_directory, job_wrapper=job_wrapper, job_id=job_id, job_destination=job_destination)
-        self.monitor_queue.put(ajs)
+        #self.monitor_queue.put(ajs)
+
+        if job.state in (model.Job.states.RUNNING, model.Job.states.STOPPED):
+            log.debug(f"({job.id}/{job.job_runner_external_id}) is still in {job.state} state, adding to the runner monitor queue")
+            ajs.old_state = model.Job.states.RUNNING
+            ajs.running = True
+            self.monitor_queue.put(ajs)
+        elif job.state == model.Job.states.QUEUED:
+            log.debug(f"({job.id}/{job.job_runner_external_id}) is still in queued state, adding to the runner monitor queue")
+            ajs.old_state = model.Job.states.QUEUED
+            ajs.running = False
+            self.monitor_queue.put(ajs)
+
+
 
     # Copied from runners/local.py
     def _fail_job_local(self, job_wrapper, message):
