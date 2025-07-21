@@ -191,3 +191,5 @@ involucro
 .DS_Store
 *.rej
 *~
+/.project
+/.pydevproject
