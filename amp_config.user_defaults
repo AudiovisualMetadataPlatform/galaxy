@@ -1,0 +1,60 @@
+galaxy:    
+    # what interface galaxy should bind to.  This should be fairly 
+    # restricted.  If the parameter is missing then it will bind to all interfaces.
+    host: localhost
+
+    # Authentication bits
+    admin_username: myuser@example.edu
+    admin_password: my admin password
+
+    # this section is for populating the menu in the galaxy workflow editor.
+    toolbox:
+        Get Data:
+            - data_source/upload.xml
+            - mgms/supplement.xml
+        Send Data:
+            - cloud/send.xml
+        Audio Extraction:
+            - mgms/extract_audio.xml
+            - mgms/remove_trailing_silence.xml
+        Audio Segmentation:
+            - ina_speech_segmenter/ina_speech_segmenter.xml
+            - mgms/keep_speech.xml
+            - mgms/remove_silence_speech.xml
+            - mgms/adjust_transcript_timestamps.xml
+            - mgms/adjust_diarization_timestamps.xml
+        Applause Detection:
+            - applause_detection/applause_detection.xml
+            - mgms/applause_detection_to_avalon_xml.xml
+        Speech to Text:
+            - aws/aws_transcribe.xml
+            - gentle/gentle_forced_alignment.xml            
+            - gentle/gentle_forced_alignment_txt.xml            
+            - mgms/transcript_to_webvtt.xml
+            - mgms/vocabulary_tagging.xml
+            - whisper/whisper.xml
+            - mgms/cluster_whisper.xml
+        Named Entity Recognition:
+            - mgms/spacy.xml
+            - aws/aws_comprehend.xml
+            - mgms/ner_to_csv.xml
+        Video Indexing:
+            - azure/azure_video_indexer.xml
+        Contact Sheets:
+            - mgms/contact_sheet_frame.xml
+            - mgms/contact_sheet_face.xml
+            - mgms/contact_sheet_shot.xml
+            - mgms/contact_sheet_vocr.xml
+        Shot Detection:
+            - mgms/pyscenedetect.xml
+            - azure/azure_shot_detection.xml
+        Facial Recognition:
+            - mgms/dlib_face_recognition.xml  
+        Video Optical Charater Recognition:
+            - mgms/tesseract.xml
+            - azure/azure_video_ocr.xml
+            - mgms/vocr_to_csv.xml
+        Human MGM Editor:
+            - hmgms/hmgm_transcript.xml
+            - hmgms/hmgm_ner.xml
+

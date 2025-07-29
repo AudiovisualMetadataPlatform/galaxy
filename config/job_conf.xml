@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<job_conf>
+    <plugins workers="4">
+        <!-- "workers" is the number of threads for the runner's work queue.
+             The default from <plugins> is used if not defined for a <plugin>.
+          -->
+        <plugin id="local" type="runner" load="galaxy.jobs.runners.local:LocalJobRunner" workers="4"/>
+        <plugin id="lwlw" type="runner" load="galaxy.jobs.runners.amp_lwlw:LwlwRunner" workers="1"/>
+     </plugins>
+    <destinations default="local">
+        <destination id="local" runner="local"/>
+        <destination id="lwlw-container" runner="lwlw"/>
+    </destinations>
+    <tools>
+        <tool id="hmgm_sample" destination="lwlw-container"/>
+        <tool id="hmgm_transcript" destination="lwlw-container"/>
+        <tool id="hmgm_ner" destination="lwlw-container"/>
+        <tool id="hmgm_segmentation" destination="lwlw-container"/>
+        <tool id="aws_transcribe_stt" destination="lwlw-container"/>        
+    </tools>
+</job_conf>

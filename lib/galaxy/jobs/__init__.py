@@ -1051,12 +1051,25 @@ class MinimalJobWrapper(HasResourceParameters):
 
         # Wrapper holding the info required to restore and clean up from files used for setting metadata externally
         self.__external_output_metadata = None
-        self.__has_tasks = bool(job.tasks)
+        
+        # AMP customization: tmp work-around for DetachedInstanceError
+        try:
+          self.__has_tasks = bool(job.tasks)
+        except:
+          traceback.print_exc()
+        # AMP customization: debug for DetachedInstanceError
+          log.error("Caught DetachedInstanceError and set has_tasks to false: job.id = " + str(job.id) + ", job.history_id = " + str(job.history_id) + ", job.tool_id = " + str(job.tool_id) + ", job.tool_version = " + str(job.tool_version))
+          self.__has_tasks = False
+        # END AMP customization
 
         self.__commands_in_new_shell = True
         self.__user_system_pwent = None
         self.__galaxy_system_pwent = None
         self.__working_directory = None
+
+        # AMP customization: debug for DetachedInstanceError
+        log.debug("Done with job init: job.id = " + str(job.id) + ", job.history_id = " + str(job.history_id) + ", job.tool_id = " + str(job.tool_id) + ", job.tool_version = " + str(job.tool_version))
+        
 
     @property
     def external_output_metadata(self):
