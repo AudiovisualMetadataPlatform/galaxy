@@ -89,4 +89,26 @@ galaxy:
   # to protect your users.  Uncomment and leave empty to not set the
   # `X-Frame-Options` header.
   # AMP customization: set to blank to allow embeding Galaxy workflow editor as iframe in AMP UI
-  x_frame_options:           
+  x_frame_options:     
+  
+  # Log destination, defaults to special value "stdout" that logs to
+  # standard output. If set to anything else, then it will be
+  # interpreted as a path that will be used as the log file, and logging
+  # to stdout will be disabled.
+  log_destination: log/galaxy.log
+
+  # Size of log file at which size it will be rotated as per the
+  # documentation in
+  # https://docs.python.org/library/logging.handlers.html#logging.handlers.RotatingFileHandler
+  # If log_rotate_count is not also set, no log rotation will be
+  # performed. A value of 0 (the default) means no rotation. Size can be
+  # a number of bytes or a human-friendly representation like "100 MB"
+  # or "1G".
+  log_rotate_size: 1 MB
+
+  # Number of log file backups to keep, per the documentation in
+  # https://docs.python.org/library/logging.handlers.html#logging.handlers.RotatingFileHandler
+  # Any additional rotated log files will automatically be pruned. If
+  # log_rotate_size is not also set, no log rotation will be performed.
+  # A value of 0 (the default) means no rotation.
+  log_rotate_count: 10
