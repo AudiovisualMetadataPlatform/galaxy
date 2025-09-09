@@ -146,10 +146,14 @@
     defined format first, followed by next-most rigidly defined,
     and so on.
     -->
+    <!-- Note: 
+    	Within each category, the order is consistent with the sample file;
+    	between categories, the order differ slightly where no impact is expected.  
+    -->
     
     <!-- AMP extended datatypes (some Galaxy media datatypes included) START -->   
     
-    <!--  media sniffers (sample line # 1353 ...)-->
+    <!--  media sniffers (sample line # 1353 ..., some without sniffers)-->
     <sniffer type="galaxy.datatypes.media:Wav"/> 
     <sniffer type="galaxy.datatypes.media:Mp3"/>
     <sniffer type="galaxy.datatypes.media:Mp4"/>
@@ -177,6 +181,14 @@
     <!-- AMP extended datatypes END -->   
     
     <!-- Galaxy built-in datatype sniffers -->    
+    
+    <!-- Excel sniffers (sample line # 1266, some without sniffers) -->
+    <sniffer type="galaxy.datatypes.binary:Xlsx"/> 
+    
+	<!-- archive sniffers (sample line # 1273, some without sniffers) --> 
+    <sniffer type="galaxy.datatypes.binary:CompressedZipArchive"/> 
+    <sniffer type="galaxy.datatypes.binary:CompressedArchive"/> 
+    <sniffer type="galaxy.datatypes.data:Directory"/> 
     
     <!--  image sniffers  (sample line # 1353, 1408 ...) -->
     <sniffer type="galaxy.datatypes.images:Pdf"/> 
@@ -208,14 +220,6 @@
     <!-- tabular sniffers (sample line # 1391 1394) -->
     <sniffer type="galaxy.datatypes.tabular:CSV"/> 
     <sniffer type="galaxy.datatypes.tabular:TSV"/> 
-    
-    <!-- Excel sniffers (sample line # 1266, some without sniffers) -->
-    <sniffer type="galaxy.datatypes.binary:Xlsx"/> 
-    
-	<!-- archive sniffers (sample line # 1273, some without sniffers) --> 
-    <sniffer type="galaxy.datatypes.binary:CompressedZipArchive"/> 
-    <sniffer type="galaxy.datatypes.binary:CompressedArchive"/> 
-    <sniffer type="galaxy.datatypes.data:Directory"/> 
     
 	<!-- no base sniffers -->
   </sniffers>
