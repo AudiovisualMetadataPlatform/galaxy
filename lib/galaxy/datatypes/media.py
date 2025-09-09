@@ -126,7 +126,33 @@ def _get_file_format_from_magic_number(filename: str, file_ext: str):
         return string_check or hex_check
 
 
-class Audio(Binary):
+# AMP customization
+class AudioVideo(Binary):
+    """Class describing an audio/video binary file"""
+    file_ext = "av"
+    label = "Audio/Video"
+
+    def sniff(self, filename):
+        mt = subprocess.check_output(['file', '--mime-type', filename])
+        return  mt.find("audio/")>=0 or mt.find("video/")>=0
+    
+    def set_peek(self, dataset, is_multi_byte=False):
+        if not dataset.dataset.purged:
+            dataset.peek = self.label
+            dataset.blurb = nice_size(dataset.get_size())
+        else:
+            dataset.peek = 'file does not exist'
+            dataset.blurb = 'file purged from disk'
+
+    def display_peek(self, dataset):
+        try:
+            return dataset.peek
+        except Exception:
+            return self.label + " file (%s)" % (nice_size(dataset.get_size()))
+        
+
+# AMP customization        
+class Audio(AudioVideo):
     MetadataElement(
         name="duration",
         default=0,
@@ -178,9 +204,19 @@ class Audio(Binary):
                 stream["sample_rate"] for stream in streams if stream["codec_type"] == "audio"
             ]
             dataset.metadata.audio_streams = len([stream for stream in streams if stream["codec_type"] == "audio"])
+            
+    # AMP customization START  
+    file_ext = "audio"
+    label = "Audio"
+ 
+    def sniff(self, filename):
+        mt = subprocess.check_output(['file', '--mime-type', filename])
+        return  mt.find("audio/")>=0         
+    # AMP customization END
+    
 
-
-class Video(Binary):
+# AMP customization
+class Video(AudioVideo):
     MetadataElement(
         name="resolution_w",
         default=0,
@@ -269,6 +305,15 @@ class Video(Binary):
 
             dataset.metadata.audio_streams = len([stream for stream in streams if stream["codec_type"] == "audio"])
             dataset.metadata.video_streams = len([stream for stream in streams if stream["codec_type"] == "video"])
+
+    # AMP customization START
+    file_ext = "video"
+    label = "Video"
+ 
+    def sniff(self, filename):
+        mt = subprocess.check_output(['file', '--mime-type', filename])
+        return  mt.find("video/")>=0
+    # AMP customization END
 
 
 class Mkv(Video):
