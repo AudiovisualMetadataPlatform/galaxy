@@ -173,7 +173,8 @@ def new_clean_env():
     Returns a minimal environment to use when invoking a subprocess
     """
     env = {}
-    for k in ("HOME", "LC_CTYPE", "PATH", "TMPDIR"):
+    # AMP customization: include AMP required environment variables to pass on to subprocess running tool commands
+    for k in ("HOME", "LC_CTYPE", "PATH", "TMPDIR", "AMP_ROOT", "AMP_DATA_ROOT"):
         if k in os.environ:
             env[k] = os.environ[k]
     if "TMPDIR" not in env:

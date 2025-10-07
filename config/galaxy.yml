@@ -62,6 +62,16 @@ galaxy:
   # AMP customization: disallow self created accounts for security reasons
   allow_user_creation: false 
         
+  # Allow admins to paste filesystem paths during upload. For libraries
+  # this adds an option to the admin library upload tool allowing admins
+  # to paste filesystem paths to files and directories in a box, and
+  # these paths will be added to a library.  For history uploads, this
+  # allows pasting in paths as URIs. (i.e. prefixed with file://). Set
+  # to true to enable.  Please note the security implication that this
+  # will give Galaxy Admins access to anything your Galaxy user has
+  # access to.
+  allow_path_paste: true
+        
   # Administrative users - set this to a comma-separated list of valid
   # Galaxy users (email addresses).  These users will have access to the
   # Admin section of the server, and will have access to create users,
