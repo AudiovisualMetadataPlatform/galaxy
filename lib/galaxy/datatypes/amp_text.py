@@ -18,7 +18,7 @@ class AmpJson(Json):
     label = "AMP JSON"
 
     def set_peek(self, dataset: DatasetProtocol, **kwd) -> None:
-        super().set_peek(dataset, kwd);
+        super().set_peek(dataset);
         if not dataset.dataset.purged:
             dataset.blurb = self.label
 

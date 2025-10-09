@@ -140,7 +140,7 @@ class AudioVideo(Binary):
             return False
     
     def set_peek(self, dataset: DatasetProtocol, **kwd) -> None:
-        super().set_peek(dataset, kwd);
+        super().set_peek(dataset);
         if not dataset.dataset.purged:
             dataset.peek = self.label
 
