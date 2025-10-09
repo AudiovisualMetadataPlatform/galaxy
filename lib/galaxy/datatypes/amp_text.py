@@ -17,26 +17,23 @@ log = logging.getLogger(__name__)
 class AmpJson(Json):
     label = "AMP JSON"
 
-    def set_peek(self, dataset, is_multi_byte=False):
+    def set_peek(self, dataset: DatasetProtocol, **kwd) -> None:
+        super().set_peek(dataset);
         if not dataset.dataset.purged:
-            dataset.peek = get_file_peek(dataset.file_name)
             dataset.blurb = self.label
-        else:
-            dataset.peek = 'file does not exist'
-            dataset.blurb = 'file purged from disc'
 
-    def display_peek(self, dataset):
+    def display_peek(self, dataset: DatasetProtocol) -> str:
         try:
             return dataset.peek
         except Exception:
-            return self.label + " file (%s)" % (nice_size(dataset.get_size()))
+            return f"{self.label} file ({nice_size(dataset.get_size())})"
 
 @build_sniff_from_prefix
 class Segment(AmpJson):
     file_ext = "segment"
     label = "AMP Segment JSON"
 
-    def _looks_like_json(self, file_prefix):
+    def _looks_like_json(self, file_prefix: FilePrefix) -> bool:
         # Pattern used by SequenceSplitLocations
         if file_prefix.file_size < 50000 and not file_prefix.truncated:
             # If the file is small enough - don't guess just check.
@@ -44,13 +41,14 @@ class Segment(AmpJson):
                 # exclude simple types, must set format in these cases
                 item = json.loads(file_prefix.contents_header)
                 assert isinstance(item, (list, dict))
-                if 'segments' in item and 'media' in item:
-                    return True
+                # must contain media and segments
+                return 'media' in item and 'segments' in item
             except Exception:
                 return False
         else:
-            start = file_prefix.string_io().read(100).strip()
-            if start:
+            # must start with JSON prefix and contain media + segments
+            start = file_prefix.string_io().read(500).strip()
+            if start and (start.startswith("[") or start.startswith("{")):
                 return "\"media\":" in start and "\"segments\":" in start
             return False
        
@@ -59,7 +57,7 @@ class Transcript(AmpJson):
     file_ext = "transcript"
     label = "AMP Transcript JSON"
 
-    def _looks_like_json(self, file_prefix):
+    def _looks_like_json(self, file_prefix: FilePrefix) -> bool:
         # Pattern used by SequenceSplitLocations
         if file_prefix.file_size < 50000 and not file_prefix.truncated:
             # If the file is small enough - don't guess just check.
@@ -67,18 +65,17 @@ class Transcript(AmpJson):
                 # exclude simple types, must set format in these cases
                 item = json.loads(file_prefix.contents_header)
                 assert isinstance(item, (list, dict))
-                if not ('results' in item and 'media' in item):
+                # must contain media and results.transcript
+                if not ('media' in item and 'results' in item):
                     return False                
                 results = item['results']
-                if 'transcript' in results:
-                    return True
-                else:
-                    return False
+                return 'transcript' in results
             except Exception:
                 return False
         else:
+            # must start with JSON prefix and contain media + results + transcript
             start = file_prefix.string_io().read(500).strip()
-            if start:
+            if start and (start.startswith("[") or start.startswith("{")):
                 return "\"media\":" in start and "\"results\":" in start and "\"transcript\":" in start 
             return False
        
@@ -87,7 +84,7 @@ class Ner(AmpJson):
     file_ext = "ner"
     label = "AMP NER JSON"
     
-    def _looks_like_json(self, file_prefix):
+    def _looks_like_json(self, file_prefix: FilePrefix) -> bool:
         # Pattern used by SequenceSplitLocations
         if file_prefix.file_size < 50000 and not file_prefix.truncated:
             # If the file is small enough - don't guess just check.
@@ -95,15 +92,14 @@ class Ner(AmpJson):
                 # exclude simple types, must set format in these cases
                 item = json.loads(file_prefix.contents_header)
                 assert isinstance(item, (list, dict))
-                if 'entities' in item and 'media' in item:
-                    return True
-                else:
-                    return False
+                # must contain media and entities
+                return 'media' in item and 'entities' in item
             except Exception:
                 return False
         else:
+            # must starts with JSON prefix and contain media + entities
             start = file_prefix.string_io().read(500).strip()
-            if start:
+            if start and (start.startswith("[") or start.startswith("{")):
                 return "\"media\":" in start and "\"entities\":" in start
             return False
  
@@ -112,7 +108,7 @@ class Shot(AmpJson):
     file_ext = "shot"
     label = "AMP Shot JSON"
 
-    def _looks_like_json(self, file_prefix):
+    def _looks_like_json(self, file_prefix: FilePrefix) -> bool:
         # Pattern used by SequenceSplitLocations
         if file_prefix.file_size < 50000 and not file_prefix.truncated:
             # If the file is small enough - don't guess just check.
@@ -120,15 +116,14 @@ class Shot(AmpJson):
                 # exclude simple types, must set format in these cases
                 item = json.loads(file_prefix.contents_header)
                 assert isinstance(item, (list, dict))
-                if 'shots' in item and 'media' in item:
-                    return True
-                else:
-                    return False
+                # must contain media and shots
+                return 'media' in item and 'shots' in item
             except Exception:
                 return False
         else:
+            # must start with JSON prefix and contain media + shots
             start = file_prefix.string_io().read(500).strip()
-            if start:
+            if start and (start.startswith("[") or start.startswith("{")):
                 return "\"media\":" in start and "\"shots\":" in start
             return False
            
@@ -137,7 +132,7 @@ class VideoOcr(AmpJson):
     file_ext = "vocr"
     label = "AMP Video OCR JSON"
 
-    def _looks_like_json(self, file_prefix):
+    def _looks_like_json(self, file_prefix: FilePrefix) -> bool:
         # Pattern used by SequenceSplitLocations
         if file_prefix.file_size < 50000 and not file_prefix.truncated:
             # If the file is small enough - don't guess just check.
@@ -145,22 +140,22 @@ class VideoOcr(AmpJson):
                 # exclude simple types, must set format in these cases
                 item = json.loads(file_prefix.contents_header)
                 assert isinstance(item, (list, dict))
-                if not ('frames' in item and 'media' in item):
+                # must contain media + frames
+                if not ('media' in item and 'frames' in item):
                     return False                
+                # must contain frames[0].objects[0].text
                 frames = item['frames']
                 if len(frames) > 0 and 'objects' in frames[0]:
                     objects = frames[0]['objects']
-                    if len(objects) > 0 and 'text' in objects[0]:
-                        return True
-                    else:
-                        return False
+                    return len(objects) > 0 and 'text' in objects[0]
                 else:
                     return False
             except Exception:
                 return False
         else:
+            # must start with JSON prefix and contain media + frames + objects + text
             start = file_prefix.string_io().read(500).strip()
-            if start:
+            if start and (start.startswith("[") or start.startswith("{")):
                 return "\"media\":" in start and "\"frames\":" in start and "\"objects\":" in start and "\"text\":" in start
             return False    
 
@@ -172,7 +167,7 @@ class Face(AmpJson):
     file_ext = "face"
     label = "AMP Face JSON"
 
-    def _looks_like_json(self, file_prefix):
+    def _looks_like_json(self, file_prefix: FilePrefix) -> bool:
         # Pattern used by SequenceSplitLocations
         if file_prefix.file_size < 50000 and not file_prefix.truncated:
             # If the file is small enough - don't guess just check.
@@ -180,22 +175,22 @@ class Face(AmpJson):
                 # exclude simple types, must set format in these cases
                 item = json.loads(file_prefix.contents_header)
                 assert isinstance(item, (list, dict))
-                if not ('frames' in item and 'media' in item):
+                # must contain media and frames
+                if not ('media' in item and 'frames' in item):
                     return False                
+                # must contain frames[0].objects[0].name
                 frames = item['frames']
                 if len(frames) > 0 and 'objects' in frames[0]:
                     objects = frames[0]['objects']
-                    if len(objects) > 0 and 'name' in objects[0]:
-                        return True
-                    else:
-                        return False
+                    return len(objects) > 0 and 'name' in objects[0]
                 else:
                     return False
             except Exception:
                 return False
         else:
+            # must start with JSON prefix and contain media + frames + objects + name
             start = file_prefix.string_io().read(500).strip()
-            if start:
+            if start and (start.startswith("[") or start.startswith("{")):
                 return "\"media\":" in start and "\"frames\":" in start and "\"objects\":" in start and "\"name\":" in start
             return False
            
@@ -204,19 +199,13 @@ class Vtt(Text):
     file_ext = "vtt"
     label = "Web VTT"
 
-    def set_peek(self, dataset, is_multi_byte=False):
-        if not dataset.dataset.purged:
-            dataset.peek = self.label
-            dataset.blurb = nice_size(dataset.get_size())
-        else:
-            dataset.peek = 'file does not exist'
-            dataset.blurb = 'file purged from disk'
-
-    def get_mime(self):
+    # inherit super (Text) set_peek, no need to overwrite
+    
+    def get_mime(self) -> str:
         """Returns the mime type of the datatype"""
         return 'text/vtt'
 
-    def sniff_prefix(self, file_prefix):
+    def sniff_prefix(self, file_prefix: FilePrefix) -> bool:
         # WEBVTT is the header of a WebVTT file. 
         # We assume that no other kind of text files use this as the first line content; otherwise further checking  
         # on following lines can be done to detect if they match the regexp patterns for timestamp & speaker diarization.
@@ -233,8 +222,9 @@ class Vtt(Text):
             log.exception(e)
             return False              
 
-    def display_peek(self, dataset):
+    def display_peek(self, dataset: DatasetProtocol) -> str:
         try:
             return dataset.peek
         except Exception:
-            return self.label + " file (%s)" % (nice_size(dataset.get_size()))
+            return f"{self.label} ({nice_size(dataset.get_size())})"            
+
