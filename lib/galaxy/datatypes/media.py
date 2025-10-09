@@ -132,24 +132,23 @@ class AudioVideo(Binary):
     file_ext = "av"
     label = "Audio/Video"
 
-    def sniff(self, filename):
-        mt = subprocess.check_output(['file', '--mime-type', filename])
-        return  mt.find("audio/")>=0 or mt.find("video/")>=0
+    def sniff(self, filename: str) -> bool:
+        try:
+            mt = subprocess.check_output(['file', '--mime-type', filename])
+            return mt.find("audio/")>=0 or mt.find("video/")>=0
+        except Exception:
+            return False
     
-    def set_peek(self, dataset, is_multi_byte=False):
+    def set_peek(self, dataset: DatasetProtocol, **kwd) -> None:
+        super().set_peek(dataset, kwd);
         if not dataset.dataset.purged:
             dataset.peek = self.label
-            dataset.blurb = nice_size(dataset.get_size())
-        else:
-            dataset.peek = 'file does not exist'
-            dataset.blurb = 'file purged from disk'
 
-    def display_peek(self, dataset):
+    def display_peek(self, dataset: DatasetProtocol) -> str:
         try:
             return dataset.peek
         except Exception:
-            return self.label + " file (%s)" % (nice_size(dataset.get_size()))
-        
+            return f"{self.label} file size ({nice_size(dataset.get_size())})"        
 
 # AMP customization        
 class Audio(AudioVideo):
@@ -209,9 +208,12 @@ class Audio(AudioVideo):
     file_ext = "audio"
     label = "Audio"
  
-    def sniff(self, filename):
-        mt = subprocess.check_output(['file', '--mime-type', filename])
-        return  mt.find("audio/")>=0         
+    def sniff(self, filename: str) -> bool:
+        try:
+            mt = subprocess.check_output(['file', '--mime-type', filename])
+            return mt.find("audio/")>=0  
+        except Exception:
+            return False      
     # AMP customization END
     
 
@@ -310,9 +312,12 @@ class Video(AudioVideo):
     file_ext = "video"
     label = "Video"
  
-    def sniff(self, filename):
-        mt = subprocess.check_output(['file', '--mime-type', filename])
-        return  mt.find("video/")>=0
+    def sniff(self, filename: str) -> bool:
+        try:
+            mt = subprocess.check_output(['file', '--mime-type', filename])
+            return mt.find("video/")>=0  
+        except Exception:
+            return False      
     # AMP customization END
 
 
