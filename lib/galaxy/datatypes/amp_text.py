@@ -3,7 +3,8 @@ import logging
 
 from galaxy.datatypes.data import get_file_peek, Text
 from galaxy.datatypes.text import Json
-from galaxy.datatypes.sniff import build_sniff_from_prefix
+from galaxy.datatypes.sniff import build_sniff_from_prefix, FilePrefix
+from galaxy.datatypes.protocols import DatasetProtocol
 from galaxy.util import nice_size
 
 log = logging.getLogger(__name__)
@@ -222,9 +223,15 @@ class Vtt(Text):
             log.exception(e)
             return False              
 
+    def set_peek(self, dataset: DatasetProtocol, **kwd) -> None:
+        super().set_peek(dataset);
+        if not dataset.dataset.purged:
+            dataset.blurb = self.label
+
     def display_peek(self, dataset: DatasetProtocol) -> str:
         try:
             return dataset.peek
         except Exception:
-            return f"{self.label} ({nice_size(dataset.get_size())})"            
+            return f"{self.label} file ({nice_size(dataset.get_size())})"
+        
 
