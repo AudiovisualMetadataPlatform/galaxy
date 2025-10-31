@@ -32,14 +32,17 @@ gravity:
 
     # The socket to bind. A string of the form: ``HOST``, ``HOST:PORT``, ``unix:PATH``, ``fd://FD``. An IP is a valid HOST.
     # AMP customization: placeholder to be overwritten by deploy scripts.
-    bind: '0.0.0.0:8130'
+    bind: '0.0.0.0:8127'
+    # below must be set if galaxy is served under a path other than /
+    # bind: /srv/galaxy/var/gunicorn.sock
+    # extra_args: '--forwarded-allow-ips="*"'
     
 galaxy:
 
   # URL prefix for Galaxy application. If Galaxy should be served under
   # a prefix set this to the desired prefix value.
-  # AMP customization: prefix used by proxy for workflow editor
-  galaxy_url_prefix: /rest/
+  # AMP customization: prefix for galaxy URL path if not /; used by proxy for workflow editor
+  # galaxy_url_prefix: /rest/
 
   # Monitor the tools and tool directories listed in any tool config
   # file specified in tool_config_file option.  If changes are found,

@@ -1,5 +1,5 @@
 """
-Job runner plugin for executing jobs on the local system via the command line.
+Job runner plugin for executing Light-Weight-Long_Waiting jobs on the local system via the command line.
 """
 import datetime
 import errno
@@ -43,8 +43,8 @@ class LwlwRunner(AsynchronousJobRunner):
     """
     runner_name = "LwlwRunner"
 
-    def __init__(self, app, nworkers):
-        super(LwlwRunner, self).__init__(app, nworkers)
+    def __init__(self, app, nworkers, **kwargs):
+        super().__init__(app, nworkers, **kwargs)
         self._init_monitor_thread()
         self._init_worker_threads()
         log.info("initializing lwlw job runner")
@@ -57,37 +57,37 @@ class LwlwRunner(AsynchronousJobRunner):
         self.monitor_queue.put(ajs)
 
     def check_watched_items(self):
-            """
-            This method is responsible for iterating over self.watched and handling
-            state changes and updating self.watched with a new list of watched job
-            states. Subclasses can opt to override this directly (as older job runners will
-            initially) or just override check_watched_item and allow the list processing to
-            reuse the logic here.
-            """
+        """
+        This method is responsible for iterating over self.watched and handling
+        state changes and updating self.watched with a new list of watched job
+        states. Subclasses can opt to override this directly (as older job runners will
+        initially) or just override check_watched_item and allow the list processing to
+        reuse the logic here.
+        """
 #             log.debug("Inside lwlw.py check_watched_items")
-            new_watched = []
-            for async_job_state in self.watched:
-                # AMPPD - don't fail the whole thing if we have a single error. 
+        new_watched = []
+        for async_job_state in self.watched:
+            # AMPPD - don't fail the whole thing if we have a single error. 
+            try:
+                new_async_job_state = self.check_watched_item(async_job_state)
+                if new_async_job_state:
+                    new_watched.append(new_async_job_state)
+            except Exception as e:
                 try:
-                    new_async_job_state = self.check_watched_item(async_job_state)
-                    if new_async_job_state:
-                        new_watched.append(new_async_job_state)
-                except Exception as e:
-                    try:
-                        log.exception('AMPPD: Unhandled exception checking watched item')
-                        log.debug(str(e))
-                        log.debug("Async Job Id: " + str(async_job_state.job_wrapper.job_id))
-                        if async_job_state is not None:
-                            log.debug("*** Async Job State: ****")
-                            log.debug(repr(async_job_state))
-                            log.debug("*** End Async Job State: ****")
-                            self._fail_job_local(async_job_state.job_wrapper, "Exception checking LWLW watched item")
-                        else:
-                            log.debug("Job state was empty")
-                    except Exception as ex:
-                        log.debug("Could not print job details");
-                        log.debug(str(ex))
-            self.watched = new_watched
+                    log.exception('AMPPD: Unhandled exception checking watched item')
+                    log.debug(str(e))
+                    log.debug("Async Job Id: " + str(async_job_state.job_wrapper.job_id))
+                    if async_job_state is not None:
+                        log.debug("*** Async Job State: ****")
+                        log.debug(repr(async_job_state))
+                        log.debug("*** End Async Job State: ****")
+                        self._fail_job_local(async_job_state.job_wrapper, "Exception checking LWLW watched item")
+                    else:
+                        log.debug("Job state was empty")
+                except Exception as ex:
+                    log.debug("Could not print job details");
+                    log.debug(str(ex))
+        self.watched = new_watched
 
     # This is the main logic to determine what to do with thread.  Should it re-queue, be killed, or complete
     def check_watched_item(self, job_state):
@@ -101,8 +101,8 @@ class LwlwRunner(AsynchronousJobRunner):
 
         exit_code = self._run_job(job_state.job_wrapper)
         log.debug("Lwlw Exit Code: " + str(exit_code))
-        # This is a success code: The LWLW is complete
         
+        # This is a success code: The LWLW is complete        
         if exit_code==0:
             job_state.running = False
             job_state.job_wrapper.change_state(model.Job.states.OK)
@@ -118,7 +118,7 @@ class LwlwRunner(AsynchronousJobRunner):
             self.mark_as_finished(job_state)
             return None
         # This LWLW job is not complete, try again later
-        # Note: using exit code 255 instead of 1 to avoid potential conflicts where tool scripts use 1  to represent error
+        # Note: using exit code 255 instead of 1 to avoid potential conflicts where tool scripts use 1 to represent error
         elif exit_code==255:
             job_state.running = False
             try:
@@ -126,7 +126,7 @@ class LwlwRunner(AsynchronousJobRunner):
                 self.create_log_file(job_state, exit_code)
                 job_state.job_wrapper.change_state(model.Job.states.QUEUED)
             except Exception as e:
-                log.debug("Job wrapper finish method failed with exit_code 1")
+                log.debug("Job wrapper finish method failed with exit_code 255")
                 log.debug(str(e))
                 # AMPPD: Disable this to stop jobs with bad logs from failing.  
                 #log.exception("Job wrapper finish method failed")
@@ -174,7 +174,7 @@ class LwlwRunner(AsynchronousJobRunner):
         try:
             pid = job_ext_output_metadata[0].job_runner_external_pid  # every JobExternalOutputMetadata has a pid set, we just need to take from one of them
             assert pid not in [None, '']
-        except Exception:
+        except Exception as e:
             # metadata internal or job not complete yet
             pid = job.get_job_runner_external_id()
         if pid in [None, '']:
@@ -190,7 +190,7 @@ class LwlwRunner(AsynchronousJobRunner):
         log.debug('stop_job(): %s: Terminating process group %d', job.id, pid)
         kill_pg(pid)
     
-    # Run job is a slightly modified version of run_job in runners/local.py - queue_job().  It builds a command line proc
+    # Run job is a slightly modified version of queue_job in runners/local.py - queue_job().  It builds a command line proc
     # to execute, reads the stdout and stderr, and returns the status
     def _run_job(self, job_wrapper):
         # Removed: no need to prepare local job here
@@ -198,7 +198,7 @@ class LwlwRunner(AsynchronousJobRunner):
         exit_code = 0
 
         # command line has been added to the wrapper by prepare_job()
-        command_line, exit_code_path = self.__command_line(job_wrapper)
+        command_line, exit_code_path = self._command_line(job_wrapper)
         job_id = job_wrapper.get_id_tag()
 
         try:
@@ -232,18 +232,20 @@ class LwlwRunner(AsynchronousJobRunner):
 
                 # Removed: terminated check
 
-                # Reap the process and get the exit code.
+                # wait for the job subprocess and get the exit code.
                 exit_code = proc.wait()
+                log.debug(f"Exit code from job subprocess is {exit_code}")
                             
             # Begin change: Handle exception here   
-            except Exception:
-                log.warning("Failed to read exit code from process")
+            except Exception as e:
+                log.exception("Exception while waiting for exit code from job subprocess", e)
             # End change
 
             try:
                 exit_code = int(open(exit_code_path, 'r').read())      
-            except Exception:
-                log.warning("Failed to read exit code from path %s" % exit_code_path)
+                log.debug(f"Exit code from path {exit_code_path} is {exit_code}")
+            except Exception as e:
+                log.exception("Exception while reading exit code from path %s" % exit_code_path, e)
                 # Remove "pass"
                 
             if proc.terminated_by_shutdown:
@@ -264,6 +266,7 @@ class LwlwRunner(AsynchronousJobRunner):
             return -1
             # End change
         # Begin change: Return exit code
+        log.debug(f"_run_job: Returning exit_code {exit_code}")
         return exit_code
         # End change
 
@@ -287,7 +290,7 @@ class LwlwRunner(AsynchronousJobRunner):
         self.fail_job(job_state, exception=True)
 
     # Copied from runners/local.py with modifications
-    def __command_line(self, job_wrapper):
+    def _command_line(self, job_wrapper):
         """
         """
         command_line = job_wrapper.runner_command_line
@@ -308,6 +311,6 @@ class LwlwRunner(AsynchronousJobRunner):
             'shell': job_wrapper.shell,
         }
         job_file_contents = self.get_job_file(job_wrapper, **job_script_props)
-        self.write_executable_script(job_file, job_file_contents)
+        self.write_executable_script(job_file, job_file_contents, job_io=job_wrapper.job_io)
         return job_file, exit_code_path
     
