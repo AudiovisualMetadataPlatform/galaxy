@@ -45,8 +45,8 @@ class LwlwRunner(AsynchronousJobRunner):
 
     def __init__(self, app, nworkers, **kwargs):
         super().__init__(app, nworkers, **kwargs)
-        self._init_monitor_thread()
-        self._init_worker_threads()
+        # self._init_monitor_thread()
+        # self._init_worker_threads()
         log.info("initializing lwlw job runner")
 
     def queue_job(self, job_wrapper):
