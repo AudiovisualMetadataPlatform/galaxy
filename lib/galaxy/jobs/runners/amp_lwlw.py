@@ -45,6 +45,10 @@ class LwlwRunner(AsynchronousJobRunner):
 
     def __init__(self, app, nworkers, **kwargs):
         super().__init__(app, nworkers, **kwargs)
+        # Note: no need to call below inits as this is done in super runner (BaseJobRunner).
+        # Calling them agin here would cause extra monitor/worker threads to be created
+        # and introduce racing condition on the watched queue, which could cause job to fail  in one monitor
+        # after it is completed by the other monitor thread.
         # self._init_monitor_thread()
         # self._init_worker_threads()
         log.info("initializing lwlw job runner")
