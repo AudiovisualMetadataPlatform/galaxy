@@ -12,7 +12,6 @@
         <destination id="lwlw-container" runner="lwlw"/>
     </destinations>
     <tools>
-        <tool id="hmgm_sample" destination="lwlw-container"/>
         <tool id="hmgm_transcript" destination="lwlw-container"/>
         <tool id="hmgm_ner" destination="lwlw-container"/>
         <tool id="hmgm_segmentation" destination="lwlw-container"/>
