@@ -460,7 +460,6 @@ class Request(webob.Request):
 
     @lazy_property
     def path(self):
-        log.debug(f'base.Request.path: {self.environ.get("SCRIPT_NAME", "")}, {self.environ["PATH_INFO"]')
         return self.environ.get("SCRIPT_NAME", "") + self.environ["PATH_INFO"]
 
     @lazy_property

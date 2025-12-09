@@ -747,7 +747,6 @@ class GalaxyWebTransaction(base.DefaultWebTransaction, context.ProvidesHistoryCo
             # redirect to root if the path is not in the list above
             if self.request.path not in allowed_paths:
                 login_url = url_for(controller="root", action="login", redirect=self.request.path)
-                log.debug(f"webapp._ensure_logged_in_user: redirect = {self.request.path}, login_url = {login_url}")
                 self.response.send_redirect(login_url)
 
     def __create_new_session(self, prev_galaxy_session=None, user_for_new_session=None):

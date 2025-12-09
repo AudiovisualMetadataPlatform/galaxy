@@ -186,7 +186,6 @@ class OIDCAuthnzBase(IdentityProvider):
         authorization_url, state = oauth2_session.authorization_url(base_authorize_url, **extra_params)
         trans.set_cookie(value=state, name=STATE_COOKIE_NAME)
         trans.set_cookie(value=nonce, name=NONCE_COOKIE_NAME)
-        log.debug("custos_authnz.authenticate: authorization_url = " + authorization_url)
         return authorization_url
 
     def _process_token(self, trans, oauth2_session, token, validate_nonce=True):

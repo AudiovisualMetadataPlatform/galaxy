@@ -92,7 +92,6 @@ def require_login(verb="perform this action", use_panels=False):
                 if query_string:
                     redirect_url = f"{redirect_url}?{query_string}"
                 href = url_for(controller="login", redirect=redirect_url)
-                log.debug(f"decorators.require_login: redirect_url = {redirect_url}, href = {href}")
                 return trans.show_error_message(
                     f'You must be <a target="galaxy_main" href="{href}" class="require-login-link">logged in</a> to {verb}.',
                     use_panels=use_panels,
