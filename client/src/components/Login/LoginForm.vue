@@ -108,6 +108,7 @@ async function submitLogin() {
             window.location.href = withPrefix("/user/external_ids?connect_external=true");
         } else if (response.data.redirect) {
             window.location.href = withPrefix(encodeURI(response.data.redirect));
+            console.log("LoginForm: location = " + window.location.href);
         } else {
             window.location.href = withPrefix("/");
         }

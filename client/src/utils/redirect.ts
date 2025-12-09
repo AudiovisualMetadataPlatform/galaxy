@@ -18,7 +18,10 @@ const slashCleanup = /(?<!:)(\/)+/g;
  */
 export function prependPath(path: string) {
     const root = getAppRoot();
-    return `${root}/${path}`.replace(slashCleanup, "/");
+    // in case path already contains root (with a prefix), don't prepend root again
+    const prefix = (root !== '/' && path.startsWith(root)) ? root : ''
+    console.log(`root = $(root), path = $(path), prefix = $(prefix)`)
+    return `${prefix}/${path}`.replace(slashCleanup, "/");
 }
 
 /**

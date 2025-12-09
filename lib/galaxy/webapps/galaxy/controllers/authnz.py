@@ -89,6 +89,7 @@ class OIDC(JSAppLauncher):
             trans.set_cookie(value="/", name=LOGIN_NEXT_COOKIE_NAME)
         success, message, redirect_uri = trans.app.authnz_manager.authenticate(provider, trans, idphint)
         if success:
+            log.debug("authnz.login: redirect_url = " + redirect_uri)
             return {"redirect_uri": redirect_uri}
         else:
             raise exceptions.AuthenticationFailed(message)
