@@ -42,7 +42,7 @@ galaxy:
   # URL prefix for Galaxy application. If Galaxy should be served under
   # a prefix set this to the desired prefix value.
   # AMP customization: prefix for galaxy URL path if not /; used by proxy for workflow editor
-  # galaxy_url_prefix: /rest/
+  galaxy_url_prefix: /rest/galaxy
 
   # Monitor the tools and tool directories listed in any tool config
   # file specified in tool_config_file option.  If changes are found,
@@ -91,7 +91,7 @@ galaxy:
   # command:   python -c 'from __future__ import print_function; import
   # time; print(time.time())' | md5sum | cut -f 1 -d ' '
   # AMP customization: placeholder to be overwritten by deploy scripts.
-  id_secret:        
+  id_secret:
        
   # The following default adds a header to web request responses that
   # will cause modern web browsers to not allow Galaxy to be embedded in
