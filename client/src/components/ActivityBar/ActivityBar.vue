@@ -145,7 +145,9 @@ function isProxyActivity(menuKey: string) {
  * Checks if an activity is one of the allowed for proxied workflow editor
  */
 function allowActivityItem(menuKey: string) {
-    return !proxied || proxied && proxyActivities.includes(menuKey);
+    const allow = !proxied || proxied && proxyActivities.includes(menuKey);
+    console.log("ActivityBar: proxied = " + proxied + ", allow = " + allow);
+    return allow;
     // return !this.proxied || this.proxied && proxyActivities.includes(menuKey);
 }
 
