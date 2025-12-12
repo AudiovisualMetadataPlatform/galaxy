@@ -43,7 +43,6 @@ const props = withDefaults(
         optionsSearchPlaceholder?: string;
         initialActivity?: string;
         hidePanel?: boolean;
-        // proxied?: boolean;
     }>(),
     {
         defaultActivities: undefined,
@@ -57,7 +56,6 @@ const props = withDefaults(
         optionsTooltip: "View additional activities",
         initialActivity: undefined,
         hidePanel: false,
-        // proxied: false,
     }
 );
 
@@ -148,7 +146,6 @@ function allowActivityItem(menuKey: string) {
     const allow = !proxied || proxied && proxyActivities.includes(menuKey);
     console.log("ActivityBar: proxied = " + proxied + ", allow = " + allow + ", menuKey = " + menuKey);
     return allow;
-    // return !this.proxied || this.proxied && proxyActivities.includes(menuKey);
 }
 
 // END AMP customization 

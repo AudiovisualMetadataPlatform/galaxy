@@ -309,10 +309,6 @@ export default {
             type: Array,
             required: true,
         },
-        // proxied: {
-        //     type: Boolean,
-        //     required: false,
-        // },
     },
     setup(props, { emit }) {
         const { datatypes, datatypesMapper, datatypesMapperLoading } = useDatatypesMapper();
