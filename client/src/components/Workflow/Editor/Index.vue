@@ -32,6 +32,7 @@
             :default-activities="workflowActivities"
             :special-activities="specialWorkflowActivities"
             activity-bar-id="workflow-editor"
+            :proxied="proxied"
             :show-admin="false"
             options-title="Options"
             options-heading="Workflow Options"
@@ -308,6 +309,10 @@ export default {
         dataManagers: {
             type: Array,
             required: true,
+        },
+        proxied: {
+            type: Boolean,
+            required: false,
         },
     },
     setup(props, { emit }) {

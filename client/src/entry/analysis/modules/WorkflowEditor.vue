@@ -3,6 +3,7 @@
         v-if="editorConfig"
         :key="editorReloadKey"
         :workflow-id="editorConfig.id"
+        :proxied="proxied"
         :data-managers="editorConfig.dataManagers"
         :initial-version="editorConfig.initialVersion"
         :module-sections="editorConfig.moduleSections"
@@ -27,6 +28,7 @@ export default {
             editorConfig: null,
             editorReloadKey: 0,
             skipNextReload: false,
+            proxied: false, // AMP customization
         };
     },
     watch: {
@@ -49,7 +51,10 @@ export default {
             this.storedWorkflowId = Query.get("id");
             this.workflowId = Query.get("workflow_id");
             this.version = Query.get("version");
+            this.proxied = Query.get("proxied"); // AMP customization
+            console.log("WorkflowEditor: proxied = " + this.proxied);          
             this.previousHistoryLength = window.history.length;
+
 
             const params = {};
 
