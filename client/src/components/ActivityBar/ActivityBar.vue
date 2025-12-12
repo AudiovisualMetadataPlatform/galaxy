@@ -132,7 +132,8 @@ const proxyActivities = [
     "workflow-editor-tools"
 ];
 
-const proxied = this.$route.query.hide_masthead
+const proxied = route.query.proxied;
+
 /**
  * Checks if an activity is one of the allowed for proxied workflow editor
  */
@@ -144,7 +145,8 @@ function isProxyActivity(menuKey: string) {
  * Checks if an activity is one of the allowed for proxied workflow editor
  */
 function allowActivityItem(menuKey: string) {
-    return !this.proxied || this.proxied && proxyActivities.includes(menuKey);
+    return !proxied || proxied && proxyActivities.includes(menuKey);
+    // return !this.proxied || this.proxied && proxyActivities.includes(menuKey);
 }
 
 // END AMP customization 
@@ -271,18 +273,16 @@ defineExpose({
                         :key="activityIndex"
                         :class="{ 'activity-can-drag': canDrag }">
                         <div v-if="activity.visible && (activity.anonymous || !isAnonymous)">
-                            <!-- AMP customization -->
                             <UploadItem
-                                v-if="activity.id === 'upload' && !proxied"
+                                v-if="activity.id === 'upload' && !proxied /* AMP customization */"
                                 :id="`${activity.id}`"
                                 :key="activity.id"
                                 :activity-bar-id="props.activityBarId"
                                 :icon="activity.icon"
                                 :title="activity.title"
                                 :tooltip="activity.tooltip" />
-                            <!-- AMP customization -->
                             <InteractiveItem
-                                v-else-if="activity.to && activity.id === 'interactivetools' && !proxied"
+                                v-else-if="activity.to && activity.id === 'interactivetools' && !proxied /* AMP customization */"
                                 :id="`${activity.id}`"
                                 :key="activity.id"
                                 :activity-bar-id="props.activityBarId"
@@ -292,9 +292,8 @@ defineExpose({
                                 :tooltip="activity.tooltip"
                                 :to="activity.to"
                                 @click="toggleSidebar(activity.id, activity.to)" />
-                            <!-- AMP customization -->
                             <ActivityItem
-                                v-else-if="activity.panel && allowActivityItem(activity.id)"
+                                v-else-if="activity.panel && allowActivityItem(activity.id) /* AMP customization */"
                                 :id="`${activity.id}`"
                                 :key="activity.id"
                                 :activity-bar-id="props.activityBarId"
@@ -304,9 +303,8 @@ defineExpose({
                                 :tooltip="activity.tooltip"
                                 :to="activity.to || ''"
                                 @click="toggleSidebar(activity.id, activity.to)" />
-                            <!-- AMP customization -->
                             <ActivityItem
-                                v-else-if="allowActivityItem(activity.id)"
+                                v-else-if="allowActivityItem(activity.id) /* AMP customization */"
                                 :id="`${activity.id}`"
                                 :key="activity.id"
                                 :activity-bar-id="props.activityBarId"
@@ -321,8 +319,7 @@ defineExpose({
                     </div>
                 </draggable>
             </b-nav>
-            <!-- AMP customization -->
-            <b-nav v-if="!isAnonymous && !proxied" vertical class="activity-footer flex-nowrap p-1">
+            <b-nav v-if="!isAnonymous && !proxied /* AMP customization */" vertical class="activity-footer flex-nowrap p-1">
                 <NotificationItem
                     v-if="isConfigLoaded && config.enable_notification_system"
                     id="notifications"

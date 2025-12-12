@@ -32,7 +32,6 @@
             :default-activities="workflowActivities"
             :special-activities="specialWorkflowActivities"
             activity-bar-id="workflow-editor"
-            :proxied="proxied"
             :show-admin="false"
             options-title="Options"
             options-heading="Workflow Options"
@@ -310,10 +309,10 @@ export default {
             type: Array,
             required: true,
         },
-        proxied: {
-            type: Boolean,
-            required: false,
-        },
+        // proxied: {
+        //     type: Boolean,
+        //     required: false,
+        // },
     },
     setup(props, { emit }) {
         const { datatypes, datatypesMapper, datatypesMapperLoading } = useDatatypesMapper();
