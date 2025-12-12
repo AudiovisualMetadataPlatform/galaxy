@@ -51,7 +51,6 @@ export default {
             this.version = Query.get("version");
             this.previousHistoryLength = window.history.length;
 
-
             const params = {};
 
             if (this.workflowId) {
