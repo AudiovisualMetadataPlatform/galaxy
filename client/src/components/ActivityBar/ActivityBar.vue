@@ -146,7 +146,7 @@ function isProxyActivity(menuKey: string) {
  */
 function allowActivityItem(menuKey: string) {
     const allow = !proxied || proxied && proxyActivities.includes(menuKey);
-    console.log("ActivityBar: proxied = " + proxied + ", allow = " + allow);
+    console.log("ActivityBar: proxied = " + proxied + ", allow = " + allow + ", menuKey = " + menuKey);
     return allow;
     // return !this.proxied || this.proxied && proxyActivities.includes(menuKey);
 }
