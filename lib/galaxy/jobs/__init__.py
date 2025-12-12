@@ -1052,7 +1052,7 @@ class MinimalJobWrapper(HasResourceParameters):
         # Wrapper holding the info required to restore and clean up from files used for setting metadata externally
         self.__external_output_metadata = None
         self.__has_tasks = bool(job.tasks)
-        
+
         self.__commands_in_new_shell = True
         self.__user_system_pwent = None
         self.__galaxy_system_pwent = None
