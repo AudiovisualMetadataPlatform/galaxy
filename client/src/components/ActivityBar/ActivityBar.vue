@@ -132,7 +132,7 @@ const proxyActivities = [
     "workflow-editor-tools"
 ];
 
-const proxied = route.query.proxied;
+const proxied = route.query.proxy;
 
 /**
  * Checks if an activity is one of the allowed for proxied workflow editor
