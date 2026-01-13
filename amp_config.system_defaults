@@ -13,26 +13,9 @@ galaxy:
     # section of the configuration file.  Generally there's no need to mess
     # with these.  Note:  that section of the yaml file isn't really yaml, so
     # arrays will be written as multiple key/value pairs.
-    uwsgi:
-        buffer-size: 16834
-        processes: 1
-        thunder-lock: false
-        enable-threads: true
-        threads: 4
-        offload-threads: 2
-        die-on-term: true
-        hook-master-start: 
-          - unix_signal:2 gracefully_kill_them_all
-          - unix_signal:15 gracefully_kill_them_all
-        master: false
-        pythonpath: lib
-        virtualenv: .venv
-        py-call-osafterfork: false
+    gravity:
         umask: '002'
-        static-map:
-          - /static=static
-          - /favicon.ico=static/favicon.ico
-        static-safe: client/src/assets
+
 
     # Generic galaxy settings -- copied as-is to the galaxy section
     # of the configuration.  You shouldn't need to mess with this.
@@ -41,7 +24,6 @@ galaxy:
         allow_path_paste: true
         require_login: true
         allow_user_creation: false
-        tool_config_file: tool_conf.xml
         x_frame_options:
         logging:
             version: 1
@@ -73,11 +55,6 @@ galaxy:
                     filename: logs/galaxy.log
                     filters: [stack]
                     formatter: stack
-                perflog:
-                    class: logging.FileHandler
-                    level: DEBUG
-                    filename: logs/performance.log
-
             root: 
                 handlers: [rootlog]
                 level: INFO
@@ -109,7 +86,4 @@ galaxy:
                     level: DEBUG
                     propagate: false
                     qualname: galaxy
-                performance:  
-                    handlers: [perflog]
-                    level: DEBUG
-                    propagate: false
+
