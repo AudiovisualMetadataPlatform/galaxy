@@ -11,9 +11,10 @@ galaxy:
     toolbox:
         Get Data:
             - data_source/upload.xml
+            - data_source/import.xml
             - mgms/supplement.xml
         Send Data:
-            - cloud/send.xml
+            - data_export/export_remote.xml
         Audio Extraction:
             - mgms/extract_audio.xml
             - mgms/remove_trailing_silence.xml

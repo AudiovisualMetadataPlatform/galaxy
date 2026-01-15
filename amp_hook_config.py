@@ -31,36 +31,45 @@ def main():
     amp_root = Path(os.environ['AMP_ROOT'])
 
 
-    # config/galaxy.yml isn't a real YAML file, so writing this is actually a manual dump
-    # for the uwsgi section, and a real yaml dump for the galaxy section.
     with open(amp_root / "galaxy/config/galaxy.yml", "w") as f:
         f.write("## Automatically generated file, do no edit\n")
-        f.write("uwsgi:\n")
+
         # the host/port for galaxy
         port = config['amp']['port'] + 2
         galaxy_port = port  # we'll need this value later.
         host = config['galaxy'].get('host', '')
-        f.write(f"  http: {host}:{port}\n")
-        
-        # the application mount settings        
-        f.write(f"  mount: {config['galaxy']['root']}=galaxy.webapps.galaxy.buildapp:uwsgi_app()\n")
-        f.write(f"  manage-script-name: true\n")
 
-        # do the uwsgi things
-        for k,v in config['galaxy']['uwsgi'].items():
-            if isinstance(v, bool):
-                f.write(f"  {k}: {'true' if v else 'false'}\n")                
-            elif isinstance(v, list):
-                for x in v:
-                    f.write(f"  {k}: {x}\n")
-            else:
-                f.write(f"  {k}: {v}\n")
+        # write gravity/gunicorn section
+        gravity = config['galaxy']['gravity']
+        gravity['gunicorn'] = {}
+        gravity['gunicorn']['bind'] = f"{host}:{port}\n"
+        f.write(yaml.safe_dump({'gravity': gravity}))
+        
+        # f.write("uwsgi:\n")
+        # f.write(f"  http: {host}:{port}\n")
+        #
+        # # the application mount settings        
+        # f.write(f"  mount: {config['galaxy']['root']}=galaxy.webapps.galaxy.buildapp:uwsgi_app()\n")
+        # f.write(f"  manage-script-name: true\n")
+        #
+        # # do the uwsgi things
+        # for k,v in config['galaxy']['uwsgi'].items():
+        #     if isinstance(v, bool):
+        #         f.write(f"  {k}: {'true' if v else 'false'}\n")                
+        #     elif isinstance(v, list):
+        #         for x in v:
+        #             f.write(f"  {k}: {x}\n")
+        #     else:
+        #         f.write(f"  {k}: {v}\n")
 
         # Now for the actual galaxy config stuff.  It is really
         # yaml, so we can just build the data structure in memory
         # and append it to the file.
         galaxy = config['galaxy']['galaxy']
 
+        # galaxy_url_prefix refers to the root path where galaxy web app is served
+        galaxy['galaxy_url_prefix'] = config['galaxy']['root']
+        
         # the admin user
         galaxy['admin_users']  = config['galaxy']['admin_username']
         
@@ -118,7 +127,7 @@ def main():
     # Now that there's a configuration (and python), let's create the DB (if needed)
     # and create the user.  
     logging.info("Creating galaxy database")
-    subprocess.run([str(amp_root / "galaxy/create_db.sh")], check=True)
+    subprocess.run([str(amp_root / "galaxy/manage_db.sh init")], check=True)
     # now that there's a database, we need to have an admin user created, with the
     # password specified.  Luckily, there's a script at 
     # https://gist.github.com/jmchilton/1979583 that was referenced in scripts/db_shell.py

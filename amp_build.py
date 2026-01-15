@@ -68,7 +68,7 @@ def main():
    
         # The tools directory has a bunch of tools we don't want to install
         # it's easier to list what we want to keep...
-        tools_to_keep = ('cloud/', 'data_source/upload.', 'data_source/import.')
+        tools_to_keep = ('data_export/export_remote.', 'data_source/upload.', 'data_source/import.')
         tools_dir = Path(builddir, "tools")        
         tool_dirs = set()
         for tfile in tools_dir.glob("**/*"):
@@ -110,7 +110,7 @@ def main():
                                              user_defaults=Path("amp_config.user_defaults")) 
                 logging.info(f"New package in {new_package}")    
             except Exception as e:
-                logging.error(f"Failed to build backage: {e}")
+                logging.error(f"Failed to build package: {e}")
                 exit(1)
 
 
