@@ -5,8 +5,8 @@ The AMP galaxy repository is forked from the [original Galaxy repository](https:
 The major changes to the original galaxy code base include but are not limited to:
 - extensions to data types related various media formats, as well as workflow outputs in AMP specific JSON formats.
 - extensions to JobRunner, mainly for the purpose of running LWLW (light-weight-long-waiting) jobs, such as Human MGMs and various clound-based MGMs.
-- extension to workflow search criteria
-- bug fixes
+- customization on Workflow Editor to hide UI components disallowed when embedded in AMP UI.
+- customization to add AMP required environment variables before running MGMs.
 
 Note that some of the above changes are general enough that they have been or could be contributed back to the original Galaxy project; yet some are pretty AMP specific and might not be applicable to other applications using Galaxy.
 
