@@ -8,6 +8,8 @@ The major changes to the original galaxy code base include but are not limited t
 - customization on Workflow Editor to hide UI components disallowed when embedded in AMP UI.
 - customization to add AMP required environment variables before running MGMs.
 
+AMP also replace most built-in Galaxy tools with MGMs, but those are in a separate repository and chnages are applied at build/run time, not to the galaxy repository.
+
 Note that some of the above changes are general enough that they have been or could be contributed back to the original Galaxy project; yet some are pretty AMP specific and might not be applicable to other applications using Galaxy.
 
 # Usage
