@@ -60,7 +60,7 @@ def main():
                 logging.debug(f"Removing directory {p}")
                 shutil.rmtree(p)
 
-        # we also want to clean up any runtime-popluated things
+        # we also want to clean up any runtime-populated things
         for n in ('logs', 'database'):
             logging.debug(f"Clearing runtime {n}")
             shutil.rmtree(builddir + "/" + n, ignore_errors=True)
