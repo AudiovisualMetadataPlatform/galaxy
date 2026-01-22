@@ -127,7 +127,7 @@ def main():
     # Now that there's a configuration (and python), let's create the DB (if needed)
     # and create the user.  
     logging.info("Creating galaxy database")
-    subprocess.run([str(amp_root / "galaxy/manage_db.sh init")], check=True)
+    subprocess.run([str(amp_root / "galaxy/manage_db.sh"), "init"], check=True)
     # now that there's a database, we need to have an admin user created, with the
     # password specified.  Luckily, there's a script at 
     # https://gist.github.com/jmchilton/1979583 that was referenced in scripts/db_shell.py
