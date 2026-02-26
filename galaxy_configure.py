@@ -59,6 +59,7 @@ def main():
         admin_user.set_password_cleartext('abcdef')
         sa_session.add(admin_user)
         sa_session.flush()
+        sa_session.commit()
 
     # update the password to match the config
     print("INFO: Resetting Email", file=sys.stderr)
@@ -67,6 +68,7 @@ def main():
     admin_user.set_password_cleartext(args.galaxy_admin_password)
     sa_session.add(admin_user)
     sa_session.flush()
+    sa_session.commit()
     
     # set up the API key
     admin_key = sa_session.query(APIKeys).filter(APIKeys.user_id==admin_user.id).first()
@@ -74,6 +76,7 @@ def main():
         print("INFO: Clearing old API Key", file=sys.stderr)
         sa_session.delete(admin_key)
         sa_session.flush()
+        sa_session.commit()
     api_key = hashlib.md5(bytes(args.galaxy_admin_user + args.galaxy_admin_password + str(time.time()), 'utf-8')).hexdigest()
     print(f"INFO: Creating a new API key -- {api_key}", file=sys.stderr)
     admin_key = APIKeys()
@@ -81,6 +84,7 @@ def main():
     admin_key.key = api_key
     sa_session.add(admin_key)
     sa_session.flush()
+    sa_session.commit()
 
     print("INFO: Generating the encoded user_id value", file=sys.stderr)
     security = IdEncodingHelper(id_secret=args.id_secret)
