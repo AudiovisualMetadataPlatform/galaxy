@@ -43,12 +43,12 @@ def main():
 
 def wait_for_port(port, host, timeout=600):
     """Blocks until the specified port is accepting connections."""
+    target_host = host if host and host != '0.0.0.0' else '127.0.0.1'
     logging.info(f"Galaxy processes signaled to start. Waiting for API on {host}:{port}...")
     start_time = time.time()
     while time.time() - start_time < timeout:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(2)
-            target_host = host if host and host != '0.0.0.0' else '127.0.0.1'
             if s.connect_ex((target_host, port)) == 0:
                 logging.info(f"SUCCESS: Galaxy is listening on port {port}!")
                 # Optional: extra 3-sec buffer for internal app init
